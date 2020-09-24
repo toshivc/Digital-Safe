@@ -13,6 +13,8 @@ int main(void)
     /* Replace with your application code */
     while (1) 
     {
+		
+		//hello test one two mic check one tawooo oonee tawwwooo
     }
 }
 
