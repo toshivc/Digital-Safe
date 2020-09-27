@@ -3,27 +3,29 @@ Digital_Safe_Project.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         00000082  00000000  00000000  00000054  2**1
+  0 .text         0000032a  00000000  00000000  00000054  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .data         00000000  00800060  00800060  000000d6  2**0
+  1 .data         00000000  00800060  00800060  0000037e  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  2 .comment      00000030  00000000  00000000  000000d6  2**0
+  2 .comment      00000030  00000000  00000000  0000037e  2**0
                   CONTENTS, READONLY
-  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000108  2**2
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  000003b0  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 00000020  00000000  00000000  00000144  2**0
+  4 .debug_aranges 00000080  00000000  00000000  000003ec  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   00000563  00000000  00000000  00000164  2**0
+  5 .debug_info   00000786  00000000  00000000  0000046c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 000004ec  00000000  00000000  000006c7  2**0
+  6 .debug_abbrev 00000634  00000000  00000000  00000bf2  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   0000014e  00000000  00000000  00000bb3  2**0
+  7 .debug_line   000004f0  00000000  00000000  00001226  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000024  00000000  00000000  00000d04  2**2
+  8 .debug_frame  0000011c  00000000  00000000  00001718  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    000002ec  00000000  00000000  00000d28  2**0
+  9 .debug_str    00000382  00000000  00000000  00001834  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_ranges 00000010  00000000  00000000  00001014  2**0
+ 10 .debug_loc    000001d1  00000000  00000000  00001bb6  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_ranges 00000050  00000000  00000000  00001d87  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -72,23 +74,525 @@ Disassembly of section .text:
   6a:	a0 36       	cpi	r26, 0x60	; 96
   6c:	b2 07       	cpc	r27, r18
   6e:	e1 f7       	brne	.-8      	; 0x68 <.do_clear_bss_loop>
-  70:	0e 94 3e 00 	call	0x7c	; 0x7c <main>
-  74:	0c 94 3f 00 	jmp	0x7e	; 0x7e <_exit>
+  70:	0e 94 78 01 	call	0x2f0	; 0x2f0 <main>
+  74:	0c 94 93 01 	jmp	0x326	; 0x326 <_exit>
 
 00000078 <__bad_interrupt>:
   78:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
-0000007c <main>:
+0000007c <initTimers>:
+
+// Start functions
+//****************************************************************************************
+//Initialise Timers
+void initTimers(void)
+{
+  7c:	cf 93       	push	r28
+  7e:	df 93       	push	r29
+  80:	cd b7       	in	r28, 0x3d	; 61
+  82:	de b7       	in	r29, 0x3e	; 62
+	//set timer counter to 0
+	TCNT0 = 0x00;
+  84:	82 e5       	ldi	r24, 0x52	; 82
+  86:	90 e0       	ldi	r25, 0x00	; 0
+  88:	fc 01       	movw	r30, r24
+  8a:	10 82       	st	Z, r1
+	//set clock prescaler to divide by 1024
+	TCCR0 |= (1<<CS00) | (0<<CS01) | (1<<CS02);
+  8c:	83 e5       	ldi	r24, 0x53	; 83
+  8e:	90 e0       	ldi	r25, 0x00	; 0
+  90:	23 e5       	ldi	r18, 0x53	; 83
+  92:	30 e0       	ldi	r19, 0x00	; 0
+  94:	f9 01       	movw	r30, r18
+  96:	20 81       	ld	r18, Z
+  98:	25 60       	ori	r18, 0x05	; 5
+  9a:	fc 01       	movw	r30, r24
+  9c:	20 83       	st	Z, r18
+}
+  9e:	00 00       	nop
+  a0:	df 91       	pop	r29
+  a2:	cf 91       	pop	r28
+  a4:	08 95       	ret
+
+000000a6 <delay>:
+//****************************************************************************************
+
+//****************************************************************************************
+//Timer with minimum time of 0.01 seconds
+void delay(uint16_t delayTime)
+{
+  a6:	cf 93       	push	r28
+  a8:	df 93       	push	r29
+  aa:	00 d0       	rcall	.+0      	; 0xac <delay+0x6>
+  ac:	00 d0       	rcall	.+0      	; 0xae <delay+0x8>
+  ae:	cd b7       	in	r28, 0x3d	; 61
+  b0:	de b7       	in	r29, 0x3e	; 62
+  b2:	9c 83       	std	Y+4, r25	; 0x04
+  b4:	8b 83       	std	Y+3, r24	; 0x03
+	//12MHz divided by 1024 is 11.718KHz, or clock time of 85.3micro seconds
+	//multiplied by 118 gives 0.010069 seconds
+	
+	TCNT0 = 0x00;		//reset timer to 0
+  b6:	82 e5       	ldi	r24, 0x52	; 82
+  b8:	90 e0       	ldi	r25, 0x00	; 0
+  ba:	fc 01       	movw	r30, r24
+  bc:	10 82       	st	Z, r1
+	OCR0 = 118;			//set compare register 
+  be:	8c e5       	ldi	r24, 0x5C	; 92
+  c0:	90 e0       	ldi	r25, 0x00	; 0
+  c2:	26 e7       	ldi	r18, 0x76	; 118
+  c4:	fc 01       	movw	r30, r24
+  c6:	20 83       	st	Z, r18
+	TIFR = (1<<OCF0);	//reset compare flag
+  c8:	88 e5       	ldi	r24, 0x58	; 88
+  ca:	90 e0       	ldi	r25, 0x00	; 0
+  cc:	22 e0       	ldi	r18, 0x02	; 2
+  ce:	fc 01       	movw	r30, r24
+  d0:	20 83       	st	Z, r18
+	
+	uint16_t overflowCounter = 0;
+  d2:	1a 82       	std	Y+2, r1	; 0x02
+  d4:	19 82       	std	Y+1, r1	; 0x01
+	
+	while (1)
+	{
+		while((TIFR & (1<<OCF0))==0); //while OCF0, overflow flag is 0
+  d6:	00 00       	nop
+  d8:	88 e5       	ldi	r24, 0x58	; 88
+  da:	90 e0       	ldi	r25, 0x00	; 0
+  dc:	fc 01       	movw	r30, r24
+  de:	80 81       	ld	r24, Z
+  e0:	88 2f       	mov	r24, r24
+  e2:	90 e0       	ldi	r25, 0x00	; 0
+  e4:	82 70       	andi	r24, 0x02	; 2
+  e6:	99 27       	eor	r25, r25
+  e8:	89 2b       	or	r24, r25
+  ea:	b1 f3       	breq	.-20     	; 0xd8 <delay+0x32>
+		TCNT0 = 0x00;		//reset timer to 0
+  ec:	82 e5       	ldi	r24, 0x52	; 82
+  ee:	90 e0       	ldi	r25, 0x00	; 0
+  f0:	fc 01       	movw	r30, r24
+  f2:	10 82       	st	Z, r1
+		TIFR = (1<<OCF0); //reset compare flag
+  f4:	88 e5       	ldi	r24, 0x58	; 88
+  f6:	90 e0       	ldi	r25, 0x00	; 0
+  f8:	22 e0       	ldi	r18, 0x02	; 2
+  fa:	fc 01       	movw	r30, r24
+  fc:	20 83       	st	Z, r18
+		overflowCounter++;
+  fe:	89 81       	ldd	r24, Y+1	; 0x01
+ 100:	9a 81       	ldd	r25, Y+2	; 0x02
+ 102:	01 96       	adiw	r24, 0x01	; 1
+ 104:	9a 83       	std	Y+2, r25	; 0x02
+ 106:	89 83       	std	Y+1, r24	; 0x01
+		if (overflowCounter >= delayTime)
+ 108:	29 81       	ldd	r18, Y+1	; 0x01
+ 10a:	3a 81       	ldd	r19, Y+2	; 0x02
+ 10c:	8b 81       	ldd	r24, Y+3	; 0x03
+ 10e:	9c 81       	ldd	r25, Y+4	; 0x04
+ 110:	28 17       	cp	r18, r24
+ 112:	39 07       	cpc	r19, r25
+ 114:	08 f4       	brcc	.+2      	; 0x118 <delay+0x72>
+		{
+			return;
+		}
+	}	
+ 116:	df cf       	rjmp	.-66     	; 0xd6 <delay+0x30>
+		TCNT0 = 0x00;		//reset timer to 0
+		TIFR = (1<<OCF0); //reset compare flag
+		overflowCounter++;
+		if (overflowCounter >= delayTime)
+		{
+			return;
+ 118:	00 00       	nop
+		}
+	}	
+}
+ 11a:	0f 90       	pop	r0
+ 11c:	0f 90       	pop	r0
+ 11e:	0f 90       	pop	r0
+ 120:	0f 90       	pop	r0
+ 122:	df 91       	pop	r29
+ 124:	cf 91       	pop	r28
+ 126:	08 95       	ret
+
+00000128 <initLEDs>:
+
+// Start functions
+//****************************************************************************************
+//initialise output LEDs
+void initLEDs(void)
+{
+ 128:	cf 93       	push	r28
+ 12a:	df 93       	push	r29
+ 12c:	cd b7       	in	r28, 0x3d	; 61
+ 12e:	de b7       	in	r29, 0x3e	; 62
+	DDRB = 0xFF;
+ 130:	87 e3       	ldi	r24, 0x37	; 55
+ 132:	90 e0       	ldi	r25, 0x00	; 0
+ 134:	2f ef       	ldi	r18, 0xFF	; 255
+ 136:	fc 01       	movw	r30, r24
+ 138:	20 83       	st	Z, r18
+}
+ 13a:	00 00       	nop
+ 13c:	df 91       	pop	r29
+ 13e:	cf 91       	pop	r28
+ 140:	08 95       	ret
+
+00000142 <displayUnlock>:
+//****************************************************************************************
+//unlock LED sequence
+void displayUnlock (void)
+{
+ 142:	cf 93       	push	r28
+ 144:	df 93       	push	r29
+ 146:	00 d0       	rcall	.+0      	; 0x148 <displayUnlock+0x6>
+ 148:	00 d0       	rcall	.+0      	; 0x14a <displayUnlock+0x8>
+ 14a:	cd b7       	in	r28, 0x3d	; 61
+ 14c:	de b7       	in	r29, 0x3e	; 62
+	for (int i = 0; i <4; i++)
+ 14e:	1a 82       	std	Y+2, r1	; 0x02
+ 150:	19 82       	std	Y+1, r1	; 0x01
+ 152:	1b c0       	rjmp	.+54     	; 0x18a <displayUnlock+0x48>
+	{
+		PORTB = 1<<(1+i*2);
+ 154:	88 e3       	ldi	r24, 0x38	; 56
+ 156:	90 e0       	ldi	r25, 0x00	; 0
+ 158:	29 81       	ldd	r18, Y+1	; 0x01
+ 15a:	3a 81       	ldd	r19, Y+2	; 0x02
+ 15c:	22 0f       	add	r18, r18
+ 15e:	33 1f       	adc	r19, r19
+ 160:	a9 01       	movw	r20, r18
+ 162:	4f 5f       	subi	r20, 0xFF	; 255
+ 164:	5f 4f       	sbci	r21, 0xFF	; 255
+ 166:	21 e0       	ldi	r18, 0x01	; 1
+ 168:	30 e0       	ldi	r19, 0x00	; 0
+ 16a:	02 c0       	rjmp	.+4      	; 0x170 <displayUnlock+0x2e>
+ 16c:	22 0f       	add	r18, r18
+ 16e:	33 1f       	adc	r19, r19
+ 170:	4a 95       	dec	r20
+ 172:	e2 f7       	brpl	.-8      	; 0x16c <displayUnlock+0x2a>
+ 174:	fc 01       	movw	r30, r24
+ 176:	20 83       	st	Z, r18
+		delay(10);
+ 178:	8a e0       	ldi	r24, 0x0A	; 10
+ 17a:	90 e0       	ldi	r25, 0x00	; 0
+ 17c:	0e 94 53 00 	call	0xa6	; 0xa6 <delay>
+}
+//****************************************************************************************
+//unlock LED sequence
+void displayUnlock (void)
+{
+	for (int i = 0; i <4; i++)
+ 180:	89 81       	ldd	r24, Y+1	; 0x01
+ 182:	9a 81       	ldd	r25, Y+2	; 0x02
+ 184:	01 96       	adiw	r24, 0x01	; 1
+ 186:	9a 83       	std	Y+2, r25	; 0x02
+ 188:	89 83       	std	Y+1, r24	; 0x01
+ 18a:	89 81       	ldd	r24, Y+1	; 0x01
+ 18c:	9a 81       	ldd	r25, Y+2	; 0x02
+ 18e:	04 97       	sbiw	r24, 0x04	; 4
+ 190:	0c f3       	brlt	.-62     	; 0x154 <displayUnlock+0x12>
+	{
+		PORTB = 1<<(1+i*2);
+		delay(10);
+	}
+	for (int i = 0; i <4; i++)
+ 192:	1c 82       	std	Y+4, r1	; 0x04
+ 194:	1b 82       	std	Y+3, r1	; 0x03
+ 196:	1c c0       	rjmp	.+56     	; 0x1d0 <displayUnlock+0x8e>
+	{
+		PORTB = 1<<(7-i*2);
+ 198:	88 e3       	ldi	r24, 0x38	; 56
+ 19a:	90 e0       	ldi	r25, 0x00	; 0
+ 19c:	2b 81       	ldd	r18, Y+3	; 0x03
+ 19e:	3c 81       	ldd	r19, Y+4	; 0x04
+ 1a0:	22 0f       	add	r18, r18
+ 1a2:	33 1f       	adc	r19, r19
+ 1a4:	47 e0       	ldi	r20, 0x07	; 7
+ 1a6:	50 e0       	ldi	r21, 0x00	; 0
+ 1a8:	42 1b       	sub	r20, r18
+ 1aa:	53 0b       	sbc	r21, r19
+ 1ac:	21 e0       	ldi	r18, 0x01	; 1
+ 1ae:	30 e0       	ldi	r19, 0x00	; 0
+ 1b0:	02 c0       	rjmp	.+4      	; 0x1b6 <displayUnlock+0x74>
+ 1b2:	22 0f       	add	r18, r18
+ 1b4:	33 1f       	adc	r19, r19
+ 1b6:	4a 95       	dec	r20
+ 1b8:	e2 f7       	brpl	.-8      	; 0x1b2 <displayUnlock+0x70>
+ 1ba:	fc 01       	movw	r30, r24
+ 1bc:	20 83       	st	Z, r18
+		delay(10);
+ 1be:	8a e0       	ldi	r24, 0x0A	; 10
+ 1c0:	90 e0       	ldi	r25, 0x00	; 0
+ 1c2:	0e 94 53 00 	call	0xa6	; 0xa6 <delay>
+	for (int i = 0; i <4; i++)
+	{
+		PORTB = 1<<(1+i*2);
+		delay(10);
+	}
+	for (int i = 0; i <4; i++)
+ 1c6:	8b 81       	ldd	r24, Y+3	; 0x03
+ 1c8:	9c 81       	ldd	r25, Y+4	; 0x04
+ 1ca:	01 96       	adiw	r24, 0x01	; 1
+ 1cc:	9c 83       	std	Y+4, r25	; 0x04
+ 1ce:	8b 83       	std	Y+3, r24	; 0x03
+ 1d0:	8b 81       	ldd	r24, Y+3	; 0x03
+ 1d2:	9c 81       	ldd	r25, Y+4	; 0x04
+ 1d4:	04 97       	sbiw	r24, 0x04	; 4
+ 1d6:	04 f3       	brlt	.-64     	; 0x198 <displayUnlock+0x56>
+	{
+		PORTB = 1<<(7-i*2);
+		delay(10);
+	}
+	PORTB = 0x00;
+ 1d8:	88 e3       	ldi	r24, 0x38	; 56
+ 1da:	90 e0       	ldi	r25, 0x00	; 0
+ 1dc:	fc 01       	movw	r30, r24
+ 1de:	10 82       	st	Z, r1
+}
+ 1e0:	00 00       	nop
+ 1e2:	0f 90       	pop	r0
+ 1e4:	0f 90       	pop	r0
+ 1e6:	0f 90       	pop	r0
+ 1e8:	0f 90       	pop	r0
+ 1ea:	df 91       	pop	r29
+ 1ec:	cf 91       	pop	r28
+ 1ee:	08 95       	ret
+
+000001f0 <displayLock>:
+//****************************************************************************************
+
+//****************************************************************************************
+//unlock LED sequence
+void displayLock (void)
+{
+ 1f0:	cf 93       	push	r28
+ 1f2:	df 93       	push	r29
+ 1f4:	00 d0       	rcall	.+0      	; 0x1f6 <displayLock+0x6>
+ 1f6:	00 d0       	rcall	.+0      	; 0x1f8 <displayLock+0x8>
+ 1f8:	cd b7       	in	r28, 0x3d	; 61
+ 1fa:	de b7       	in	r29, 0x3e	; 62
+	for (int i = 0; i <4; i++)
+ 1fc:	1a 82       	std	Y+2, r1	; 0x02
+ 1fe:	19 82       	std	Y+1, r1	; 0x01
+ 200:	19 c0       	rjmp	.+50     	; 0x234 <displayLock+0x44>
+	{
+		PORTB = 1<<(i*2);
+ 202:	88 e3       	ldi	r24, 0x38	; 56
+ 204:	90 e0       	ldi	r25, 0x00	; 0
+ 206:	29 81       	ldd	r18, Y+1	; 0x01
+ 208:	3a 81       	ldd	r19, Y+2	; 0x02
+ 20a:	a9 01       	movw	r20, r18
+ 20c:	44 0f       	add	r20, r20
+ 20e:	55 1f       	adc	r21, r21
+ 210:	21 e0       	ldi	r18, 0x01	; 1
+ 212:	30 e0       	ldi	r19, 0x00	; 0
+ 214:	02 c0       	rjmp	.+4      	; 0x21a <displayLock+0x2a>
+ 216:	22 0f       	add	r18, r18
+ 218:	33 1f       	adc	r19, r19
+ 21a:	4a 95       	dec	r20
+ 21c:	e2 f7       	brpl	.-8      	; 0x216 <displayLock+0x26>
+ 21e:	fc 01       	movw	r30, r24
+ 220:	20 83       	st	Z, r18
+		delay(10);
+ 222:	8a e0       	ldi	r24, 0x0A	; 10
+ 224:	90 e0       	ldi	r25, 0x00	; 0
+ 226:	0e 94 53 00 	call	0xa6	; 0xa6 <delay>
+
+//****************************************************************************************
+//unlock LED sequence
+void displayLock (void)
+{
+	for (int i = 0; i <4; i++)
+ 22a:	89 81       	ldd	r24, Y+1	; 0x01
+ 22c:	9a 81       	ldd	r25, Y+2	; 0x02
+ 22e:	01 96       	adiw	r24, 0x01	; 1
+ 230:	9a 83       	std	Y+2, r25	; 0x02
+ 232:	89 83       	std	Y+1, r24	; 0x01
+ 234:	89 81       	ldd	r24, Y+1	; 0x01
+ 236:	9a 81       	ldd	r25, Y+2	; 0x02
+ 238:	04 97       	sbiw	r24, 0x04	; 4
+ 23a:	1c f3       	brlt	.-58     	; 0x202 <displayLock+0x12>
+	{
+		PORTB = 1<<(i*2);
+		delay(10);
+	}
+	for (int i = 0; i <4; i++)
+ 23c:	1c 82       	std	Y+4, r1	; 0x04
+ 23e:	1b 82       	std	Y+3, r1	; 0x03
+ 240:	1f c0       	rjmp	.+62     	; 0x280 <displayLock+0x90>
+	{
+		PORTB = 1<<(8-i*2);
+ 242:	88 e3       	ldi	r24, 0x38	; 56
+ 244:	90 e0       	ldi	r25, 0x00	; 0
+ 246:	44 e0       	ldi	r20, 0x04	; 4
+ 248:	50 e0       	ldi	r21, 0x00	; 0
+ 24a:	2b 81       	ldd	r18, Y+3	; 0x03
+ 24c:	3c 81       	ldd	r19, Y+4	; 0x04
+ 24e:	ba 01       	movw	r22, r20
+ 250:	62 1b       	sub	r22, r18
+ 252:	73 0b       	sbc	r23, r19
+ 254:	9b 01       	movw	r18, r22
+ 256:	a9 01       	movw	r20, r18
+ 258:	44 0f       	add	r20, r20
+ 25a:	55 1f       	adc	r21, r21
+ 25c:	21 e0       	ldi	r18, 0x01	; 1
+ 25e:	30 e0       	ldi	r19, 0x00	; 0
+ 260:	02 c0       	rjmp	.+4      	; 0x266 <displayLock+0x76>
+ 262:	22 0f       	add	r18, r18
+ 264:	33 1f       	adc	r19, r19
+ 266:	4a 95       	dec	r20
+ 268:	e2 f7       	brpl	.-8      	; 0x262 <displayLock+0x72>
+ 26a:	fc 01       	movw	r30, r24
+ 26c:	20 83       	st	Z, r18
+		delay(10);
+ 26e:	8a e0       	ldi	r24, 0x0A	; 10
+ 270:	90 e0       	ldi	r25, 0x00	; 0
+ 272:	0e 94 53 00 	call	0xa6	; 0xa6 <delay>
+	for (int i = 0; i <4; i++)
+	{
+		PORTB = 1<<(i*2);
+		delay(10);
+	}
+	for (int i = 0; i <4; i++)
+ 276:	8b 81       	ldd	r24, Y+3	; 0x03
+ 278:	9c 81       	ldd	r25, Y+4	; 0x04
+ 27a:	01 96       	adiw	r24, 0x01	; 1
+ 27c:	9c 83       	std	Y+4, r25	; 0x04
+ 27e:	8b 83       	std	Y+3, r24	; 0x03
+ 280:	8b 81       	ldd	r24, Y+3	; 0x03
+ 282:	9c 81       	ldd	r25, Y+4	; 0x04
+ 284:	04 97       	sbiw	r24, 0x04	; 4
+ 286:	ec f2       	brlt	.-70     	; 0x242 <displayLock+0x52>
+	{
+		PORTB = 1<<(8-i*2);
+		delay(10);
+	}
+	PORTB = 0x00;
+ 288:	88 e3       	ldi	r24, 0x38	; 56
+ 28a:	90 e0       	ldi	r25, 0x00	; 0
+ 28c:	fc 01       	movw	r30, r24
+ 28e:	10 82       	st	Z, r1
+}
+ 290:	00 00       	nop
+ 292:	0f 90       	pop	r0
+ 294:	0f 90       	pop	r0
+ 296:	0f 90       	pop	r0
+ 298:	0f 90       	pop	r0
+ 29a:	df 91       	pop	r29
+ 29c:	cf 91       	pop	r28
+ 29e:	08 95       	ret
+
+000002a0 <displayProgramming>:
+//****************************************************************************************
+
+//****************************************************************************************
+//Programming mode LED sequence
+void displayProgramming(void)
+{
+ 2a0:	cf 93       	push	r28
+ 2a2:	df 93       	push	r29
+ 2a4:	00 d0       	rcall	.+0      	; 0x2a6 <displayProgramming+0x6>
+ 2a6:	cd b7       	in	r28, 0x3d	; 61
+ 2a8:	de b7       	in	r29, 0x3e	; 62
+	for (int i = 0; i <10; i++)
+ 2aa:	1a 82       	std	Y+2, r1	; 0x02
+ 2ac:	19 82       	std	Y+1, r1	; 0x01
+ 2ae:	16 c0       	rjmp	.+44     	; 0x2dc <displayProgramming+0x3c>
+	{
+		PORTB = 0xFF;
+ 2b0:	88 e3       	ldi	r24, 0x38	; 56
+ 2b2:	90 e0       	ldi	r25, 0x00	; 0
+ 2b4:	2f ef       	ldi	r18, 0xFF	; 255
+ 2b6:	fc 01       	movw	r30, r24
+ 2b8:	20 83       	st	Z, r18
+		delay(10);
+ 2ba:	8a e0       	ldi	r24, 0x0A	; 10
+ 2bc:	90 e0       	ldi	r25, 0x00	; 0
+ 2be:	0e 94 53 00 	call	0xa6	; 0xa6 <delay>
+		PORTB = 0x00;
+ 2c2:	88 e3       	ldi	r24, 0x38	; 56
+ 2c4:	90 e0       	ldi	r25, 0x00	; 0
+ 2c6:	fc 01       	movw	r30, r24
+ 2c8:	10 82       	st	Z, r1
+		delay(10);
+ 2ca:	8a e0       	ldi	r24, 0x0A	; 10
+ 2cc:	90 e0       	ldi	r25, 0x00	; 0
+ 2ce:	0e 94 53 00 	call	0xa6	; 0xa6 <delay>
+
+//****************************************************************************************
+//Programming mode LED sequence
+void displayProgramming(void)
+{
+	for (int i = 0; i <10; i++)
+ 2d2:	89 81       	ldd	r24, Y+1	; 0x01
+ 2d4:	9a 81       	ldd	r25, Y+2	; 0x02
+ 2d6:	01 96       	adiw	r24, 0x01	; 1
+ 2d8:	9a 83       	std	Y+2, r25	; 0x02
+ 2da:	89 83       	std	Y+1, r24	; 0x01
+ 2dc:	89 81       	ldd	r24, Y+1	; 0x01
+ 2de:	9a 81       	ldd	r25, Y+2	; 0x02
+ 2e0:	0a 97       	sbiw	r24, 0x0a	; 10
+ 2e2:	34 f3       	brlt	.-52     	; 0x2b0 <displayProgramming+0x10>
+		PORTB = 0xFF;
+		delay(10);
+		PORTB = 0x00;
+		delay(10);
+	}
+}
+ 2e4:	00 00       	nop
+ 2e6:	0f 90       	pop	r0
+ 2e8:	0f 90       	pop	r0
+ 2ea:	df 91       	pop	r29
+ 2ec:	cf 91       	pop	r28
+ 2ee:	08 95       	ret
+
+000002f0 <main>:
 
 // Global variables
-
+uint8_t debugCode = 0;
 
 int main(void)
 {
-  7c:	ff cf       	rjmp	.-2      	; 0x7c <main>
+ 2f0:	cf 93       	push	r28
+ 2f2:	df 93       	push	r29
+ 2f4:	cd b7       	in	r28, 0x3d	; 61
+ 2f6:	de b7       	in	r29, 0x3e	; 62
+	//initialise everything
+    initTimers();
+ 2f8:	0e 94 3e 00 	call	0x7c	; 0x7c <initTimers>
+	initLEDs();
+ 2fc:	0e 94 94 00 	call	0x128	; 0x128 <initLEDs>
+	
+	displayUnlock();		//testing LEDs and delays, should flash various sequences on OUSB
+ 300:	0e 94 a1 00 	call	0x142	; 0x142 <displayUnlock>
+	delay(100);
+ 304:	84 e6       	ldi	r24, 0x64	; 100
+ 306:	90 e0       	ldi	r25, 0x00	; 0
+ 308:	0e 94 53 00 	call	0xa6	; 0xa6 <delay>
+	displayLock();
+ 30c:	0e 94 f8 00 	call	0x1f0	; 0x1f0 <displayLock>
+	delay(100);
+ 310:	84 e6       	ldi	r24, 0x64	; 100
+ 312:	90 e0       	ldi	r25, 0x00	; 0
+ 314:	0e 94 53 00 	call	0xa6	; 0xa6 <delay>
+	displayProgramming();
+ 318:	0e 94 50 01 	call	0x2a0	; 0x2a0 <displayProgramming>
+	delay(5958);	//one min delay
+ 31c:	86 e4       	ldi	r24, 0x46	; 70
+ 31e:	97 e1       	ldi	r25, 0x17	; 23
+ 320:	0e 94 53 00 	call	0xa6	; 0xa6 <delay>
+	
+    while (1) 
+    {
+		
+	
+    }
+ 324:	ff cf       	rjmp	.-2      	; 0x324 <main+0x34>
 
-0000007e <_exit>:
-  7e:	f8 94       	cli
+00000326 <_exit>:
+ 326:	f8 94       	cli
 
-00000080 <__stop_program>:
-  80:	ff cf       	rjmp	.-2      	; 0x80 <__stop_program>
+00000328 <__stop_program>:
+ 328:	ff cf       	rjmp	.-2      	; 0x328 <__stop_program>

@@ -10,16 +10,32 @@
 
 // Include other project header files (.h)
 #include "EEPROM.h"
+#include "Delay.h"
+#include "display.h"
 
 // Global variables
-
+uint8_t debugCode = 0;
 
 int main(void)
 {
-    /* Replace with your application code */
+	//initialise everything
+    initTimers();
+	initLEDs();
+	
+	displayUnlock();		//testing LEDs and delays, should flash various sequences on OUSB
+	delay(100);
+	displayLock();
+	delay(100);
+	displayProgramming();
+	delay(5958);	//one min delay
+	
     while (1) 
     {
-		//hello test one two mic check one tawooo oonee tawwwooo
+		PORTB = 0xFF;
+		delay(10);
+		PORTB = 0x00;
+		delay(30)
+	
     }
 }
 
