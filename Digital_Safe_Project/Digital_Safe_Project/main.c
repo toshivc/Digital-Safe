@@ -34,7 +34,7 @@ int main(void)
 		PORTB = 0xFF;
 		delay(10);
 		PORTB = 0x00;
-		delay(30)
+		delay(30);
 	
     }
 }
