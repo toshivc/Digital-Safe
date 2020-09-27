@@ -3,57 +3,53 @@ Digital_Safe_Project.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         00000140  00000000  00000000  00000094  2**1
+  0 .text         00000082  00000000  00000000  00000054  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .data         00000006  00800060  00000140  000001d4  2**0
+  1 .data         00000000  00800060  00800060  000000d6  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  2 .bss          00000001  00800066  00800066  000001da  2**0
-                  ALLOC
-  3 .comment      00000030  00000000  00000000  000001da  2**0
+  2 .comment      00000030  00000000  00000000  000000d6  2**0
                   CONTENTS, READONLY
-  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  0000020c  2**2
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000108  2**2
                   CONTENTS, READONLY
-  5 .debug_aranges 00000030  00000000  00000000  00000248  2**0
+  4 .debug_aranges 00000020  00000000  00000000  00000144  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   000006a6  00000000  00000000  00000278  2**0
+  5 .debug_info   00000563  00000000  00000000  00000164  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 0000059d  00000000  00000000  0000091e  2**0
+  6 .debug_abbrev 000004ec  00000000  00000000  000006c7  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   0000020d  00000000  00000000  00000ebb  2**0
+  7 .debug_line   0000014e  00000000  00000000  00000bb3  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  00000044  00000000  00000000  000010c8  2**2
+  8 .debug_frame  00000024  00000000  00000000  00000d04  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000333  00000000  00000000  0000110c  2**0
+  9 .debug_str    000002ec  00000000  00000000  00000d28  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    00000054  00000000  00000000  0000143f  2**0
-                  CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000020  00000000  00000000  00001493  2**0
+ 10 .debug_ranges 00000010  00000000  00000000  00001014  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
 
 00000000 <__vectors>:
    0:	0c 94 2a 00 	jmp	0x54	; 0x54 <__ctors_end>
-   4:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
-   8:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
-   c:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
-  10:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
-  14:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
-  18:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
-  1c:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
-  20:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
-  24:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
-  28:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
-  2c:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
-  30:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
-  34:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
-  38:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
-  3c:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
-  40:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
-  44:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
-  48:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
-  4c:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
-  50:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+   4:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+   8:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+   c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  10:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  14:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  18:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  1c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  20:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  24:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  28:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  2c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  30:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  34:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  38:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  3c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  40:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  44:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  48:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  4c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  50:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
 
 00000054 <__ctors_end>:
   54:	11 24       	eor	r1, r1
@@ -63,175 +59,36 @@ Disassembly of section .text:
   5c:	de bf       	out	0x3e, r29	; 62
   5e:	cd bf       	out	0x3d, r28	; 61
 
-00000060 <__do_copy_data>:
-  60:	10 e0       	ldi	r17, 0x00	; 0
+00000060 <__do_clear_bss>:
+  60:	20 e0       	ldi	r18, 0x00	; 0
   62:	a0 e6       	ldi	r26, 0x60	; 96
   64:	b0 e0       	ldi	r27, 0x00	; 0
-  66:	e0 e4       	ldi	r30, 0x40	; 64
-  68:	f1 e0       	ldi	r31, 0x01	; 1
-  6a:	02 c0       	rjmp	.+4      	; 0x70 <__do_copy_data+0x10>
-  6c:	05 90       	lpm	r0, Z+
-  6e:	0d 92       	st	X+, r0
-  70:	a6 36       	cpi	r26, 0x66	; 102
-  72:	b1 07       	cpc	r27, r17
-  74:	d9 f7       	brne	.-10     	; 0x6c <__do_copy_data+0xc>
+  66:	01 c0       	rjmp	.+2      	; 0x6a <.do_clear_bss_start>
 
-00000076 <__do_clear_bss>:
-  76:	20 e0       	ldi	r18, 0x00	; 0
-  78:	a6 e6       	ldi	r26, 0x66	; 102
-  7a:	b0 e0       	ldi	r27, 0x00	; 0
-  7c:	01 c0       	rjmp	.+2      	; 0x80 <.do_clear_bss_start>
+00000068 <.do_clear_bss_loop>:
+  68:	1d 92       	st	X+, r1
 
-0000007e <.do_clear_bss_loop>:
-  7e:	1d 92       	st	X+, r1
+0000006a <.do_clear_bss_start>:
+  6a:	a0 36       	cpi	r26, 0x60	; 96
+  6c:	b2 07       	cpc	r27, r18
+  6e:	e1 f7       	brne	.-8      	; 0x68 <.do_clear_bss_loop>
+  70:	0e 94 3e 00 	call	0x7c	; 0x7c <main>
+  74:	0c 94 3f 00 	jmp	0x7e	; 0x7e <_exit>
 
-00000080 <.do_clear_bss_start>:
-  80:	a7 36       	cpi	r26, 0x67	; 103
-  82:	b2 07       	cpc	r27, r18
-  84:	e1 f7       	brne	.-8      	; 0x7e <.do_clear_bss_loop>
-  86:	0e 94 86 00 	call	0x10c	; 0x10c <main>
-  8a:	0c 94 9e 00 	jmp	0x13c	; 0x13c <_exit>
+00000078 <__bad_interrupt>:
+  78:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
-0000008e <__bad_interrupt>:
-  8e:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+0000007c <main>:
 
-00000092 <write_EEPROM>:
-void write_EEPROM(unsigned char WriteData, unsigned int WriteAddress)
-{
-//should disable global interrupts here if we use them
-	
-	//check if address is valid
-	if(WriteAddress > 0x400)	//only 2^10 = 1024 addresses
-  92:	61 30       	cpi	r22, 0x01	; 1
-  94:	94 e0       	ldi	r25, 0x04	; 4
-  96:	79 07       	cpc	r23, r25
-  98:	20 f0       	brcs	.+8      	; 0xa2 <write_EEPROM+0x10>
-		{
-			errorFlag =3;
-  9a:	83 e0       	ldi	r24, 0x03	; 3
-  9c:	80 93 66 00 	sts	0x0066, r24	; 0x800066 <__data_end>
-			return;			//Set some debug flag?
-  a0:	08 95       	ret
-		}
-	
-	
-	//Wait till previous write operation is completed(i.e. wait till EEWE becomes zero).
-	while(*_EECR & (1<<_EEWE));	//b 0000 0010
-  a2:	e0 91 64 00 	lds	r30, 0x0064	; 0x800064 <_EECR>
-  a6:	f0 91 65 00 	lds	r31, 0x0065	; 0x800065 <_EECR+0x1>
-  aa:	90 81       	ld	r25, Z
-  ac:	91 fd       	sbrc	r25, 1
-  ae:	fd cf       	rjmp	.-6      	; 0xaa <write_EEPROM+0x18>
-	//Wait until SPMEN in SPMCR becomes zero		Dont think this step is necessary
-	// only relevant if the software contains a boot loader allowing the CPU to program the Flash. If the Flash is never being updated by the CPU, can be omitted
+// Global variables
 
-	//Load the EEPROM address into EEAR at which the data has to be stored.
-	//high and low registers, high register will always be 0 for us.
-	*_EEAR = WriteAddress;
-  b0:	e0 91 62 00 	lds	r30, 0x0062	; 0x800062 <_EEAR>
-  b4:	f0 91 63 00 	lds	r31, 0x0063	; 0x800063 <_EEAR+0x1>
-  b8:	71 83       	std	Z+1, r23	; 0x01
-  ba:	60 83       	st	Z, r22
 
-	//Load the data into EEDR which has to be stored in EEPROM.
-	*_EEDR = WriteData;
-  bc:	e0 91 60 00 	lds	r30, 0x0060	; 0x800060 <__DATA_REGION_ORIGIN__>
-  c0:	f0 91 61 00 	lds	r31, 0x0061	; 0x800061 <__DATA_REGION_ORIGIN__+0x1>
-  c4:	80 83       	st	Z, r24
-
-	//Set the EEMWE (EEPROM Master Write Enable).
-	asm("SBI 0x1C, 0x02");
-  c6:	e2 9a       	sbi	0x1c, 2	; 28
-	//set EEWE in EECR to 0			Dont think this step is necessary. Why is it listed?
-
-	//Within four clock cycles after 4th step, set EEWE(Eeprom Write Enable) to 1 to trigger the EEPROM Write Operation
-	asm("SBI 0x1C, 0x01");
-  c8:	e1 9a       	sbi	0x1c, 1	; 28
-  ca:	08 95       	ret
-
-000000cc <read_EEPROM>:
-//****************************************************************************************
-
-//****************************************************************************************
-//Read EEPROM
-unsigned char read_EEPROM(unsigned int readAddress)
-{
-  cc:	9c 01       	movw	r18, r24
-	//check if address is valid
-	if(readAddress > 0x400)	//only 2^10 = 1024 addresses
-  ce:	21 30       	cpi	r18, 0x01	; 1
-  d0:	84 e0       	ldi	r24, 0x04	; 4
-  d2:	38 07       	cpc	r19, r24
-  d4:	d0 f4       	brcc	.+52     	; 0x10a <read_EEPROM+0x3e>
-	{
-		return;			//Set some debug flag?
-	}
-	
-	//WAit for completion of previous Write operation.
-	while(*_EECR & (1<<_EEWE));
-  d6:	e0 91 64 00 	lds	r30, 0x0064	; 0x800064 <_EECR>
-  da:	f0 91 65 00 	lds	r31, 0x0065	; 0x800065 <_EECR+0x1>
-  de:	90 81       	ld	r25, Z
-  e0:	91 fd       	sbrc	r25, 1
-  e2:	fd cf       	rjmp	.-6      	; 0xde <read_EEPROM+0x12>
-
-	//Load the EEPROM address into EEAR from where the data needs to be read.
-	*_EEAR = readAddress;
-  e4:	e0 91 62 00 	lds	r30, 0x0062	; 0x800062 <_EEAR>
-  e8:	f0 91 63 00 	lds	r31, 0x0063	; 0x800063 <_EEAR+0x1>
-  ec:	31 83       	std	Z+1, r19	; 0x01
-  ee:	20 83       	st	Z, r18
-
-	//Trigger the EEPROM read operation by setting EERE (EEPROM Read Enable).
-	*_EECR |= (1);
-  f0:	e0 91 64 00 	lds	r30, 0x0064	; 0x800064 <_EECR>
-  f4:	f0 91 65 00 	lds	r31, 0x0065	; 0x800065 <_EECR+0x1>
-  f8:	80 81       	ld	r24, Z
-  fa:	81 60       	ori	r24, 0x01	; 1
-  fc:	80 83       	st	Z, r24
-
-	//Wait for some time (about 1ms) and collect the read data from EEDR.
-	return *_EEDR;
-  fe:	e0 91 60 00 	lds	r30, 0x0060	; 0x800060 <__DATA_REGION_ORIGIN__>
- 102:	f0 91 61 00 	lds	r31, 0x0061	; 0x800061 <__DATA_REGION_ORIGIN__+0x1>
- 106:	80 81       	ld	r24, Z
- 108:	08 95       	ret
-}
- 10a:	08 95       	ret
-
-0000010c <main>:
 int main(void)
 {
-    /* Replace with your application code */
-    while (1) 
-    {
-		write_EEPROM(0x01,0x0001);
- 10c:	61 e0       	ldi	r22, 0x01	; 1
- 10e:	70 e0       	ldi	r23, 0x00	; 0
- 110:	81 e0       	ldi	r24, 0x01	; 1
- 112:	0e 94 49 00 	call	0x92	; 0x92 <write_EEPROM>
-		write_EEPROM(0x02,0x0002);
- 116:	62 e0       	ldi	r22, 0x02	; 2
- 118:	70 e0       	ldi	r23, 0x00	; 0
- 11a:	82 e0       	ldi	r24, 0x02	; 2
- 11c:	0e 94 49 00 	call	0x92	; 0x92 <write_EEPROM>
-		write_EEPROM(0xAA,0x0001);
- 120:	61 e0       	ldi	r22, 0x01	; 1
- 122:	70 e0       	ldi	r23, 0x00	; 0
- 124:	8a ea       	ldi	r24, 0xAA	; 170
- 126:	0e 94 49 00 	call	0x92	; 0x92 <write_EEPROM>
-		unsigned char testRead = read_EEPROM(0x0002);
- 12a:	82 e0       	ldi	r24, 0x02	; 2
- 12c:	90 e0       	ldi	r25, 0x00	; 0
- 12e:	0e 94 66 00 	call	0xcc	; 0xcc <read_EEPROM>
-		testRead = read_EEPROM(0x0001);
- 132:	81 e0       	ldi	r24, 0x01	; 1
- 134:	90 e0       	ldi	r25, 0x00	; 0
- 136:	0e 94 66 00 	call	0xcc	; 0xcc <read_EEPROM>
- 13a:	e8 cf       	rjmp	.-48     	; 0x10c <main>
+  7c:	ff cf       	rjmp	.-2      	; 0x7c <main>
 
-0000013c <_exit>:
- 13c:	f8 94       	cli
+0000007e <_exit>:
+  7e:	f8 94       	cli
 
-0000013e <__stop_program>:
- 13e:	ff cf       	rjmp	.-2      	; 0x13e <__stop_program>
+00000080 <__stop_program>:
+  80:	ff cf       	rjmp	.-2      	; 0x80 <__stop_program>
