@@ -7,14 +7,7 @@
 #include <avr/io.h>
 #include "Delay.h"
 
-// Start functions
-//****************************************************************************************
-//initialise output LEDs
-void initLEDs(void)
-{
-	DDRB = 0xFF;
-}
-//****************************************************************************************
+
 //unlock LED sequence
 void displayUnlock (void)
 {

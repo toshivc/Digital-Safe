@@ -13,7 +13,6 @@
 // Define Extern variables
 
 // Function Prototypes (within the Display.c file)
-void initLEDs(void);
 void displayUnlock (void);
 void displayLock (void);
 void displayProgramming(void);

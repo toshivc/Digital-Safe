@@ -12,7 +12,6 @@
 // Define Extern variables
 
 // Function Prototypes (within the Delay.c file)
-void initTimers(void);
 void delay(uint16_t delayTime);
 
 

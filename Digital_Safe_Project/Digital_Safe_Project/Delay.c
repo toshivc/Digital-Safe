@@ -7,16 +7,7 @@
 #include <avr/io.h>
 
 // Start functions
-//****************************************************************************************
-//Initialise Timers
-void initTimers(void)
-{
-	//set timer counter to 0
-	TCNT0 = 0x00;
-	//set clock prescaler to divide by 1024
-	TCCR0 |= (1<<CS00) | (0<<CS01) | (1<<CS02);
-}
-//****************************************************************************************
+
 
 //****************************************************************************************
 //Timer with minimum time of 0.01 seconds, max time of 11mins

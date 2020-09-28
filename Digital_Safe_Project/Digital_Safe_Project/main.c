@@ -11,7 +11,8 @@
 // Include other project header files (.h)
 #include "EEPROM.h"
 #include "Delay.h"
-#include "display.h"
+#include "Display.h"
+#include "Initialise.h"
 
 // Global variables
 uint8_t debugCode = 0;
