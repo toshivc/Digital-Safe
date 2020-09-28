@@ -10,5 +10,7 @@ EEPROM.c
 
 Initialise.c
 
+KeypadScan.c
+
 main.c
 

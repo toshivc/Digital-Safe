@@ -13,13 +13,14 @@
 #include "Delay.h"
 #include "Display.h"
 #include "Initialise.h"
+#include "KeypadScan.h"
 
 // Global variables
 uint8_t debugCode = 0;
 
 int main(void)
 {
-	//initialise everything
+	// Initialise everything
     initTimers();
 	initLEDs();
 	
@@ -36,7 +37,6 @@ int main(void)
 		delay(10);
 		PORTB = 0x00;
 		delay(30);
-	
     }
 }
 

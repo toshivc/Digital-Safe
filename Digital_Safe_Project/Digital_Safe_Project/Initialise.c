@@ -12,8 +12,7 @@
 
 
 // DEFINE VARIABLES
-
-
+char errorFlag = 0;
 
 
 // START FUNCTIONS

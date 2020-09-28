@@ -156,6 +156,12 @@
     <Compile Include="Initialise.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="KeypadScan.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="KeypadScan.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>

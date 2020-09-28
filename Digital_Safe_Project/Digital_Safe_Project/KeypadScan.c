@@ -1,23 +1,31 @@
 /*
  * KeypadScan.c
  *
- * Created: 9/28/2020 1:17:37 PM
+ * Created: 9/28/2020 2:49:18 PM
  *  Author: Toshi & Ioanna
- */
+ */ 
 
- // Include file header
- #include "KeypadScan.h"
- #include <avr/io.h>
- #include "Initialise.h"
- 
- // START FUNCTIONS
- 
- //**************************************************************************************************************************************************
-/* Function that checks if one key has been pressed 
+// Include relevant file headers
+#include <avr/io.h>
+#include "KeypadScan.h"
+
+
+// Define relevant variables
+unsigned char key = 0xFF;
+unsigned char portCValue = 0xFF;
+unsigned char KeyPressed = 0x00;
+const char col[] = {0xEF, 0XDF, 0XBF, 0X7F};
+unsigned char Keys[] = {0xD7, 0XEE, 0XDE, 0XBE, 0XED, 0XDD, 0XBD, 0XEB, 0XDB, 0XBB, 0XE7, 0XD7, 0XB7, 0X77, 0X7E, 0X7B}; // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, *, #
+
+
+// START FUNCTIONS
+
+//**************************************************************************************************************************************************
+// Function that checks if one key has been pressed 
 unsigned char ReadOne() 
 {
 	// Set KeyPressed to 0
-	keyPressed = 0x00;
+	KeyPressed = 0x00;
 	
 	// Scanning column: write the column mask to port C
 	for (uint8_t j=0; j<3; j++)
@@ -37,7 +45,7 @@ unsigned char ReadOne()
 				{
 					key = k;
 					//*portBPort = k;
-					keyPressed = 1;
+					KeyPressed = 1;
 					break;
 				}		
 			}
@@ -45,4 +53,4 @@ unsigned char ReadOne()
 	}
 	return key;
 }
-*/
+//**************************************************************************************************************************************************

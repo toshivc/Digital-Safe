@@ -8,10 +8,11 @@
 // Include file header
 #include "EEPROM.h"
 #include <avr/io.h>
+#include "Initialise.h"
 
 
 // Variable definitions
-char errorFlag = 0;
+
 
 // Start functions
 //****************************************************************************************

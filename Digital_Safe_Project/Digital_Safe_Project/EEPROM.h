@@ -12,7 +12,7 @@
 #define EEPROM_H_INCLUDED
 
 // Define variables
-extern char errorFlag;
+
 
 // Function Prototypes (within the EEPROM.c file)
 void write_EEPROM(uint8_t WriteData, uint16_t WriteAddress);

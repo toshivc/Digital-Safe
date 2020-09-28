@@ -10,7 +10,7 @@
 #define INITIALISE_H_
 
 // Variables to be defined - Globally
-
+extern char errorFlag;
 
 
 // Function prototypes from Initialise.c
