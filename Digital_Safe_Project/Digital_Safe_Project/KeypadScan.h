@@ -10,15 +10,16 @@
 #define KEYPADSCAN_H_
 
 // Variables relevant to keypad scan
-extern unsigned char key;
-extern unsigned char portCValue;
-extern unsigned char KeyPressed;
-extern const char col[4];
-extern unsigned char Keys[16];
+//extern unsigned char key;
+//extern unsigned char portCValue;			//defining these variables here means they are defined twice
+//extern unsigned char KeyPressed;
+//extern const char col[4];
+//extern unsigned char Keys[16];
 
 
 // Function prototypes for function within KeypadScan.c
 unsigned char ReadOne();
+unsigned long int InputPasscode (void);
 
 
 

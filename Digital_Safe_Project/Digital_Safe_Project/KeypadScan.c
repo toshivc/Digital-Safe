@@ -8,14 +8,19 @@
 // Include relevant file headers
 #include <avr/io.h>
 #include "KeypadScan.h"
+#include "Delay.h"
+
 
 
 // Define relevant variables
 unsigned char key = 0xFF;
 unsigned char portCValue = 0xFF;
 unsigned char KeyPressed = 0x00;
-const char col[] = {0xEF, 0XDF, 0XBF, 0X7F};
-unsigned char Keys[] = {0xD7, 0XEE, 0XDE, 0XBE, 0XED, 0XDD, 0XBD, 0XEB, 0XDB, 0XBB, 0XE7, 0X7D, 0X7B, 0X77, 0XE7, 0XB7}; // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, *, #
+
+//define lookup tables, in Initialise.c
+extern const char col[4];
+extern unsigned char AmountOfColumns;
+extern unsigned char Keys[16];
 
 
 // START FUNCTIONS
@@ -27,30 +32,73 @@ unsigned char ReadOne()
 	// Set KeyPressed to 0
 	KeyPressed = 0x00;
 	
-	// Scanning column: write the column mask to port C
-	for (uint8_t j=0; j<4; j++)
+	while(1)	//can get rid of while loop, it just keeps reading until a key is pressed instead of only reading once when its called
 	{
-		PORTC = col[j];			// Scan each column
-		for(uint8_t i=0; i<10; i++);		// Delay
-		portCValue = PINC;			// Read port value from pinC
-		
-		// Begin stepping through each column to check if row has logic 0
-		if (portCValue != col[j])
+
+		// Scanning column: write the column mask to port C
+		for (uint8_t j=0; j<AmountOfColumns; j++)
 		{
-			//rebounce??
-			//Step through each key
-			for(uint8_t k = 0; k < 16; k++)
+			PORTC = col[j];			// Scan each column
+			delay(1);				// Delay for 0.01 sec
+			portCValue = PINC;			// Read port value from pinC
+		
+			// Begin stepping through each column to check if row has logic 0
+			if (portCValue != col[j])
 			{
-				if(portCValue == Keys[k])
+				//rebounce??
+				//Step through each key
+				for(uint8_t k = 0; k < 16; k++)
 				{
-					key = k;
-					//*portBPort = k;
-					KeyPressed = 1;
-					break;
-				}		
+					if(portCValue == Keys[k])
+					{
+						key = k;
+						//*portBPort = k;
+						KeyPressed = 1;
+						//break;						//return here instead of break??
+						return key;
+					}		
+				}
 			}
 		}
 	}
-	return key;
+	return key;		//this should never execute
 }
 //**************************************************************************************************************************************************
+
+//**************************************************************************************************************************************************
+//Check if key has been lifted. ie debounce?
+void ReadNone (void)
+{
+	while((PINC&0x0F)!=0x0F);	//exits when PINC inputs are all high 
+}
+//**************************************************************************************************************************************************
+
+//**************************************************************************************************************************************************
+//Combine 6-8 digits into a passcode
+uint32_t InputPasscode (void)
+{
+	uint32_t passcode = 0;
+	for (int i =0; i<8; i++)
+	{
+		uint8_t keyValue = ReadOne();	//store digit pressed by user
+		
+		//check if key pressed is a digit
+		
+		if(keyValue==0xF)					//if # is pressed
+		{
+			return passcode;
+		}
+		
+		PORTB = keyValue;
+		ReadNone();						//waits until finger is lifted off button
+		PORTB = 0x00;
+		
+		passcode = passcode*10 + keyValue;	//add each digit into a long int
+
+	}
+	return passcode;
+}
+//**************************************************************************************************************************************************
+
+//**************************************************************************************************************************************************
+//is the input a digit

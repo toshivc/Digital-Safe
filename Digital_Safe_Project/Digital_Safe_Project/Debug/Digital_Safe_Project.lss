@@ -3,29 +3,31 @@ Digital_Safe_Project.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         0000036a  00000000  00000000  00000054  2**1
+  0 .text         000007da  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .data         00000000  00800060  00800060  000003be  2**0
+  1 .data         00000016  00800060  000007da  0000086e  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  2 .comment      00000030  00000000  00000000  000003be  2**0
+  2 .bss          00000004  00800076  00800076  00000884  2**0
+                  ALLOC
+  3 .comment      00000030  00000000  00000000  00000884  2**0
                   CONTENTS, READONLY
-  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  000003f0  2**2
+  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  000008b4  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 000000a0  00000000  00000000  0000042c  2**0
+  5 .debug_aranges 00000108  00000000  00000000  000008f0  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   00000822  00000000  00000000  000004cc  2**0
+  6 .debug_info   00000c6f  00000000  00000000  000009f8  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000666  00000000  00000000  00000cee  2**0
+  7 .debug_abbrev 000008b3  00000000  00000000  00001667  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   000005d7  00000000  00000000  00001354  2**0
+  8 .debug_line   000009a0  00000000  00000000  00001f1a  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000150  00000000  00000000  0000192c  2**2
+  9 .debug_frame  00000258  00000000  00000000  000028bc  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    000003ab  00000000  00000000  00001a7c  2**0
+ 10 .debug_str    000004d6  00000000  00000000  00002b14  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    0000020c  00000000  00000000  00001e27  2**0
+ 11 .debug_loc    00000401  00000000  00000000  00002fea  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000060  00000000  00000000  00002033  2**0
+ 12 .debug_ranges 000000a8  00000000  00000000  000033eb  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -65,18 +67,18 @@ Disassembly of section .text:
   60:	10 e0       	ldi	r17, 0x00	; 0
   62:	a0 e6       	ldi	r26, 0x60	; 96
   64:	b0 e0       	ldi	r27, 0x00	; 0
-  66:	ea e6       	ldi	r30, 0x6A	; 106
-  68:	f3 e0       	ldi	r31, 0x03	; 3
+  66:	ea ed       	ldi	r30, 0xDA	; 218
+  68:	f7 e0       	ldi	r31, 0x07	; 7
   6a:	02 c0       	rjmp	.+4      	; 0x70 <__do_copy_data+0x10>
   6c:	05 90       	lpm	r0, Z+
   6e:	0d 92       	st	X+, r0
-  70:	a0 36       	cpi	r26, 0x60	; 96
+  70:	a6 37       	cpi	r26, 0x76	; 118
   72:	b1 07       	cpc	r27, r17
   74:	d9 f7       	brne	.-10     	; 0x6c <__do_copy_data+0xc>
 
 00000076 <__do_clear_bss>:
   76:	20 e0       	ldi	r18, 0x00	; 0
-  78:	a0 e6       	ldi	r26, 0x60	; 96
+  78:	a6 e7       	ldi	r26, 0x76	; 118
   7a:	b0 e0       	ldi	r27, 0x00	; 0
   7c:	01 c0       	rjmp	.+2      	; 0x80 <.do_clear_bss_start>
 
@@ -84,11 +86,11 @@ Disassembly of section .text:
   7e:	1d 92       	st	X+, r1
 
 00000080 <.do_clear_bss_start>:
-  80:	a0 36       	cpi	r26, 0x60	; 96
+  80:	aa 37       	cpi	r26, 0x7A	; 122
   82:	b2 07       	cpc	r27, r18
   84:	e1 f7       	brne	.-8      	; 0x7e <.do_clear_bss_loop>
-  86:	0e 94 87 01 	call	0x30e	; 0x30e <main>
-  8a:	0c 94 b3 01 	jmp	0x366	; 0x366 <_exit>
+  86:	0e 94 b4 03 	call	0x768	; 0x768 <main>
+  8a:	0c 94 eb 03 	jmp	0x7d6	; 0x7d6 <_exit>
 
 0000008e <__bad_interrupt>:
   8e:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -442,191 +444,1007 @@ void displayLock (void)
  26e:	cf 91       	pop	r28
  270:	08 95       	ret
 
-00000272 <displayProgramming>:
-//****************************************************************************************
+00000272 <write_EEPROM>:
+//Takes in the address of the location to write to, and the data to write into that address
+//returns nothing(error code flag set?)
 
-//****************************************************************************************
-//Programming mode LED sequence
-void displayProgramming(void)
+//do we need to use ware leveling(using multiple addresses so as not to damage EEPROM)
+void write_EEPROM(uint8_t WriteData, uint16_t WriteAddress)
 {
  272:	cf 93       	push	r28
  274:	df 93       	push	r29
- 276:	00 d0       	rcall	.+0      	; 0x278 <displayProgramming+0x6>
- 278:	cd b7       	in	r28, 0x3d	; 61
- 27a:	de b7       	in	r29, 0x3e	; 62
-	for (int i = 0; i <10; i++)
- 27c:	1a 82       	std	Y+2, r1	; 0x02
- 27e:	19 82       	std	Y+1, r1	; 0x01
- 280:	16 c0       	rjmp	.+44     	; 0x2ae <displayProgramming+0x3c>
-	{
-		PORTB = 0xFF;
- 282:	88 e3       	ldi	r24, 0x38	; 56
- 284:	90 e0       	ldi	r25, 0x00	; 0
- 286:	2f ef       	ldi	r18, 0xFF	; 255
- 288:	fc 01       	movw	r30, r24
- 28a:	20 83       	st	Z, r18
-		delay(10);
- 28c:	8a e0       	ldi	r24, 0x0A	; 10
- 28e:	90 e0       	ldi	r25, 0x00	; 0
- 290:	0e 94 49 00 	call	0x92	; 0x92 <delay>
-		PORTB = 0x00;
- 294:	88 e3       	ldi	r24, 0x38	; 56
- 296:	90 e0       	ldi	r25, 0x00	; 0
- 298:	fc 01       	movw	r30, r24
- 29a:	10 82       	st	Z, r1
-		delay(10);
- 29c:	8a e0       	ldi	r24, 0x0A	; 10
- 29e:	90 e0       	ldi	r25, 0x00	; 0
- 2a0:	0e 94 49 00 	call	0x92	; 0x92 <delay>
+ 276:	00 d0       	rcall	.+0      	; 0x278 <write_EEPROM+0x6>
+ 278:	1f 92       	push	r1
+ 27a:	cd b7       	in	r28, 0x3d	; 61
+ 27c:	de b7       	in	r29, 0x3e	; 62
+ 27e:	89 83       	std	Y+1, r24	; 0x01
+ 280:	7b 83       	std	Y+3, r23	; 0x03
+ 282:	6a 83       	std	Y+2, r22	; 0x02
+//should disable global interrupts here if we use them
+	
+	//check if address is valid
+	if(WriteAddress > 0x400)	//only 2^10 = 1024 addresses
+ 284:	8a 81       	ldd	r24, Y+2	; 0x02
+ 286:	9b 81       	ldd	r25, Y+3	; 0x03
+ 288:	81 30       	cpi	r24, 0x01	; 1
+ 28a:	94 40       	sbci	r25, 0x04	; 4
+ 28c:	20 f0       	brcs	.+8      	; 0x296 <write_EEPROM+0x24>
+		{
+			errorFlag =3;
+ 28e:	83 e0       	ldi	r24, 0x03	; 3
+ 290:	80 93 76 00 	sts	0x0076, r24	; 0x800076 <__data_end>
+			return;			//Set some debug flag?
+ 294:	1a c0       	rjmp	.+52     	; 0x2ca <write_EEPROM+0x58>
+		}
+	
+	
+	//Wait till previous write operation is completed(i.e. wait till EEWE becomes zero).
+	while(EECR & (1 << EEWE));	//b 0000 0010
+ 296:	00 00       	nop
+ 298:	8c e3       	ldi	r24, 0x3C	; 60
+ 29a:	90 e0       	ldi	r25, 0x00	; 0
+ 29c:	fc 01       	movw	r30, r24
+ 29e:	80 81       	ld	r24, Z
+ 2a0:	88 2f       	mov	r24, r24
+ 2a2:	90 e0       	ldi	r25, 0x00	; 0
+ 2a4:	82 70       	andi	r24, 0x02	; 2
+ 2a6:	99 27       	eor	r25, r25
+ 2a8:	89 2b       	or	r24, r25
+ 2aa:	b1 f7       	brne	.-20     	; 0x298 <write_EEPROM+0x26>
+	//Wait until SPMEN in SPMCR becomes zero		Dont think this step is necessary
+	// only relevant if the software contains a boot loader allowing the CPU to program the Flash. If the Flash is never being updated by the CPU, can be omitted
+
+	//Load the EEPROM address into EEAR at which the data has to be stored.
+	//high and low registers, high register will always be 0 for us.
+	EEAR = WriteAddress;
+ 2ac:	8e e3       	ldi	r24, 0x3E	; 62
+ 2ae:	90 e0       	ldi	r25, 0x00	; 0
+ 2b0:	2a 81       	ldd	r18, Y+2	; 0x02
+ 2b2:	3b 81       	ldd	r19, Y+3	; 0x03
+ 2b4:	fc 01       	movw	r30, r24
+ 2b6:	31 83       	std	Z+1, r19	; 0x01
+ 2b8:	20 83       	st	Z, r18
+
+	//Load the data into EEDR which has to be stored in EEPROM.
+	EEDR = WriteData;
+ 2ba:	8d e3       	ldi	r24, 0x3D	; 61
+ 2bc:	90 e0       	ldi	r25, 0x00	; 0
+ 2be:	29 81       	ldd	r18, Y+1	; 0x01
+ 2c0:	fc 01       	movw	r30, r24
+ 2c2:	20 83       	st	Z, r18
+
+	//Set the EEMWE (EEPROM Master Write Enable).
+	asm("SBI 0x1C, 0x02");
+ 2c4:	e2 9a       	sbi	0x1c, 2	; 28
+	//set EEWE in EECR to 0			Dont think this step is necessary. Why is it listed?
+
+	//Within four clock cycles after 4th step, set EEWE(Eeprom Write Enable) to 1 to trigger the EEPROM Write Operation
+	asm("SBI 0x1C, 0x01");
+ 2c6:	e1 9a       	sbi	0x1c, 1	; 28
+return;
+ 2c8:	00 00       	nop
+}
+ 2ca:	0f 90       	pop	r0
+ 2cc:	0f 90       	pop	r0
+ 2ce:	0f 90       	pop	r0
+ 2d0:	df 91       	pop	r29
+ 2d2:	cf 91       	pop	r28
+ 2d4:	08 95       	ret
+
+000002d6 <read_EEPROM>:
+//****************************************************************************************
 
 //****************************************************************************************
-//Programming mode LED sequence
-void displayProgramming(void)
+//Read EEPROM
+uint8_t read_EEPROM(uint16_t readAddress)
 {
-	for (int i = 0; i <10; i++)
- 2a4:	89 81       	ldd	r24, Y+1	; 0x01
- 2a6:	9a 81       	ldd	r25, Y+2	; 0x02
- 2a8:	01 96       	adiw	r24, 0x01	; 1
- 2aa:	9a 83       	std	Y+2, r25	; 0x02
- 2ac:	89 83       	std	Y+1, r24	; 0x01
- 2ae:	89 81       	ldd	r24, Y+1	; 0x01
- 2b0:	9a 81       	ldd	r25, Y+2	; 0x02
- 2b2:	0a 97       	sbiw	r24, 0x0a	; 10
- 2b4:	34 f3       	brlt	.-52     	; 0x282 <displayProgramming+0x10>
-		PORTB = 0xFF;
-		delay(10);
-		PORTB = 0x00;
-		delay(10);
+ 2d6:	cf 93       	push	r28
+ 2d8:	df 93       	push	r29
+ 2da:	00 d0       	rcall	.+0      	; 0x2dc <read_EEPROM+0x6>
+ 2dc:	cd b7       	in	r28, 0x3d	; 61
+ 2de:	de b7       	in	r29, 0x3e	; 62
+ 2e0:	9a 83       	std	Y+2, r25	; 0x02
+ 2e2:	89 83       	std	Y+1, r24	; 0x01
+	//check if address is valid
+	if(readAddress > 0x400)	//only 2^10 = 1024 addresses
+ 2e4:	89 81       	ldd	r24, Y+1	; 0x01
+ 2e6:	9a 81       	ldd	r25, Y+2	; 0x02
+ 2e8:	81 30       	cpi	r24, 0x01	; 1
+ 2ea:	94 40       	sbci	r25, 0x04	; 4
+ 2ec:	10 f0       	brcs	.+4      	; 0x2f2 <read_EEPROM+0x1c>
+	{
+		return 0;			//Set some debug flag?
+ 2ee:	80 e0       	ldi	r24, 0x00	; 0
+ 2f0:	1f c0       	rjmp	.+62     	; 0x330 <read_EEPROM+0x5a>
 	}
-}
- 2b6:	00 00       	nop
- 2b8:	0f 90       	pop	r0
- 2ba:	0f 90       	pop	r0
- 2bc:	df 91       	pop	r29
- 2be:	cf 91       	pop	r28
- 2c0:	08 95       	ret
+	
+	//WAit for completion of previous Write operation.
+	while(EECR & (1 << EEWE));
+ 2f2:	00 00       	nop
+ 2f4:	8c e3       	ldi	r24, 0x3C	; 60
+ 2f6:	90 e0       	ldi	r25, 0x00	; 0
+ 2f8:	fc 01       	movw	r30, r24
+ 2fa:	80 81       	ld	r24, Z
+ 2fc:	88 2f       	mov	r24, r24
+ 2fe:	90 e0       	ldi	r25, 0x00	; 0
+ 300:	82 70       	andi	r24, 0x02	; 2
+ 302:	99 27       	eor	r25, r25
+ 304:	89 2b       	or	r24, r25
+ 306:	b1 f7       	brne	.-20     	; 0x2f4 <read_EEPROM+0x1e>
 
-000002c2 <initLEDs>:
+	//Load the EEPROM address into EEAR from where the data needs to be read.
+	EEAR = readAddress;
+ 308:	8e e3       	ldi	r24, 0x3E	; 62
+ 30a:	90 e0       	ldi	r25, 0x00	; 0
+ 30c:	29 81       	ldd	r18, Y+1	; 0x01
+ 30e:	3a 81       	ldd	r19, Y+2	; 0x02
+ 310:	fc 01       	movw	r30, r24
+ 312:	31 83       	std	Z+1, r19	; 0x01
+ 314:	20 83       	st	Z, r18
+
+	//Trigger the EEPROM read operation by setting EERE (EEPROM Read Enable).
+	EECR |= (1 <<EERE);
+ 316:	8c e3       	ldi	r24, 0x3C	; 60
+ 318:	90 e0       	ldi	r25, 0x00	; 0
+ 31a:	2c e3       	ldi	r18, 0x3C	; 60
+ 31c:	30 e0       	ldi	r19, 0x00	; 0
+ 31e:	f9 01       	movw	r30, r18
+ 320:	20 81       	ld	r18, Z
+ 322:	21 60       	ori	r18, 0x01	; 1
+ 324:	fc 01       	movw	r30, r24
+ 326:	20 83       	st	Z, r18
+
+	//Wait for some time (about 1ms) and collect the read data from EEDR.
+	return EEDR;
+ 328:	8d e3       	ldi	r24, 0x3D	; 61
+ 32a:	90 e0       	ldi	r25, 0x00	; 0
+ 32c:	fc 01       	movw	r30, r24
+ 32e:	80 81       	ld	r24, Z
+}
+ 330:	0f 90       	pop	r0
+ 332:	0f 90       	pop	r0
+ 334:	df 91       	pop	r29
+ 336:	cf 91       	pop	r28
+ 338:	08 95       	ret
+
+0000033a <storePasscode>:
+//****************************************************************************************
+//Store Passcode stores 4 bytes of passcode into memory location defined by the user.
+//32 bit passcode must be divided into 4 bytes
+//each byte is stored in location 0x00XY, where X is the hex value of the user, and Y is which byte is being stored
+void storePasscode (unsigned long int Passcode, uint8_t user)
+{
+ 33a:	cf 93       	push	r28
+ 33c:	df 93       	push	r29
+ 33e:	cd b7       	in	r28, 0x3d	; 61
+ 340:	de b7       	in	r29, 0x3e	; 62
+ 342:	63 97       	sbiw	r28, 0x13	; 19
+ 344:	0f b6       	in	r0, 0x3f	; 63
+ 346:	f8 94       	cli
+ 348:	de bf       	out	0x3e, r29	; 62
+ 34a:	0f be       	out	0x3f, r0	; 63
+ 34c:	cd bf       	out	0x3d, r28	; 61
+ 34e:	6f 87       	std	Y+15, r22	; 0x0f
+ 350:	78 8b       	std	Y+16, r23	; 0x10
+ 352:	89 8b       	std	Y+17, r24	; 0x11
+ 354:	9a 8b       	std	Y+18, r25	; 0x12
+ 356:	4b 8b       	std	Y+19, r20	; 0x13
+	//check if user input is valid
+	switch(user){
+ 358:	8b 89       	ldd	r24, Y+19	; 0x13
+ 35a:	88 2f       	mov	r24, r24
+ 35c:	90 e0       	ldi	r25, 0x00	; 0
+ 35e:	0a 97       	sbiw	r24, 0x0a	; 10
+ 360:	04 97       	sbiw	r24, 0x04	; 4
+ 362:	08 f0       	brcs	.+2      	; 0x366 <storePasscode+0x2c>
+ 364:	69 c0       	rjmp	.+210    	; 0x438 <__LOCK_REGION_LENGTH__+0x38>
+		case 0x0A:
+		case 0x0B:
+		case 0x0C:
+		case 0x0D:
+		break;
+ 366:	00 00       	nop
+	
+	//store each byte of passcode
+	uint8_t passcodeByte[4];
+	uint16_t passcodeAddress[4];
+	
+	for(int i = 0; i<4; i++)
+ 368:	1a 82       	std	Y+2, r1	; 0x02
+ 36a:	19 82       	std	Y+1, r1	; 0x01
+ 36c:	5e c0       	rjmp	.+188    	; 0x42a <__LOCK_REGION_LENGTH__+0x2a>
+	{
+		//store each byte of passcode into an array
+		passcodeByte[i] = Passcode>>(8*i);
+ 36e:	89 81       	ldd	r24, Y+1	; 0x01
+ 370:	9a 81       	ldd	r25, Y+2	; 0x02
+ 372:	9c 01       	movw	r18, r24
+ 374:	22 0f       	add	r18, r18
+ 376:	33 1f       	adc	r19, r19
+ 378:	22 0f       	add	r18, r18
+ 37a:	33 1f       	adc	r19, r19
+ 37c:	22 0f       	add	r18, r18
+ 37e:	33 1f       	adc	r19, r19
+ 380:	8f 85       	ldd	r24, Y+15	; 0x0f
+ 382:	98 89       	ldd	r25, Y+16	; 0x10
+ 384:	a9 89       	ldd	r26, Y+17	; 0x11
+ 386:	ba 89       	ldd	r27, Y+18	; 0x12
+ 388:	04 c0       	rjmp	.+8      	; 0x392 <storePasscode+0x58>
+ 38a:	b6 95       	lsr	r27
+ 38c:	a7 95       	ror	r26
+ 38e:	97 95       	ror	r25
+ 390:	87 95       	ror	r24
+ 392:	2a 95       	dec	r18
+ 394:	d2 f7       	brpl	.-12     	; 0x38a <storePasscode+0x50>
+ 396:	48 2f       	mov	r20, r24
+ 398:	9e 01       	movw	r18, r28
+ 39a:	2d 5f       	subi	r18, 0xFD	; 253
+ 39c:	3f 4f       	sbci	r19, 0xFF	; 255
+ 39e:	89 81       	ldd	r24, Y+1	; 0x01
+ 3a0:	9a 81       	ldd	r25, Y+2	; 0x02
+ 3a2:	82 0f       	add	r24, r18
+ 3a4:	93 1f       	adc	r25, r19
+ 3a6:	fc 01       	movw	r30, r24
+ 3a8:	40 83       	st	Z, r20
+		//define the location to store the passcode in EEPROM
+		passcodeAddress[i]= (user<<4)|(4-i);
+ 3aa:	8b 89       	ldd	r24, Y+19	; 0x13
+ 3ac:	88 2f       	mov	r24, r24
+ 3ae:	90 e0       	ldi	r25, 0x00	; 0
+ 3b0:	9c 01       	movw	r18, r24
+ 3b2:	22 95       	swap	r18
+ 3b4:	32 95       	swap	r19
+ 3b6:	30 7f       	andi	r19, 0xF0	; 240
+ 3b8:	32 27       	eor	r19, r18
+ 3ba:	20 7f       	andi	r18, 0xF0	; 240
+ 3bc:	32 27       	eor	r19, r18
+ 3be:	44 e0       	ldi	r20, 0x04	; 4
+ 3c0:	50 e0       	ldi	r21, 0x00	; 0
+ 3c2:	89 81       	ldd	r24, Y+1	; 0x01
+ 3c4:	9a 81       	ldd	r25, Y+2	; 0x02
+ 3c6:	ba 01       	movw	r22, r20
+ 3c8:	68 1b       	sub	r22, r24
+ 3ca:	79 0b       	sbc	r23, r25
+ 3cc:	cb 01       	movw	r24, r22
+ 3ce:	82 2b       	or	r24, r18
+ 3d0:	93 2b       	or	r25, r19
+ 3d2:	ac 01       	movw	r20, r24
+ 3d4:	89 81       	ldd	r24, Y+1	; 0x01
+ 3d6:	9a 81       	ldd	r25, Y+2	; 0x02
+ 3d8:	88 0f       	add	r24, r24
+ 3da:	99 1f       	adc	r25, r25
+ 3dc:	9e 01       	movw	r18, r28
+ 3de:	2f 5f       	subi	r18, 0xFF	; 255
+ 3e0:	3f 4f       	sbci	r19, 0xFF	; 255
+ 3e2:	82 0f       	add	r24, r18
+ 3e4:	93 1f       	adc	r25, r19
+ 3e6:	06 96       	adiw	r24, 0x06	; 6
+ 3e8:	fc 01       	movw	r30, r24
+ 3ea:	51 83       	std	Z+1, r21	; 0x01
+ 3ec:	40 83       	st	Z, r20
+		//write the byte to the location in EEPROM
+		write_EEPROM(passcodeByte[i],passcodeAddress[i]);
+ 3ee:	89 81       	ldd	r24, Y+1	; 0x01
+ 3f0:	9a 81       	ldd	r25, Y+2	; 0x02
+ 3f2:	88 0f       	add	r24, r24
+ 3f4:	99 1f       	adc	r25, r25
+ 3f6:	9e 01       	movw	r18, r28
+ 3f8:	2f 5f       	subi	r18, 0xFF	; 255
+ 3fa:	3f 4f       	sbci	r19, 0xFF	; 255
+ 3fc:	82 0f       	add	r24, r18
+ 3fe:	93 1f       	adc	r25, r19
+ 400:	06 96       	adiw	r24, 0x06	; 6
+ 402:	fc 01       	movw	r30, r24
+ 404:	40 81       	ld	r20, Z
+ 406:	51 81       	ldd	r21, Z+1	; 0x01
+ 408:	9e 01       	movw	r18, r28
+ 40a:	2d 5f       	subi	r18, 0xFD	; 253
+ 40c:	3f 4f       	sbci	r19, 0xFF	; 255
+ 40e:	89 81       	ldd	r24, Y+1	; 0x01
+ 410:	9a 81       	ldd	r25, Y+2	; 0x02
+ 412:	82 0f       	add	r24, r18
+ 414:	93 1f       	adc	r25, r19
+ 416:	fc 01       	movw	r30, r24
+ 418:	80 81       	ld	r24, Z
+ 41a:	ba 01       	movw	r22, r20
+ 41c:	0e 94 39 01 	call	0x272	; 0x272 <write_EEPROM>
+	
+	//store each byte of passcode
+	uint8_t passcodeByte[4];
+	uint16_t passcodeAddress[4];
+	
+	for(int i = 0; i<4; i++)
+ 420:	89 81       	ldd	r24, Y+1	; 0x01
+ 422:	9a 81       	ldd	r25, Y+2	; 0x02
+ 424:	01 96       	adiw	r24, 0x01	; 1
+ 426:	9a 83       	std	Y+2, r25	; 0x02
+ 428:	89 83       	std	Y+1, r24	; 0x01
+ 42a:	89 81       	ldd	r24, Y+1	; 0x01
+ 42c:	9a 81       	ldd	r25, Y+2	; 0x02
+ 42e:	04 97       	sbiw	r24, 0x04	; 4
+ 430:	0c f4       	brge	.+2      	; 0x434 <__LOCK_REGION_LENGTH__+0x34>
+ 432:	9d cf       	rjmp	.-198    	; 0x36e <storePasscode+0x34>
+		//define the location to store the passcode in EEPROM
+		passcodeAddress[i]= (user<<4)|(4-i);
+		//write the byte to the location in EEPROM
+		write_EEPROM(passcodeByte[i],passcodeAddress[i]);
+	}
+	return;
+ 434:	00 00       	nop
+ 436:	01 c0       	rjmp	.+2      	; 0x43a <__LOCK_REGION_LENGTH__+0x3a>
+		case 0x0C:
+		case 0x0D:
+		break;
+		
+		default:	//invalid user code		Set some debug flag here
+		return;
+ 438:	00 00       	nop
+		passcodeAddress[i]= (user<<4)|(4-i);
+		//write the byte to the location in EEPROM
+		write_EEPROM(passcodeByte[i],passcodeAddress[i]);
+	}
+	return;
+}
+ 43a:	63 96       	adiw	r28, 0x13	; 19
+ 43c:	0f b6       	in	r0, 0x3f	; 63
+ 43e:	f8 94       	cli
+ 440:	de bf       	out	0x3e, r29	; 62
+ 442:	0f be       	out	0x3f, r0	; 63
+ 444:	cd bf       	out	0x3d, r28	; 61
+ 446:	df 91       	pop	r29
+ 448:	cf 91       	pop	r28
+ 44a:	08 95       	ret
+
+0000044c <RecallPasscode>:
+//****************************************************************************************
+
+//****************************************************************************************
+//Reads the passcode from EEPROM and stores it into a long int
+unsigned long int RecallPasscode(uint8_t user)
+{
+ 44c:	cf 93       	push	r28
+ 44e:	df 93       	push	r29
+ 450:	cd b7       	in	r28, 0x3d	; 61
+ 452:	de b7       	in	r29, 0x3e	; 62
+ 454:	2b 97       	sbiw	r28, 0x0b	; 11
+ 456:	0f b6       	in	r0, 0x3f	; 63
+ 458:	f8 94       	cli
+ 45a:	de bf       	out	0x3e, r29	; 62
+ 45c:	0f be       	out	0x3f, r0	; 63
+ 45e:	cd bf       	out	0x3d, r28	; 61
+ 460:	8b 87       	std	Y+11, r24	; 0x0b
+unsigned long int tempValue = 0;
+ 462:	1f 82       	std	Y+7, r1	; 0x07
+ 464:	18 86       	std	Y+8, r1	; 0x08
+ 466:	19 86       	std	Y+9, r1	; 0x09
+ 468:	1a 86       	std	Y+10, r1	; 0x0a
+unsigned long int passcode = 0;	
+ 46a:	19 82       	std	Y+1, r1	; 0x01
+ 46c:	1a 82       	std	Y+2, r1	; 0x02
+ 46e:	1b 82       	std	Y+3, r1	; 0x03
+ 470:	1c 82       	std	Y+4, r1	; 0x04
+	for (int i = 0; i<4; i++)
+ 472:	1e 82       	std	Y+6, r1	; 0x06
+ 474:	1d 82       	std	Y+5, r1	; 0x05
+ 476:	43 c0       	rjmp	.+134    	; 0x4fe <RecallPasscode+0xb2>
+	{
+		//read the EEPROM value at location of user from LSB to MSB
+		tempValue = read_EEPROM((user<<4)|(4-i));
+ 478:	8b 85       	ldd	r24, Y+11	; 0x0b
+ 47a:	88 2f       	mov	r24, r24
+ 47c:	90 e0       	ldi	r25, 0x00	; 0
+ 47e:	9c 01       	movw	r18, r24
+ 480:	22 95       	swap	r18
+ 482:	32 95       	swap	r19
+ 484:	30 7f       	andi	r19, 0xF0	; 240
+ 486:	32 27       	eor	r19, r18
+ 488:	20 7f       	andi	r18, 0xF0	; 240
+ 48a:	32 27       	eor	r19, r18
+ 48c:	44 e0       	ldi	r20, 0x04	; 4
+ 48e:	50 e0       	ldi	r21, 0x00	; 0
+ 490:	8d 81       	ldd	r24, Y+5	; 0x05
+ 492:	9e 81       	ldd	r25, Y+6	; 0x06
+ 494:	ba 01       	movw	r22, r20
+ 496:	68 1b       	sub	r22, r24
+ 498:	79 0b       	sbc	r23, r25
+ 49a:	cb 01       	movw	r24, r22
+ 49c:	82 2b       	or	r24, r18
+ 49e:	93 2b       	or	r25, r19
+ 4a0:	0e 94 6b 01 	call	0x2d6	; 0x2d6 <read_EEPROM>
+ 4a4:	88 2f       	mov	r24, r24
+ 4a6:	90 e0       	ldi	r25, 0x00	; 0
+ 4a8:	a0 e0       	ldi	r26, 0x00	; 0
+ 4aa:	b0 e0       	ldi	r27, 0x00	; 0
+ 4ac:	8f 83       	std	Y+7, r24	; 0x07
+ 4ae:	98 87       	std	Y+8, r25	; 0x08
+ 4b0:	a9 87       	std	Y+9, r26	; 0x09
+ 4b2:	ba 87       	std	Y+10, r27	; 0x0a
+		passcode |= tempValue<<(8*i);			//add each byte together to form a 4 byte passcode
+ 4b4:	8d 81       	ldd	r24, Y+5	; 0x05
+ 4b6:	9e 81       	ldd	r25, Y+6	; 0x06
+ 4b8:	9c 01       	movw	r18, r24
+ 4ba:	22 0f       	add	r18, r18
+ 4bc:	33 1f       	adc	r19, r19
+ 4be:	22 0f       	add	r18, r18
+ 4c0:	33 1f       	adc	r19, r19
+ 4c2:	22 0f       	add	r18, r18
+ 4c4:	33 1f       	adc	r19, r19
+ 4c6:	8f 81       	ldd	r24, Y+7	; 0x07
+ 4c8:	98 85       	ldd	r25, Y+8	; 0x08
+ 4ca:	a9 85       	ldd	r26, Y+9	; 0x09
+ 4cc:	ba 85       	ldd	r27, Y+10	; 0x0a
+ 4ce:	04 c0       	rjmp	.+8      	; 0x4d8 <RecallPasscode+0x8c>
+ 4d0:	88 0f       	add	r24, r24
+ 4d2:	99 1f       	adc	r25, r25
+ 4d4:	aa 1f       	adc	r26, r26
+ 4d6:	bb 1f       	adc	r27, r27
+ 4d8:	2a 95       	dec	r18
+ 4da:	d2 f7       	brpl	.-12     	; 0x4d0 <RecallPasscode+0x84>
+ 4dc:	29 81       	ldd	r18, Y+1	; 0x01
+ 4de:	3a 81       	ldd	r19, Y+2	; 0x02
+ 4e0:	4b 81       	ldd	r20, Y+3	; 0x03
+ 4e2:	5c 81       	ldd	r21, Y+4	; 0x04
+ 4e4:	82 2b       	or	r24, r18
+ 4e6:	93 2b       	or	r25, r19
+ 4e8:	a4 2b       	or	r26, r20
+ 4ea:	b5 2b       	or	r27, r21
+ 4ec:	89 83       	std	Y+1, r24	; 0x01
+ 4ee:	9a 83       	std	Y+2, r25	; 0x02
+ 4f0:	ab 83       	std	Y+3, r26	; 0x03
+ 4f2:	bc 83       	std	Y+4, r27	; 0x04
+//Reads the passcode from EEPROM and stores it into a long int
+unsigned long int RecallPasscode(uint8_t user)
+{
+unsigned long int tempValue = 0;
+unsigned long int passcode = 0;	
+	for (int i = 0; i<4; i++)
+ 4f4:	8d 81       	ldd	r24, Y+5	; 0x05
+ 4f6:	9e 81       	ldd	r25, Y+6	; 0x06
+ 4f8:	01 96       	adiw	r24, 0x01	; 1
+ 4fa:	9e 83       	std	Y+6, r25	; 0x06
+ 4fc:	8d 83       	std	Y+5, r24	; 0x05
+ 4fe:	8d 81       	ldd	r24, Y+5	; 0x05
+ 500:	9e 81       	ldd	r25, Y+6	; 0x06
+ 502:	04 97       	sbiw	r24, 0x04	; 4
+ 504:	0c f4       	brge	.+2      	; 0x508 <RecallPasscode+0xbc>
+ 506:	b8 cf       	rjmp	.-144    	; 0x478 <RecallPasscode+0x2c>
+	{
+		//read the EEPROM value at location of user from LSB to MSB
+		tempValue = read_EEPROM((user<<4)|(4-i));
+		passcode |= tempValue<<(8*i);			//add each byte together to form a 4 byte passcode
+	}
+	return passcode;
+ 508:	89 81       	ldd	r24, Y+1	; 0x01
+ 50a:	9a 81       	ldd	r25, Y+2	; 0x02
+ 50c:	ab 81       	ldd	r26, Y+3	; 0x03
+ 50e:	bc 81       	ldd	r27, Y+4	; 0x04
+}
+ 510:	bc 01       	movw	r22, r24
+ 512:	cd 01       	movw	r24, r26
+ 514:	2b 96       	adiw	r28, 0x0b	; 11
+ 516:	0f b6       	in	r0, 0x3f	; 63
+ 518:	f8 94       	cli
+ 51a:	de bf       	out	0x3e, r29	; 62
+ 51c:	0f be       	out	0x3f, r0	; 63
+ 51e:	cd bf       	out	0x3d, r28	; 61
+ 520:	df 91       	pop	r29
+ 522:	cf 91       	pop	r28
+ 524:	08 95       	ret
+
+00000526 <initLEDs>:
+// START FUNCTIONS
+
+//****************************************************************************************
+//	Initialise output LEDs - PORTB
+void initLEDs(void)
+{
+ 526:	cf 93       	push	r28
+ 528:	df 93       	push	r29
+ 52a:	cd b7       	in	r28, 0x3d	; 61
+ 52c:	de b7       	in	r29, 0x3e	; 62
+	DDRB = 0xFF;		// Set all LEDs to outputs
+ 52e:	87 e3       	ldi	r24, 0x37	; 55
+ 530:	90 e0       	ldi	r25, 0x00	; 0
+ 532:	2f ef       	ldi	r18, 0xFF	; 255
+ 534:	fc 01       	movw	r30, r24
+ 536:	20 83       	st	Z, r18
+	PORTB = 0x00;		// Turn all LEDs off
+ 538:	88 e3       	ldi	r24, 0x38	; 56
+ 53a:	90 e0       	ldi	r25, 0x00	; 0
+ 53c:	fc 01       	movw	r30, r24
+ 53e:	10 82       	st	Z, r1
+}
+ 540:	00 00       	nop
+ 542:	df 91       	pop	r29
+ 544:	cf 91       	pop	r28
+ 546:	08 95       	ret
+
+00000548 <initKeypad>:
+
+
+//****************************************************************************************
+//	Initialise keypad - PORTC
 void initKeypad(void)
 {
-	DDRC = 0xF0;		// Set rows to inputs and columns to outputs
-	PORTC = 0x0F;		// Enable the pull-up resistors on the row inputs 
-	PORTC = 0xFF;		// Set the columns to all on (idle state) & ensure pull-ups are still enabled
-}
- 2c2:	cf 93       	push	r28
- 2c4:	df 93       	push	r29
- 2c6:	cd b7       	in	r28, 0x3d	; 61
- 2c8:	de b7       	in	r29, 0x3e	; 62
- 2ca:	87 e3       	ldi	r24, 0x37	; 55
- 2cc:	90 e0       	ldi	r25, 0x00	; 0
- 2ce:	2f ef       	ldi	r18, 0xFF	; 255
- 2d0:	fc 01       	movw	r30, r24
- 2d2:	20 83       	st	Z, r18
- 2d4:	88 e3       	ldi	r24, 0x38	; 56
- 2d6:	90 e0       	ldi	r25, 0x00	; 0
- 2d8:	fc 01       	movw	r30, r24
- 2da:	10 82       	st	Z, r1
- 2dc:	00 00       	nop
- 2de:	df 91       	pop	r29
- 2e0:	cf 91       	pop	r28
- 2e2:	08 95       	ret
+ 548:	cf 93       	push	r28
+ 54a:	df 93       	push	r29
+ 54c:	cd b7       	in	r28, 0x3d	; 61
+ 54e:	de b7       	in	r29, 0x3e	; 62
+	if(keypad3x4 == 1)
+ 550:	80 91 77 00 	lds	r24, 0x0077	; 0x800077 <keypad3x4>
+ 554:	81 30       	cpi	r24, 0x01	; 1
+ 556:	99 f4       	brne	.+38     	; 0x57e <initKeypad+0x36>
+	{
+		DDRC = 0x95;		// Set rows to inputs and columns to outputs
+ 558:	84 e3       	ldi	r24, 0x34	; 52
+ 55a:	90 e0       	ldi	r25, 0x00	; 0
+ 55c:	25 e9       	ldi	r18, 0x95	; 149
+ 55e:	fc 01       	movw	r30, r24
+ 560:	20 83       	st	Z, r18
+		PORTC = 0x6A;		// Enable the pull-up resistors on the row inputs
+ 562:	85 e3       	ldi	r24, 0x35	; 53
+ 564:	90 e0       	ldi	r25, 0x00	; 0
+ 566:	2a e6       	ldi	r18, 0x6A	; 106
+ 568:	fc 01       	movw	r30, r24
+ 56a:	20 83       	st	Z, r18
+		PORTC = 0xFF;		// Set the columns to all on (idle state) & ensure pull-ups are still enabled
+ 56c:	85 e3       	ldi	r24, 0x35	; 53
+ 56e:	90 e0       	ldi	r25, 0x00	; 0
+ 570:	2f ef       	ldi	r18, 0xFF	; 255
+ 572:	fc 01       	movw	r30, r24
+ 574:	20 83       	st	Z, r18
+		
+		AmountOfColumns =3;
+ 576:	83 e0       	ldi	r24, 0x03	; 3
+ 578:	80 93 79 00 	sts	0x0079, r24	; 0x800079 <AmountOfColumns>
+		PORTC = 0xFF;		// Set the columns to all on (idle state) & ensure pull-ups are still enabled
+		
+		AmountOfColumns =4;
+	}
 
-000002e4 <initTimers>:
+}
+ 57c:	12 c0       	rjmp	.+36     	; 0x5a2 <initKeypad+0x5a>
+		
+		AmountOfColumns =3;
+	}
+	else
+	{
+		DDRC = 0xF0;		// Set rows to inputs and columns to outputs
+ 57e:	84 e3       	ldi	r24, 0x34	; 52
+ 580:	90 e0       	ldi	r25, 0x00	; 0
+ 582:	20 ef       	ldi	r18, 0xF0	; 240
+ 584:	fc 01       	movw	r30, r24
+ 586:	20 83       	st	Z, r18
+		PORTC = 0x0F;		// Enable the pull-up resistors on the row inputs
+ 588:	85 e3       	ldi	r24, 0x35	; 53
+ 58a:	90 e0       	ldi	r25, 0x00	; 0
+ 58c:	2f e0       	ldi	r18, 0x0F	; 15
+ 58e:	fc 01       	movw	r30, r24
+ 590:	20 83       	st	Z, r18
+		PORTC = 0xFF;		// Set the columns to all on (idle state) & ensure pull-ups are still enabled
+ 592:	85 e3       	ldi	r24, 0x35	; 53
+ 594:	90 e0       	ldi	r25, 0x00	; 0
+ 596:	2f ef       	ldi	r18, 0xFF	; 255
+ 598:	fc 01       	movw	r30, r24
+ 59a:	20 83       	st	Z, r18
+		
+		AmountOfColumns =4;
+ 59c:	84 e0       	ldi	r24, 0x04	; 4
+ 59e:	80 93 79 00 	sts	0x0079, r24	; 0x800079 <AmountOfColumns>
+	}
+
+}
+ 5a2:	00 00       	nop
+ 5a4:	df 91       	pop	r29
+ 5a6:	cf 91       	pop	r28
+ 5a8:	08 95       	ret
+
+000005aa <initTimers>:
 
 
 //****************************************************************************************
 //Initialise Timers
 void initTimers(void)
 {
- 2e4:	cf 93       	push	r28
- 2e6:	df 93       	push	r29
- 2e8:	cd b7       	in	r28, 0x3d	; 61
- 2ea:	de b7       	in	r29, 0x3e	; 62
+ 5aa:	cf 93       	push	r28
+ 5ac:	df 93       	push	r29
+ 5ae:	cd b7       	in	r28, 0x3d	; 61
+ 5b0:	de b7       	in	r29, 0x3e	; 62
 	//set timer counter to 0
 	TCNT0 = 0x00;
- 2ec:	82 e5       	ldi	r24, 0x52	; 82
- 2ee:	90 e0       	ldi	r25, 0x00	; 0
- 2f0:	fc 01       	movw	r30, r24
- 2f2:	10 82       	st	Z, r1
+ 5b2:	82 e5       	ldi	r24, 0x52	; 82
+ 5b4:	90 e0       	ldi	r25, 0x00	; 0
+ 5b6:	fc 01       	movw	r30, r24
+ 5b8:	10 82       	st	Z, r1
 	//set clock prescaler to divide by 1024
 	TCCR0 |= (1<<CS00) | (0<<CS01) | (1<<CS02);
- 2f4:	83 e5       	ldi	r24, 0x53	; 83
- 2f6:	90 e0       	ldi	r25, 0x00	; 0
- 2f8:	23 e5       	ldi	r18, 0x53	; 83
- 2fa:	30 e0       	ldi	r19, 0x00	; 0
- 2fc:	f9 01       	movw	r30, r18
- 2fe:	20 81       	ld	r18, Z
- 300:	25 60       	ori	r18, 0x05	; 5
- 302:	fc 01       	movw	r30, r24
- 304:	20 83       	st	Z, r18
+ 5ba:	83 e5       	ldi	r24, 0x53	; 83
+ 5bc:	90 e0       	ldi	r25, 0x00	; 0
+ 5be:	23 e5       	ldi	r18, 0x53	; 83
+ 5c0:	30 e0       	ldi	r19, 0x00	; 0
+ 5c2:	f9 01       	movw	r30, r18
+ 5c4:	20 81       	ld	r18, Z
+ 5c6:	25 60       	ori	r18, 0x05	; 5
+ 5c8:	fc 01       	movw	r30, r24
+ 5ca:	20 83       	st	Z, r18
 }
- 306:	00 00       	nop
- 308:	df 91       	pop	r29
- 30a:	cf 91       	pop	r28
- 30c:	08 95       	ret
+ 5cc:	00 00       	nop
+ 5ce:	df 91       	pop	r29
+ 5d0:	cf 91       	pop	r28
+ 5d2:	08 95       	ret
 
-0000030e <main>:
+000005d4 <ReadOne>:
+// START FUNCTIONS
+
+//**************************************************************************************************************************************************
+// Function that checks if one key has been pressed 
+unsigned char ReadOne() 
+{
+ 5d4:	cf 93       	push	r28
+ 5d6:	df 93       	push	r29
+ 5d8:	00 d0       	rcall	.+0      	; 0x5da <ReadOne+0x6>
+ 5da:	cd b7       	in	r28, 0x3d	; 61
+ 5dc:	de b7       	in	r29, 0x3e	; 62
+	// Set KeyPressed to 0
+	KeyPressed = 0x00;
+ 5de:	10 92 78 00 	sts	0x0078, r1	; 0x800078 <KeyPressed>
+	
+	while(1)	//can get rid of while loop, it just keeps reading until a key is pressed instead of only reading once when its called
+	{
+
+		// Scanning column: write the column mask to port C
+		for (uint8_t j=0; j<AmountOfColumns; j++)
+ 5e2:	19 82       	std	Y+1, r1	; 0x01
+ 5e4:	3f c0       	rjmp	.+126    	; 0x664 <ReadOne+0x90>
+		{
+			PORTC = col[j];			// Scan each column
+ 5e6:	85 e3       	ldi	r24, 0x35	; 53
+ 5e8:	90 e0       	ldi	r25, 0x00	; 0
+ 5ea:	29 81       	ldd	r18, Y+1	; 0x01
+ 5ec:	22 2f       	mov	r18, r18
+ 5ee:	30 e0       	ldi	r19, 0x00	; 0
+ 5f0:	2e 59       	subi	r18, 0x9E	; 158
+ 5f2:	3f 4f       	sbci	r19, 0xFF	; 255
+ 5f4:	f9 01       	movw	r30, r18
+ 5f6:	20 81       	ld	r18, Z
+ 5f8:	fc 01       	movw	r30, r24
+ 5fa:	20 83       	st	Z, r18
+			delay(1);				// Delay for 0.01 sec
+ 5fc:	81 e0       	ldi	r24, 0x01	; 1
+ 5fe:	90 e0       	ldi	r25, 0x00	; 0
+ 600:	0e 94 49 00 	call	0x92	; 0x92 <delay>
+			portCValue = PINC;			// Read port value from pinC
+ 604:	83 e3       	ldi	r24, 0x33	; 51
+ 606:	90 e0       	ldi	r25, 0x00	; 0
+ 608:	fc 01       	movw	r30, r24
+ 60a:	80 81       	ld	r24, Z
+ 60c:	80 93 61 00 	sts	0x0061, r24	; 0x800061 <portCValue>
+		
+			// Begin stepping through each column to check if row has logic 0
+			if (portCValue != col[j])
+ 610:	89 81       	ldd	r24, Y+1	; 0x01
+ 612:	88 2f       	mov	r24, r24
+ 614:	90 e0       	ldi	r25, 0x00	; 0
+ 616:	8e 59       	subi	r24, 0x9E	; 158
+ 618:	9f 4f       	sbci	r25, 0xFF	; 255
+ 61a:	fc 01       	movw	r30, r24
+ 61c:	90 81       	ld	r25, Z
+ 61e:	80 91 61 00 	lds	r24, 0x0061	; 0x800061 <portCValue>
+ 622:	98 17       	cp	r25, r24
+ 624:	e1 f0       	breq	.+56     	; 0x65e <ReadOne+0x8a>
+			{
+				//rebounce??
+				//Step through each key
+				for(uint8_t k = 0; k < 16; k++)
+ 626:	1a 82       	std	Y+2, r1	; 0x02
+ 628:	17 c0       	rjmp	.+46     	; 0x658 <ReadOne+0x84>
+				{
+					if(portCValue == Keys[k])
+ 62a:	8a 81       	ldd	r24, Y+2	; 0x02
+ 62c:	88 2f       	mov	r24, r24
+ 62e:	90 e0       	ldi	r25, 0x00	; 0
+ 630:	8a 59       	subi	r24, 0x9A	; 154
+ 632:	9f 4f       	sbci	r25, 0xFF	; 255
+ 634:	fc 01       	movw	r30, r24
+ 636:	90 81       	ld	r25, Z
+ 638:	80 91 61 00 	lds	r24, 0x0061	; 0x800061 <portCValue>
+ 63c:	98 17       	cp	r25, r24
+ 63e:	49 f4       	brne	.+18     	; 0x652 <ReadOne+0x7e>
+					{
+						key = k;
+ 640:	8a 81       	ldd	r24, Y+2	; 0x02
+ 642:	80 93 60 00 	sts	0x0060, r24	; 0x800060 <__DATA_REGION_ORIGIN__>
+						//*portBPort = k;
+						KeyPressed = 1;
+ 646:	81 e0       	ldi	r24, 0x01	; 1
+ 648:	80 93 78 00 	sts	0x0078, r24	; 0x800078 <KeyPressed>
+						//break;						//return here instead of break??
+						return key;
+ 64c:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <__DATA_REGION_ORIGIN__>
+ 650:	10 c0       	rjmp	.+32     	; 0x672 <ReadOne+0x9e>
+			// Begin stepping through each column to check if row has logic 0
+			if (portCValue != col[j])
+			{
+				//rebounce??
+				//Step through each key
+				for(uint8_t k = 0; k < 16; k++)
+ 652:	8a 81       	ldd	r24, Y+2	; 0x02
+ 654:	8f 5f       	subi	r24, 0xFF	; 255
+ 656:	8a 83       	std	Y+2, r24	; 0x02
+ 658:	8a 81       	ldd	r24, Y+2	; 0x02
+ 65a:	80 31       	cpi	r24, 0x10	; 16
+ 65c:	30 f3       	brcs	.-52     	; 0x62a <ReadOne+0x56>
+	
+	while(1)	//can get rid of while loop, it just keeps reading until a key is pressed instead of only reading once when its called
+	{
+
+		// Scanning column: write the column mask to port C
+		for (uint8_t j=0; j<AmountOfColumns; j++)
+ 65e:	89 81       	ldd	r24, Y+1	; 0x01
+ 660:	8f 5f       	subi	r24, 0xFF	; 255
+ 662:	89 83       	std	Y+1, r24	; 0x01
+ 664:	80 91 79 00 	lds	r24, 0x0079	; 0x800079 <AmountOfColumns>
+ 668:	99 81       	ldd	r25, Y+1	; 0x01
+ 66a:	98 17       	cp	r25, r24
+ 66c:	08 f4       	brcc	.+2      	; 0x670 <ReadOne+0x9c>
+ 66e:	bb cf       	rjmp	.-138    	; 0x5e6 <ReadOne+0x12>
+						return key;
+					}		
+				}
+			}
+		}
+	}
+ 670:	b8 cf       	rjmp	.-144    	; 0x5e2 <ReadOne+0xe>
+	return key;		//this should never execute
+}
+ 672:	0f 90       	pop	r0
+ 674:	0f 90       	pop	r0
+ 676:	df 91       	pop	r29
+ 678:	cf 91       	pop	r28
+ 67a:	08 95       	ret
+
+0000067c <ReadNone>:
+//**************************************************************************************************************************************************
+
+//**************************************************************************************************************************************************
+//Check if key has been lifted. ie debounce?
+void ReadNone (void)
+{
+ 67c:	cf 93       	push	r28
+ 67e:	df 93       	push	r29
+ 680:	cd b7       	in	r28, 0x3d	; 61
+ 682:	de b7       	in	r29, 0x3e	; 62
+	while((PINC&0x0F)!=0x0F);	//exits when PINC inputs are all high 
+ 684:	00 00       	nop
+ 686:	83 e3       	ldi	r24, 0x33	; 51
+ 688:	90 e0       	ldi	r25, 0x00	; 0
+ 68a:	fc 01       	movw	r30, r24
+ 68c:	80 81       	ld	r24, Z
+ 68e:	88 2f       	mov	r24, r24
+ 690:	90 e0       	ldi	r25, 0x00	; 0
+ 692:	8f 70       	andi	r24, 0x0F	; 15
+ 694:	99 27       	eor	r25, r25
+ 696:	0f 97       	sbiw	r24, 0x0f	; 15
+ 698:	b1 f7       	brne	.-20     	; 0x686 <ReadNone+0xa>
+}
+ 69a:	00 00       	nop
+ 69c:	df 91       	pop	r29
+ 69e:	cf 91       	pop	r28
+ 6a0:	08 95       	ret
+
+000006a2 <InputPasscode>:
+//**************************************************************************************************************************************************
+
+//**************************************************************************************************************************************************
+//Combine 6-8 digits into a passcode
+uint32_t InputPasscode (void)
+{
+ 6a2:	cf 93       	push	r28
+ 6a4:	df 93       	push	r29
+ 6a6:	cd b7       	in	r28, 0x3d	; 61
+ 6a8:	de b7       	in	r29, 0x3e	; 62
+ 6aa:	27 97       	sbiw	r28, 0x07	; 7
+ 6ac:	0f b6       	in	r0, 0x3f	; 63
+ 6ae:	f8 94       	cli
+ 6b0:	de bf       	out	0x3e, r29	; 62
+ 6b2:	0f be       	out	0x3f, r0	; 63
+ 6b4:	cd bf       	out	0x3d, r28	; 61
+	uint32_t passcode = 0;
+ 6b6:	19 82       	std	Y+1, r1	; 0x01
+ 6b8:	1a 82       	std	Y+2, r1	; 0x02
+ 6ba:	1b 82       	std	Y+3, r1	; 0x03
+ 6bc:	1c 82       	std	Y+4, r1	; 0x04
+	for (int i =0; i<8; i++)
+ 6be:	1e 82       	std	Y+6, r1	; 0x06
+ 6c0:	1d 82       	std	Y+5, r1	; 0x05
+ 6c2:	3e c0       	rjmp	.+124    	; 0x740 <InputPasscode+0x9e>
+	{
+		uint8_t keyValue = ReadOne();	//store digit pressed by user
+ 6c4:	0e 94 ea 02 	call	0x5d4	; 0x5d4 <ReadOne>
+ 6c8:	8f 83       	std	Y+7, r24	; 0x07
+		
+		//check if key pressed is a digit
+		
+		if(keyValue==0xF)					//if # is pressed
+ 6ca:	8f 81       	ldd	r24, Y+7	; 0x07
+ 6cc:	8f 30       	cpi	r24, 0x0F	; 15
+ 6ce:	29 f4       	brne	.+10     	; 0x6da <InputPasscode+0x38>
+		{
+			return passcode;
+ 6d0:	89 81       	ldd	r24, Y+1	; 0x01
+ 6d2:	9a 81       	ldd	r25, Y+2	; 0x02
+ 6d4:	ab 81       	ldd	r26, Y+3	; 0x03
+ 6d6:	bc 81       	ldd	r27, Y+4	; 0x04
+ 6d8:	3c c0       	rjmp	.+120    	; 0x752 <InputPasscode+0xb0>
+		}
+		
+		PORTB = keyValue;
+ 6da:	88 e3       	ldi	r24, 0x38	; 56
+ 6dc:	90 e0       	ldi	r25, 0x00	; 0
+ 6de:	2f 81       	ldd	r18, Y+7	; 0x07
+ 6e0:	fc 01       	movw	r30, r24
+ 6e2:	20 83       	st	Z, r18
+		ReadNone();						//waits until finger is lifted off button
+ 6e4:	0e 94 3e 03 	call	0x67c	; 0x67c <ReadNone>
+		PORTB = 0x00;
+ 6e8:	88 e3       	ldi	r24, 0x38	; 56
+ 6ea:	90 e0       	ldi	r25, 0x00	; 0
+ 6ec:	fc 01       	movw	r30, r24
+ 6ee:	10 82       	st	Z, r1
+		
+		passcode = passcode*10 + keyValue;	//add each digit into a long int
+ 6f0:	89 81       	ldd	r24, Y+1	; 0x01
+ 6f2:	9a 81       	ldd	r25, Y+2	; 0x02
+ 6f4:	ab 81       	ldd	r26, Y+3	; 0x03
+ 6f6:	bc 81       	ldd	r27, Y+4	; 0x04
+ 6f8:	88 0f       	add	r24, r24
+ 6fa:	99 1f       	adc	r25, r25
+ 6fc:	aa 1f       	adc	r26, r26
+ 6fe:	bb 1f       	adc	r27, r27
+ 700:	9c 01       	movw	r18, r24
+ 702:	ad 01       	movw	r20, r26
+ 704:	22 0f       	add	r18, r18
+ 706:	33 1f       	adc	r19, r19
+ 708:	44 1f       	adc	r20, r20
+ 70a:	55 1f       	adc	r21, r21
+ 70c:	22 0f       	add	r18, r18
+ 70e:	33 1f       	adc	r19, r19
+ 710:	44 1f       	adc	r20, r20
+ 712:	55 1f       	adc	r21, r21
+ 714:	28 0f       	add	r18, r24
+ 716:	39 1f       	adc	r19, r25
+ 718:	4a 1f       	adc	r20, r26
+ 71a:	5b 1f       	adc	r21, r27
+ 71c:	8f 81       	ldd	r24, Y+7	; 0x07
+ 71e:	88 2f       	mov	r24, r24
+ 720:	90 e0       	ldi	r25, 0x00	; 0
+ 722:	a0 e0       	ldi	r26, 0x00	; 0
+ 724:	b0 e0       	ldi	r27, 0x00	; 0
+ 726:	82 0f       	add	r24, r18
+ 728:	93 1f       	adc	r25, r19
+ 72a:	a4 1f       	adc	r26, r20
+ 72c:	b5 1f       	adc	r27, r21
+ 72e:	89 83       	std	Y+1, r24	; 0x01
+ 730:	9a 83       	std	Y+2, r25	; 0x02
+ 732:	ab 83       	std	Y+3, r26	; 0x03
+ 734:	bc 83       	std	Y+4, r27	; 0x04
+//**************************************************************************************************************************************************
+//Combine 6-8 digits into a passcode
+uint32_t InputPasscode (void)
+{
+	uint32_t passcode = 0;
+	for (int i =0; i<8; i++)
+ 736:	8d 81       	ldd	r24, Y+5	; 0x05
+ 738:	9e 81       	ldd	r25, Y+6	; 0x06
+ 73a:	01 96       	adiw	r24, 0x01	; 1
+ 73c:	9e 83       	std	Y+6, r25	; 0x06
+ 73e:	8d 83       	std	Y+5, r24	; 0x05
+ 740:	8d 81       	ldd	r24, Y+5	; 0x05
+ 742:	9e 81       	ldd	r25, Y+6	; 0x06
+ 744:	08 97       	sbiw	r24, 0x08	; 8
+ 746:	0c f4       	brge	.+2      	; 0x74a <InputPasscode+0xa8>
+ 748:	bd cf       	rjmp	.-134    	; 0x6c4 <InputPasscode+0x22>
+		PORTB = 0x00;
+		
+		passcode = passcode*10 + keyValue;	//add each digit into a long int
+
+	}
+	return passcode;
+ 74a:	89 81       	ldd	r24, Y+1	; 0x01
+ 74c:	9a 81       	ldd	r25, Y+2	; 0x02
+ 74e:	ab 81       	ldd	r26, Y+3	; 0x03
+ 750:	bc 81       	ldd	r27, Y+4	; 0x04
+}
+ 752:	bc 01       	movw	r22, r24
+ 754:	cd 01       	movw	r24, r26
+ 756:	27 96       	adiw	r28, 0x07	; 7
+ 758:	0f b6       	in	r0, 0x3f	; 63
+ 75a:	f8 94       	cli
+ 75c:	de bf       	out	0x3e, r29	; 62
+ 75e:	0f be       	out	0x3f, r0	; 63
+ 760:	cd bf       	out	0x3d, r28	; 61
+ 762:	df 91       	pop	r29
+ 764:	cf 91       	pop	r28
+ 766:	08 95       	ret
+
+00000768 <main>:
 
 // Global variables
 uint8_t debugCode = 0;
 
 int main(void)
 {
- 30e:	cf 93       	push	r28
- 310:	df 93       	push	r29
- 312:	cd b7       	in	r28, 0x3d	; 61
- 314:	de b7       	in	r29, 0x3e	; 62
+ 768:	cf 93       	push	r28
+ 76a:	df 93       	push	r29
+ 76c:	00 d0       	rcall	.+0      	; 0x76e <main+0x6>
+ 76e:	00 d0       	rcall	.+0      	; 0x770 <main+0x8>
+ 770:	cd b7       	in	r28, 0x3d	; 61
+ 772:	de b7       	in	r29, 0x3e	; 62
 	// Initialise everything
     initTimers();
- 316:	0e 94 72 01 	call	0x2e4	; 0x2e4 <initTimers>
+ 774:	0e 94 d5 02 	call	0x5aa	; 0x5aa <initTimers>
 	initLEDs();
- 31a:	0e 94 61 01 	call	0x2c2	; 0x2c2 <initLEDs>
+ 778:	0e 94 93 02 	call	0x526	; 0x526 <initLEDs>
+	initKeypad();
+ 77c:	0e 94 a4 02 	call	0x548	; 0x548 <initKeypad>
 	
-	displayUnlock();		//testing LEDs and delays, should flash various sequences on OUSB
- 31e:	0e 94 8a 00 	call	0x114	; 0x114 <displayUnlock>
-	delay(100);
- 322:	84 e6       	ldi	r24, 0x64	; 100
- 324:	90 e0       	ldi	r25, 0x00	; 0
- 326:	0e 94 49 00 	call	0x92	; 0x92 <delay>
-	displayLock();
- 32a:	0e 94 e1 00 	call	0x1c2	; 0x1c2 <displayLock>
-	delay(100);
- 32e:	84 e6       	ldi	r24, 0x64	; 100
- 330:	90 e0       	ldi	r25, 0x00	; 0
- 332:	0e 94 49 00 	call	0x92	; 0x92 <delay>
-	displayProgramming();
- 336:	0e 94 39 01 	call	0x272	; 0x272 <displayProgramming>
-	delay(5958);	//one min delay
- 33a:	86 e4       	ldi	r24, 0x46	; 70
- 33c:	97 e1       	ldi	r25, 0x17	; 23
- 33e:	0e 94 49 00 	call	0x92	; 0x92 <delay>
+	storePasscode(12345678, 0xA);		//stores the password 12345678 into user slot A
+ 780:	4a e0       	ldi	r20, 0x0A	; 10
+ 782:	6e e4       	ldi	r22, 0x4E	; 78
+ 784:	71 e6       	ldi	r23, 0x61	; 97
+ 786:	8c eb       	ldi	r24, 0xBC	; 188
+ 788:	90 e0       	ldi	r25, 0x00	; 0
+ 78a:	0e 94 9d 01 	call	0x33a	; 0x33a <storePasscode>
 	
     while (1) 
     {
-		PORTB = 0xFF;
- 342:	88 e3       	ldi	r24, 0x38	; 56
- 344:	90 e0       	ldi	r25, 0x00	; 0
- 346:	2f ef       	ldi	r18, 0xFF	; 255
- 348:	fc 01       	movw	r30, r24
- 34a:	20 83       	st	Z, r18
-		delay(10);
- 34c:	8a e0       	ldi	r24, 0x0A	; 10
- 34e:	90 e0       	ldi	r25, 0x00	; 0
- 350:	0e 94 49 00 	call	0x92	; 0x92 <delay>
-		PORTB = 0x00;
- 354:	88 e3       	ldi	r24, 0x38	; 56
- 356:	90 e0       	ldi	r25, 0x00	; 0
- 358:	fc 01       	movw	r30, r24
- 35a:	10 82       	st	Z, r1
-		delay(30);
- 35c:	8e e1       	ldi	r24, 0x1E	; 30
- 35e:	90 e0       	ldi	r25, 0x00	; 0
- 360:	0e 94 49 00 	call	0x92	; 0x92 <delay>
+		uint32_t attemptPasscode = InputPasscode();		//read the passcode from the keypad
+ 78e:	0e 94 51 03 	call	0x6a2	; 0x6a2 <InputPasscode>
+ 792:	dc 01       	movw	r26, r24
+ 794:	cb 01       	movw	r24, r22
+ 796:	89 83       	std	Y+1, r24	; 0x01
+ 798:	9a 83       	std	Y+2, r25	; 0x02
+ 79a:	ab 83       	std	Y+3, r26	; 0x03
+ 79c:	bc 83       	std	Y+4, r27	; 0x04
+		
+		if(RecallPasscode(0xA)==attemptPasscode)		//check if correct
+ 79e:	8a e0       	ldi	r24, 0x0A	; 10
+ 7a0:	0e 94 26 02 	call	0x44c	; 0x44c <RecallPasscode>
+ 7a4:	9b 01       	movw	r18, r22
+ 7a6:	ac 01       	movw	r20, r24
+ 7a8:	89 81       	ldd	r24, Y+1	; 0x01
+ 7aa:	9a 81       	ldd	r25, Y+2	; 0x02
+ 7ac:	ab 81       	ldd	r26, Y+3	; 0x03
+ 7ae:	bc 81       	ldd	r27, Y+4	; 0x04
+ 7b0:	28 17       	cp	r18, r24
+ 7b2:	39 07       	cpc	r19, r25
+ 7b4:	4a 07       	cpc	r20, r26
+ 7b6:	5b 07       	cpc	r21, r27
+ 7b8:	39 f4       	brne	.+14     	; 0x7c8 <main+0x60>
+		{
+			delay(10);
+ 7ba:	8a e0       	ldi	r24, 0x0A	; 10
+ 7bc:	90 e0       	ldi	r25, 0x00	; 0
+ 7be:	0e 94 49 00 	call	0x92	; 0x92 <delay>
+			displayUnlock();
+ 7c2:	0e 94 8a 00 	call	0x114	; 0x114 <displayUnlock>
+ 7c6:	e3 cf       	rjmp	.-58     	; 0x78e <main+0x26>
+		}
+		else
+		{
+			delay(10);
+ 7c8:	8a e0       	ldi	r24, 0x0A	; 10
+ 7ca:	90 e0       	ldi	r25, 0x00	; 0
+ 7cc:	0e 94 49 00 	call	0x92	; 0x92 <delay>
+			displayLock();
+ 7d0:	0e 94 e1 00 	call	0x1c2	; 0x1c2 <displayLock>
+		}
+		
     }
- 364:	ee cf       	rjmp	.-36     	; 0x342 <main+0x34>
+ 7d4:	dc cf       	rjmp	.-72     	; 0x78e <main+0x26>
 
-00000366 <_exit>:
- 366:	f8 94       	cli
+000007d6 <_exit>:
+ 7d6:	f8 94       	cli
 
-00000368 <__stop_program>:
- 368:	ff cf       	rjmp	.-2      	; 0x368 <__stop_program>
+000007d8 <__stop_program>:
+ 7d8:	ff cf       	rjmp	.-2      	; 0x7d8 <__stop_program>

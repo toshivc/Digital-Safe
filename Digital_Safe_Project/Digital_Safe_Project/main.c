@@ -23,22 +23,24 @@ int main(void)
 	// Initialise everything
     initTimers();
 	initLEDs();
+	initKeypad();
 	
-	displayUnlock();		//testing LEDs and delays, should flash various sequences on OUSB
-	delay(100);
-	displayLock();
-	delay(100);
-	displayProgramming();
-	delay(5958);	//one min delay
+	storePasscode(12345678, 0xA);		//stores the password 12345678 into user slot A
 	
     while (1) 
     {
-		PORTB = 0xFF;
-		delay(10);
-		PORTB = 0x00;
-		delay(30);
+		uint32_t attemptPasscode = InputPasscode();		//read the passcode from the keypad
+		
+		if(RecallPasscode(0xA)==attemptPasscode)		//check if correct
+		{
+			delay(10);
+			displayUnlock();
+		}
+		else
+		{
+			delay(10);
+			displayLock();
+		}
+		
     }
 }
-
-
-
