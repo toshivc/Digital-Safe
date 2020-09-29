@@ -2,7 +2,7 @@
  * Initialise.h
  *
  * Created: 9/28/2020 2:41:11 PM
- *  Author: yoyos
+ *  Author: Toshi & Ioanna
  */ 
 
 

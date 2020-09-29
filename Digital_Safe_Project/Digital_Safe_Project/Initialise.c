@@ -2,7 +2,7 @@
  * Initialise.c
  *
  * Created: 9/28/2020 2:40:32 PM
- *  Author: yoyos
+ *  Author: Toshi & Ioanna
  */ 
 
 // File headers

@@ -2,7 +2,7 @@
  * KeypadScan.h
  *
  * Created: 9/28/2020 2:49:07 PM
- *  Author: yoyos
+ *  Author: Toshi & Ioanna
  */ 
 
 
