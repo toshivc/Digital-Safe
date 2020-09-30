@@ -3,31 +3,31 @@ Digital_Safe_Project.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         000007da  00000000  00000000  00000094  2**1
+  0 .text         000007fc  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .data         00000016  00800060  000007da  0000086e  2**0
+  1 .data         00000016  00800060  000007fc  00000890  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  2 .bss          00000004  00800076  00800076  00000884  2**0
+  2 .bss          00000004  00800076  00800076  000008a6  2**0
                   ALLOC
-  3 .comment      00000030  00000000  00000000  00000884  2**0
+  3 .comment      00000030  00000000  00000000  000008a6  2**0
                   CONTENTS, READONLY
-  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  000008b4  2**2
+  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  000008d8  2**2
                   CONTENTS, READONLY
-  5 .debug_aranges 00000108  00000000  00000000  000008f0  2**0
+  5 .debug_aranges 00000108  00000000  00000000  00000914  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000c6f  00000000  00000000  000009f8  2**0
+  6 .debug_info   00000c7c  00000000  00000000  00000a1c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 000008b3  00000000  00000000  00001667  2**0
+  7 .debug_abbrev 000008b3  00000000  00000000  00001698  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   000009a0  00000000  00000000  00001f1a  2**0
+  8 .debug_line   000009be  00000000  00000000  00001f4b  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  00000258  00000000  00000000  000028bc  2**2
+  9 .debug_frame  00000258  00000000  00000000  0000290c  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    000004d6  00000000  00000000  00002b14  2**0
+ 10 .debug_str    000004d6  00000000  00000000  00002b64  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    00000401  00000000  00000000  00002fea  2**0
+ 11 .debug_loc    00000401  00000000  00000000  0000303a  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 000000a8  00000000  00000000  000033eb  2**0
+ 12 .debug_ranges 000000a8  00000000  00000000  0000343b  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -67,7 +67,7 @@ Disassembly of section .text:
   60:	10 e0       	ldi	r17, 0x00	; 0
   62:	a0 e6       	ldi	r26, 0x60	; 96
   64:	b0 e0       	ldi	r27, 0x00	; 0
-  66:	ea ed       	ldi	r30, 0xDA	; 218
+  66:	ec ef       	ldi	r30, 0xFC	; 252
   68:	f7 e0       	ldi	r31, 0x07	; 7
   6a:	02 c0       	rjmp	.+4      	; 0x70 <__do_copy_data+0x10>
   6c:	05 90       	lpm	r0, Z+
@@ -89,8 +89,8 @@ Disassembly of section .text:
   80:	aa 37       	cpi	r26, 0x7A	; 122
   82:	b2 07       	cpc	r27, r18
   84:	e1 f7       	brne	.-8      	; 0x7e <.do_clear_bss_loop>
-  86:	0e 94 b4 03 	call	0x768	; 0x768 <main>
-  8a:	0c 94 eb 03 	jmp	0x7d6	; 0x7d6 <_exit>
+  86:	0e 94 c5 03 	call	0x78a	; 0x78a <main>
+  8a:	0c 94 fc 03 	jmp	0x7f8	; 0x7f8 <_exit>
 
 0000008e <__bad_interrupt>:
   8e:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -1214,237 +1214,271 @@ void ReadNone (void)
  67e:	df 93       	push	r29
  680:	cd b7       	in	r28, 0x3d	; 61
  682:	de b7       	in	r29, 0x3e	; 62
-	while((PINC&0x0F)!=0x0F);	//exits when PINC inputs are all high 
- 684:	00 00       	nop
- 686:	83 e3       	ldi	r24, 0x33	; 51
- 688:	90 e0       	ldi	r25, 0x00	; 0
- 68a:	fc 01       	movw	r30, r24
- 68c:	80 81       	ld	r24, Z
- 68e:	88 2f       	mov	r24, r24
+	if(keypad3x4==1)
+ 684:	80 91 77 00 	lds	r24, 0x0077	; 0x800077 <keypad3x4>
+ 688:	81 30       	cpi	r24, 0x01	; 1
+ 68a:	69 f4       	brne	.+26     	; 0x6a6 <ReadNone+0x2a>
+	{
+		while((PINC&0x6A)!=0x6A);	//exits when PINC inputs are all high 
+ 68c:	00 00       	nop
+ 68e:	83 e3       	ldi	r24, 0x33	; 51
  690:	90 e0       	ldi	r25, 0x00	; 0
- 692:	8f 70       	andi	r24, 0x0F	; 15
- 694:	99 27       	eor	r25, r25
- 696:	0f 97       	sbiw	r24, 0x0f	; 15
- 698:	b1 f7       	brne	.-20     	; 0x686 <ReadNone+0xa>
+ 692:	fc 01       	movw	r30, r24
+ 694:	80 81       	ld	r24, Z
+ 696:	88 2f       	mov	r24, r24
+ 698:	90 e0       	ldi	r25, 0x00	; 0
+ 69a:	8a 76       	andi	r24, 0x6A	; 106
+ 69c:	99 27       	eor	r25, r25
+ 69e:	8a 36       	cpi	r24, 0x6A	; 106
+ 6a0:	91 05       	cpc	r25, r1
+ 6a2:	a9 f7       	brne	.-22     	; 0x68e <ReadNone+0x12>
+	else
+	{
+		while((PINC&0x0F)!=0x0F);	//exits when PINC inputs are all high 
+	}
+	
 }
- 69a:	00 00       	nop
- 69c:	df 91       	pop	r29
- 69e:	cf 91       	pop	r28
- 6a0:	08 95       	ret
+ 6a4:	0b c0       	rjmp	.+22     	; 0x6bc <ReadNone+0x40>
+	{
+		while((PINC&0x6A)!=0x6A);	//exits when PINC inputs are all high 
+	}
+	else
+	{
+		while((PINC&0x0F)!=0x0F);	//exits when PINC inputs are all high 
+ 6a6:	00 00       	nop
+ 6a8:	83 e3       	ldi	r24, 0x33	; 51
+ 6aa:	90 e0       	ldi	r25, 0x00	; 0
+ 6ac:	fc 01       	movw	r30, r24
+ 6ae:	80 81       	ld	r24, Z
+ 6b0:	88 2f       	mov	r24, r24
+ 6b2:	90 e0       	ldi	r25, 0x00	; 0
+ 6b4:	8f 70       	andi	r24, 0x0F	; 15
+ 6b6:	99 27       	eor	r25, r25
+ 6b8:	0f 97       	sbiw	r24, 0x0f	; 15
+ 6ba:	b1 f7       	brne	.-20     	; 0x6a8 <ReadNone+0x2c>
+	}
+	
+}
+ 6bc:	00 00       	nop
+ 6be:	df 91       	pop	r29
+ 6c0:	cf 91       	pop	r28
+ 6c2:	08 95       	ret
 
-000006a2 <InputPasscode>:
+000006c4 <InputPasscode>:
 //**************************************************************************************************************************************************
 
 //**************************************************************************************************************************************************
 //Combine 6-8 digits into a passcode
 uint32_t InputPasscode (void)
 {
- 6a2:	cf 93       	push	r28
- 6a4:	df 93       	push	r29
- 6a6:	cd b7       	in	r28, 0x3d	; 61
- 6a8:	de b7       	in	r29, 0x3e	; 62
- 6aa:	27 97       	sbiw	r28, 0x07	; 7
- 6ac:	0f b6       	in	r0, 0x3f	; 63
- 6ae:	f8 94       	cli
- 6b0:	de bf       	out	0x3e, r29	; 62
- 6b2:	0f be       	out	0x3f, r0	; 63
- 6b4:	cd bf       	out	0x3d, r28	; 61
+ 6c4:	cf 93       	push	r28
+ 6c6:	df 93       	push	r29
+ 6c8:	cd b7       	in	r28, 0x3d	; 61
+ 6ca:	de b7       	in	r29, 0x3e	; 62
+ 6cc:	27 97       	sbiw	r28, 0x07	; 7
+ 6ce:	0f b6       	in	r0, 0x3f	; 63
+ 6d0:	f8 94       	cli
+ 6d2:	de bf       	out	0x3e, r29	; 62
+ 6d4:	0f be       	out	0x3f, r0	; 63
+ 6d6:	cd bf       	out	0x3d, r28	; 61
 	uint32_t passcode = 0;
- 6b6:	19 82       	std	Y+1, r1	; 0x01
- 6b8:	1a 82       	std	Y+2, r1	; 0x02
- 6ba:	1b 82       	std	Y+3, r1	; 0x03
- 6bc:	1c 82       	std	Y+4, r1	; 0x04
+ 6d8:	19 82       	std	Y+1, r1	; 0x01
+ 6da:	1a 82       	std	Y+2, r1	; 0x02
+ 6dc:	1b 82       	std	Y+3, r1	; 0x03
+ 6de:	1c 82       	std	Y+4, r1	; 0x04
 	for (int i =0; i<8; i++)
- 6be:	1e 82       	std	Y+6, r1	; 0x06
- 6c0:	1d 82       	std	Y+5, r1	; 0x05
- 6c2:	3e c0       	rjmp	.+124    	; 0x740 <InputPasscode+0x9e>
+ 6e0:	1e 82       	std	Y+6, r1	; 0x06
+ 6e2:	1d 82       	std	Y+5, r1	; 0x05
+ 6e4:	3e c0       	rjmp	.+124    	; 0x762 <InputPasscode+0x9e>
 	{
 		uint8_t keyValue = ReadOne();	//store digit pressed by user
- 6c4:	0e 94 ea 02 	call	0x5d4	; 0x5d4 <ReadOne>
- 6c8:	8f 83       	std	Y+7, r24	; 0x07
+ 6e6:	0e 94 ea 02 	call	0x5d4	; 0x5d4 <ReadOne>
+ 6ea:	8f 83       	std	Y+7, r24	; 0x07
 		
 		//check if key pressed is a digit
 		
 		if(keyValue==0xF)					//if # is pressed
- 6ca:	8f 81       	ldd	r24, Y+7	; 0x07
- 6cc:	8f 30       	cpi	r24, 0x0F	; 15
- 6ce:	29 f4       	brne	.+10     	; 0x6da <InputPasscode+0x38>
+ 6ec:	8f 81       	ldd	r24, Y+7	; 0x07
+ 6ee:	8f 30       	cpi	r24, 0x0F	; 15
+ 6f0:	29 f4       	brne	.+10     	; 0x6fc <InputPasscode+0x38>
 		{
 			return passcode;
- 6d0:	89 81       	ldd	r24, Y+1	; 0x01
- 6d2:	9a 81       	ldd	r25, Y+2	; 0x02
- 6d4:	ab 81       	ldd	r26, Y+3	; 0x03
- 6d6:	bc 81       	ldd	r27, Y+4	; 0x04
- 6d8:	3c c0       	rjmp	.+120    	; 0x752 <InputPasscode+0xb0>
+ 6f2:	89 81       	ldd	r24, Y+1	; 0x01
+ 6f4:	9a 81       	ldd	r25, Y+2	; 0x02
+ 6f6:	ab 81       	ldd	r26, Y+3	; 0x03
+ 6f8:	bc 81       	ldd	r27, Y+4	; 0x04
+ 6fa:	3c c0       	rjmp	.+120    	; 0x774 <InputPasscode+0xb0>
 		}
 		
 		PORTB = keyValue;
- 6da:	88 e3       	ldi	r24, 0x38	; 56
- 6dc:	90 e0       	ldi	r25, 0x00	; 0
- 6de:	2f 81       	ldd	r18, Y+7	; 0x07
- 6e0:	fc 01       	movw	r30, r24
- 6e2:	20 83       	st	Z, r18
+ 6fc:	88 e3       	ldi	r24, 0x38	; 56
+ 6fe:	90 e0       	ldi	r25, 0x00	; 0
+ 700:	2f 81       	ldd	r18, Y+7	; 0x07
+ 702:	fc 01       	movw	r30, r24
+ 704:	20 83       	st	Z, r18
 		ReadNone();						//waits until finger is lifted off button
- 6e4:	0e 94 3e 03 	call	0x67c	; 0x67c <ReadNone>
+ 706:	0e 94 3e 03 	call	0x67c	; 0x67c <ReadNone>
 		PORTB = 0x00;
- 6e8:	88 e3       	ldi	r24, 0x38	; 56
- 6ea:	90 e0       	ldi	r25, 0x00	; 0
- 6ec:	fc 01       	movw	r30, r24
- 6ee:	10 82       	st	Z, r1
+ 70a:	88 e3       	ldi	r24, 0x38	; 56
+ 70c:	90 e0       	ldi	r25, 0x00	; 0
+ 70e:	fc 01       	movw	r30, r24
+ 710:	10 82       	st	Z, r1
 		
 		passcode = passcode*10 + keyValue;	//add each digit into a long int
- 6f0:	89 81       	ldd	r24, Y+1	; 0x01
- 6f2:	9a 81       	ldd	r25, Y+2	; 0x02
- 6f4:	ab 81       	ldd	r26, Y+3	; 0x03
- 6f6:	bc 81       	ldd	r27, Y+4	; 0x04
- 6f8:	88 0f       	add	r24, r24
- 6fa:	99 1f       	adc	r25, r25
- 6fc:	aa 1f       	adc	r26, r26
- 6fe:	bb 1f       	adc	r27, r27
- 700:	9c 01       	movw	r18, r24
- 702:	ad 01       	movw	r20, r26
- 704:	22 0f       	add	r18, r18
- 706:	33 1f       	adc	r19, r19
- 708:	44 1f       	adc	r20, r20
- 70a:	55 1f       	adc	r21, r21
- 70c:	22 0f       	add	r18, r18
- 70e:	33 1f       	adc	r19, r19
- 710:	44 1f       	adc	r20, r20
- 712:	55 1f       	adc	r21, r21
- 714:	28 0f       	add	r18, r24
- 716:	39 1f       	adc	r19, r25
- 718:	4a 1f       	adc	r20, r26
- 71a:	5b 1f       	adc	r21, r27
- 71c:	8f 81       	ldd	r24, Y+7	; 0x07
- 71e:	88 2f       	mov	r24, r24
- 720:	90 e0       	ldi	r25, 0x00	; 0
- 722:	a0 e0       	ldi	r26, 0x00	; 0
- 724:	b0 e0       	ldi	r27, 0x00	; 0
- 726:	82 0f       	add	r24, r18
- 728:	93 1f       	adc	r25, r19
- 72a:	a4 1f       	adc	r26, r20
- 72c:	b5 1f       	adc	r27, r21
- 72e:	89 83       	std	Y+1, r24	; 0x01
- 730:	9a 83       	std	Y+2, r25	; 0x02
- 732:	ab 83       	std	Y+3, r26	; 0x03
- 734:	bc 83       	std	Y+4, r27	; 0x04
+ 712:	89 81       	ldd	r24, Y+1	; 0x01
+ 714:	9a 81       	ldd	r25, Y+2	; 0x02
+ 716:	ab 81       	ldd	r26, Y+3	; 0x03
+ 718:	bc 81       	ldd	r27, Y+4	; 0x04
+ 71a:	88 0f       	add	r24, r24
+ 71c:	99 1f       	adc	r25, r25
+ 71e:	aa 1f       	adc	r26, r26
+ 720:	bb 1f       	adc	r27, r27
+ 722:	9c 01       	movw	r18, r24
+ 724:	ad 01       	movw	r20, r26
+ 726:	22 0f       	add	r18, r18
+ 728:	33 1f       	adc	r19, r19
+ 72a:	44 1f       	adc	r20, r20
+ 72c:	55 1f       	adc	r21, r21
+ 72e:	22 0f       	add	r18, r18
+ 730:	33 1f       	adc	r19, r19
+ 732:	44 1f       	adc	r20, r20
+ 734:	55 1f       	adc	r21, r21
+ 736:	28 0f       	add	r18, r24
+ 738:	39 1f       	adc	r19, r25
+ 73a:	4a 1f       	adc	r20, r26
+ 73c:	5b 1f       	adc	r21, r27
+ 73e:	8f 81       	ldd	r24, Y+7	; 0x07
+ 740:	88 2f       	mov	r24, r24
+ 742:	90 e0       	ldi	r25, 0x00	; 0
+ 744:	a0 e0       	ldi	r26, 0x00	; 0
+ 746:	b0 e0       	ldi	r27, 0x00	; 0
+ 748:	82 0f       	add	r24, r18
+ 74a:	93 1f       	adc	r25, r19
+ 74c:	a4 1f       	adc	r26, r20
+ 74e:	b5 1f       	adc	r27, r21
+ 750:	89 83       	std	Y+1, r24	; 0x01
+ 752:	9a 83       	std	Y+2, r25	; 0x02
+ 754:	ab 83       	std	Y+3, r26	; 0x03
+ 756:	bc 83       	std	Y+4, r27	; 0x04
 //**************************************************************************************************************************************************
 //Combine 6-8 digits into a passcode
 uint32_t InputPasscode (void)
 {
 	uint32_t passcode = 0;
 	for (int i =0; i<8; i++)
- 736:	8d 81       	ldd	r24, Y+5	; 0x05
- 738:	9e 81       	ldd	r25, Y+6	; 0x06
- 73a:	01 96       	adiw	r24, 0x01	; 1
- 73c:	9e 83       	std	Y+6, r25	; 0x06
- 73e:	8d 83       	std	Y+5, r24	; 0x05
- 740:	8d 81       	ldd	r24, Y+5	; 0x05
- 742:	9e 81       	ldd	r25, Y+6	; 0x06
- 744:	08 97       	sbiw	r24, 0x08	; 8
- 746:	0c f4       	brge	.+2      	; 0x74a <InputPasscode+0xa8>
- 748:	bd cf       	rjmp	.-134    	; 0x6c4 <InputPasscode+0x22>
+ 758:	8d 81       	ldd	r24, Y+5	; 0x05
+ 75a:	9e 81       	ldd	r25, Y+6	; 0x06
+ 75c:	01 96       	adiw	r24, 0x01	; 1
+ 75e:	9e 83       	std	Y+6, r25	; 0x06
+ 760:	8d 83       	std	Y+5, r24	; 0x05
+ 762:	8d 81       	ldd	r24, Y+5	; 0x05
+ 764:	9e 81       	ldd	r25, Y+6	; 0x06
+ 766:	08 97       	sbiw	r24, 0x08	; 8
+ 768:	0c f4       	brge	.+2      	; 0x76c <InputPasscode+0xa8>
+ 76a:	bd cf       	rjmp	.-134    	; 0x6e6 <InputPasscode+0x22>
 		PORTB = 0x00;
 		
 		passcode = passcode*10 + keyValue;	//add each digit into a long int
 
 	}
 	return passcode;
- 74a:	89 81       	ldd	r24, Y+1	; 0x01
- 74c:	9a 81       	ldd	r25, Y+2	; 0x02
- 74e:	ab 81       	ldd	r26, Y+3	; 0x03
- 750:	bc 81       	ldd	r27, Y+4	; 0x04
+ 76c:	89 81       	ldd	r24, Y+1	; 0x01
+ 76e:	9a 81       	ldd	r25, Y+2	; 0x02
+ 770:	ab 81       	ldd	r26, Y+3	; 0x03
+ 772:	bc 81       	ldd	r27, Y+4	; 0x04
 }
- 752:	bc 01       	movw	r22, r24
- 754:	cd 01       	movw	r24, r26
- 756:	27 96       	adiw	r28, 0x07	; 7
- 758:	0f b6       	in	r0, 0x3f	; 63
- 75a:	f8 94       	cli
- 75c:	de bf       	out	0x3e, r29	; 62
- 75e:	0f be       	out	0x3f, r0	; 63
- 760:	cd bf       	out	0x3d, r28	; 61
- 762:	df 91       	pop	r29
- 764:	cf 91       	pop	r28
- 766:	08 95       	ret
+ 774:	bc 01       	movw	r22, r24
+ 776:	cd 01       	movw	r24, r26
+ 778:	27 96       	adiw	r28, 0x07	; 7
+ 77a:	0f b6       	in	r0, 0x3f	; 63
+ 77c:	f8 94       	cli
+ 77e:	de bf       	out	0x3e, r29	; 62
+ 780:	0f be       	out	0x3f, r0	; 63
+ 782:	cd bf       	out	0x3d, r28	; 61
+ 784:	df 91       	pop	r29
+ 786:	cf 91       	pop	r28
+ 788:	08 95       	ret
 
-00000768 <main>:
+0000078a <main>:
 
 // Global variables
 uint8_t debugCode = 0;
 
 int main(void)
 {
- 768:	cf 93       	push	r28
- 76a:	df 93       	push	r29
- 76c:	00 d0       	rcall	.+0      	; 0x76e <main+0x6>
- 76e:	00 d0       	rcall	.+0      	; 0x770 <main+0x8>
- 770:	cd b7       	in	r28, 0x3d	; 61
- 772:	de b7       	in	r29, 0x3e	; 62
+ 78a:	cf 93       	push	r28
+ 78c:	df 93       	push	r29
+ 78e:	00 d0       	rcall	.+0      	; 0x790 <main+0x6>
+ 790:	00 d0       	rcall	.+0      	; 0x792 <main+0x8>
+ 792:	cd b7       	in	r28, 0x3d	; 61
+ 794:	de b7       	in	r29, 0x3e	; 62
 	// Initialise everything
     initTimers();
- 774:	0e 94 d5 02 	call	0x5aa	; 0x5aa <initTimers>
+ 796:	0e 94 d5 02 	call	0x5aa	; 0x5aa <initTimers>
 	initLEDs();
- 778:	0e 94 93 02 	call	0x526	; 0x526 <initLEDs>
+ 79a:	0e 94 93 02 	call	0x526	; 0x526 <initLEDs>
 	initKeypad();
- 77c:	0e 94 a4 02 	call	0x548	; 0x548 <initKeypad>
+ 79e:	0e 94 a4 02 	call	0x548	; 0x548 <initKeypad>
 	
 	storePasscode(12345678, 0xA);		//stores the password 12345678 into user slot A
- 780:	4a e0       	ldi	r20, 0x0A	; 10
- 782:	6e e4       	ldi	r22, 0x4E	; 78
- 784:	71 e6       	ldi	r23, 0x61	; 97
- 786:	8c eb       	ldi	r24, 0xBC	; 188
- 788:	90 e0       	ldi	r25, 0x00	; 0
- 78a:	0e 94 9d 01 	call	0x33a	; 0x33a <storePasscode>
-	
+ 7a2:	4a e0       	ldi	r20, 0x0A	; 10
+ 7a4:	6e e4       	ldi	r22, 0x4E	; 78
+ 7a6:	71 e6       	ldi	r23, 0x61	; 97
+ 7a8:	8c eb       	ldi	r24, 0xBC	; 188
+ 7aa:	90 e0       	ldi	r25, 0x00	; 0
+ 7ac:	0e 94 9d 01 	call	0x33a	; 0x33a <storePasscode>
     while (1) 
     {
+
+		
+		
 		uint32_t attemptPasscode = InputPasscode();		//read the passcode from the keypad
- 78e:	0e 94 51 03 	call	0x6a2	; 0x6a2 <InputPasscode>
- 792:	dc 01       	movw	r26, r24
- 794:	cb 01       	movw	r24, r22
- 796:	89 83       	std	Y+1, r24	; 0x01
- 798:	9a 83       	std	Y+2, r25	; 0x02
- 79a:	ab 83       	std	Y+3, r26	; 0x03
- 79c:	bc 83       	std	Y+4, r27	; 0x04
+ 7b0:	0e 94 62 03 	call	0x6c4	; 0x6c4 <InputPasscode>
+ 7b4:	dc 01       	movw	r26, r24
+ 7b6:	cb 01       	movw	r24, r22
+ 7b8:	89 83       	std	Y+1, r24	; 0x01
+ 7ba:	9a 83       	std	Y+2, r25	; 0x02
+ 7bc:	ab 83       	std	Y+3, r26	; 0x03
+ 7be:	bc 83       	std	Y+4, r27	; 0x04
 		
 		if(RecallPasscode(0xA)==attemptPasscode)		//check if correct
- 79e:	8a e0       	ldi	r24, 0x0A	; 10
- 7a0:	0e 94 26 02 	call	0x44c	; 0x44c <RecallPasscode>
- 7a4:	9b 01       	movw	r18, r22
- 7a6:	ac 01       	movw	r20, r24
- 7a8:	89 81       	ldd	r24, Y+1	; 0x01
- 7aa:	9a 81       	ldd	r25, Y+2	; 0x02
- 7ac:	ab 81       	ldd	r26, Y+3	; 0x03
- 7ae:	bc 81       	ldd	r27, Y+4	; 0x04
- 7b0:	28 17       	cp	r18, r24
- 7b2:	39 07       	cpc	r19, r25
- 7b4:	4a 07       	cpc	r20, r26
- 7b6:	5b 07       	cpc	r21, r27
- 7b8:	39 f4       	brne	.+14     	; 0x7c8 <main+0x60>
+ 7c0:	8a e0       	ldi	r24, 0x0A	; 10
+ 7c2:	0e 94 26 02 	call	0x44c	; 0x44c <RecallPasscode>
+ 7c6:	9b 01       	movw	r18, r22
+ 7c8:	ac 01       	movw	r20, r24
+ 7ca:	89 81       	ldd	r24, Y+1	; 0x01
+ 7cc:	9a 81       	ldd	r25, Y+2	; 0x02
+ 7ce:	ab 81       	ldd	r26, Y+3	; 0x03
+ 7d0:	bc 81       	ldd	r27, Y+4	; 0x04
+ 7d2:	28 17       	cp	r18, r24
+ 7d4:	39 07       	cpc	r19, r25
+ 7d6:	4a 07       	cpc	r20, r26
+ 7d8:	5b 07       	cpc	r21, r27
+ 7da:	39 f4       	brne	.+14     	; 0x7ea <main+0x60>
 		{
 			delay(10);
- 7ba:	8a e0       	ldi	r24, 0x0A	; 10
- 7bc:	90 e0       	ldi	r25, 0x00	; 0
- 7be:	0e 94 49 00 	call	0x92	; 0x92 <delay>
+ 7dc:	8a e0       	ldi	r24, 0x0A	; 10
+ 7de:	90 e0       	ldi	r25, 0x00	; 0
+ 7e0:	0e 94 49 00 	call	0x92	; 0x92 <delay>
 			displayUnlock();
- 7c2:	0e 94 8a 00 	call	0x114	; 0x114 <displayUnlock>
- 7c6:	e3 cf       	rjmp	.-58     	; 0x78e <main+0x26>
+ 7e4:	0e 94 8a 00 	call	0x114	; 0x114 <displayUnlock>
+ 7e8:	e3 cf       	rjmp	.-58     	; 0x7b0 <main+0x26>
 		}
 		else
 		{
 			delay(10);
- 7c8:	8a e0       	ldi	r24, 0x0A	; 10
- 7ca:	90 e0       	ldi	r25, 0x00	; 0
- 7cc:	0e 94 49 00 	call	0x92	; 0x92 <delay>
+ 7ea:	8a e0       	ldi	r24, 0x0A	; 10
+ 7ec:	90 e0       	ldi	r25, 0x00	; 0
+ 7ee:	0e 94 49 00 	call	0x92	; 0x92 <delay>
 			displayLock();
- 7d0:	0e 94 e1 00 	call	0x1c2	; 0x1c2 <displayLock>
+ 7f2:	0e 94 e1 00 	call	0x1c2	; 0x1c2 <displayLock>
 		}
 		
     }
- 7d4:	dc cf       	rjmp	.-72     	; 0x78e <main+0x26>
+ 7f6:	dc cf       	rjmp	.-72     	; 0x7b0 <main+0x26>
 
-000007d6 <_exit>:
- 7d6:	f8 94       	cli
+000007f8 <_exit>:
+ 7f8:	f8 94       	cli
 
-000007d8 <__stop_program>:
- 7d8:	ff cf       	rjmp	.-2      	; 0x7d8 <__stop_program>
+000007fa <__stop_program>:
+ 7fa:	ff cf       	rjmp	.-2      	; 0x7fa <__stop_program>

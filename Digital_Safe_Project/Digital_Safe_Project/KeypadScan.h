@@ -20,7 +20,7 @@
 // Function prototypes for function within KeypadScan.c
 unsigned char ReadOne();
 unsigned long int InputPasscode (void);
-
+void ReadNone (void);
 
 
 #endif /* KEYPADSCAN_H_ */

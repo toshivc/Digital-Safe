@@ -10,7 +10,8 @@
 #include "KeypadScan.h"
 #include "Delay.h"
 
-
+//keypad hardware size
+extern unsigned char keypad3x4;
 
 // Define relevant variables
 unsigned char key = 0xFF;
@@ -69,7 +70,15 @@ unsigned char ReadOne()
 //Check if key has been lifted. ie debounce?
 void ReadNone (void)
 {
-	while((PINC&0x0F)!=0x0F);	//exits when PINC inputs are all high 
+	if(keypad3x4==1)
+	{
+		while((PINC&0x6A)!=0x6A);	//exits when PINC inputs are all high 
+	}
+	else
+	{
+		while((PINC&0x0F)!=0x0F);	//exits when PINC inputs are all high 
+	}
+	
 }
 //**************************************************************************************************************************************************
 
