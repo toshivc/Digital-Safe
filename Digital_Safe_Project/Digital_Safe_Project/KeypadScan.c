@@ -9,6 +9,7 @@
 #include <avr/io.h>
 #include "KeypadScan.h"
 #include "Delay.h"
+#include "Display.h"
 
 //keypad hardware size
 extern unsigned char keypad3x4;
@@ -91,23 +92,70 @@ uint32_t InputPasscode (void)
 	{
 		uint8_t keyValue = ReadOne();	//store digit pressed by user
 		
-		//check if key pressed is a digit
-		
 		if(keyValue==0xF)					//if # is pressed
 		{
 			return passcode;
 		}
 		
-		PORTB = keyValue;
-		ReadNone();						//waits until finger is lifted off button
-		PORTB = 0x00;
-		
-		passcode = passcode*10 + keyValue;	//add each digit into a long int
-
+		//check if key pressed is a digit
+		if(isDigit(keyValue))
+		{
+			PORTB = keyValue;
+			ReadNone();						//waits until finger is lifted off button
+			PORTB = 0x00;
+			
+			passcode = passcode*10 + keyValue;	//add each digit into a long int
+		}
+		else
+		{
+			//not a valid input
+			i--;		//dont increment length counter if not valid
+			displayIncorrect();
+			
+		}	
 	}
-	return passcode;
+	while(!(ReadOne()==0xF));		//wait until reads a *
+	return passcode	;
 }
 //**************************************************************************************************************************************************
 
 //**************************************************************************************************************************************************
-//is the input a digit
+//is the input a letter, a,b,c, or d. returns 1 if a valid user code
+uint8_t isUser (uint8_t buttonPressed)
+{
+	switch(buttonPressed)
+	{
+		case 0x0A:
+		case 0x0B:
+		case 0x0C:
+		case 0x0D:
+		return 1;
+		
+		default:	//invalid user code		Set some debug flag here
+		return 0;
+	}
+}
+//**************************************************************************************************************************************************
+
+//**************************************************************************************************************************************************
+//is the user input a digit. returns 1 if value is a digit
+uint8_t isDigit (uint8_t buttonPressed)
+{
+	switch(buttonPressed)
+	{
+		case 0x00:
+		case 0x01:
+		case 0x02:
+		case 0x03:
+		case 0x04:
+		case 0x05:
+		case 0x06:
+		case 0x07:
+		case 0x08:
+		case 0x09:
+		return 1;
+		
+		default:	//invalid user code		Set some debug flag here
+		return 0;
+	}
+}

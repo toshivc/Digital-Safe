@@ -9,6 +9,7 @@
 #include "EEPROM.h"
 #include <avr/io.h>
 #include "Initialise.h"
+#include "KeypadScan.h"
 
 
 // Variable definitions
@@ -88,14 +89,10 @@ uint8_t read_EEPROM(uint16_t readAddress)
 void storePasscode (unsigned long int Passcode, uint8_t user)
 {
 	//check if user input is valid
-	switch(user){
-		case 0x0A:
-		case 0x0B:
-		case 0x0C:
-		case 0x0D:
-		break;
-		
-		default:	//invalid user code		Set some debug flag here
+	if (!isUser(user))
+	{
+		//set some debug flag
+		errorFlag = 2;
 		return;
 	}
 	

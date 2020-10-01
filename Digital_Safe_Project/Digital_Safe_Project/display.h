@@ -16,6 +16,7 @@
 void displayUnlock (void);
 void displayLock (void);
 void displayProgramming(void);
+void displayIncorrect(void);
 
 
 #endif /* DISPLAY_H_ */

@@ -30,8 +30,6 @@ int main(void)
     while (1) 
     {
 
-		
-		
 		uint32_t attemptPasscode = InputPasscode();		//read the passcode from the keypad
 		
 		if(RecallPasscode(0xA)==attemptPasscode)		//check if correct
