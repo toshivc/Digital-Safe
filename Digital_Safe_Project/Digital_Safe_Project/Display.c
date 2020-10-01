@@ -14,12 +14,12 @@ void displayUnlock (void)
 	for (int i = 0; i <4; i++)
 	{
 		PORTB = 1<<(1+i*2);
-		delay(10);
+		delay_ms(100);
 	}
 	for (int i = 0; i <4; i++)
 	{
 		PORTB = 1<<(7-i*2);
-		delay(10);
+		delay_ms(100);
 	}
 	PORTB = 0x00;
 }
@@ -32,12 +32,12 @@ void displayLock (void)
 	for (int i = 0; i <4; i++)
 	{
 		PORTB = 1<<(i*2);
-		delay(10);
+		delay_ms(100);
 	}
 	for (int i = 0; i <4; i++)
 	{
 		PORTB = 1<<(8-i*2);
-		delay(10);
+		delay_ms(100);
 	}
 	PORTB = 0x00;
 }
@@ -50,9 +50,9 @@ void displayProgramming(void)
 	for (int i = 0; i <10; i++)
 	{
 		PORTB = 0xFF;
-		delay(10);
+		delay_ms(100);
 		PORTB = 0x00;
-		delay(10);
+		delay_ms(100);
 	}
 }
 //****************************************************************************************
@@ -64,9 +64,9 @@ void displayIncorrect(void)
 	for (int i = 0; i <4; i++)
 	{
 		PORTB = 0x55;
-		delay(8);
+		delay_ms(80);
 		PORTB = 0x00;
-		delay(8);
+		delay_ms(80);
 	}
 }
 //****************************************************************************************

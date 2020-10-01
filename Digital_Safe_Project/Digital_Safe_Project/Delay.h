@@ -12,7 +12,9 @@
 // Define Extern variables
 
 // Function Prototypes (within the Delay.c file)
-void delay(uint16_t delayTime);
+//void delay(uint16_t delayTime);
+void delay_ms(uint16_t delayTime);
+void delay_sec(uint16_t delayTime);
 
 
 #endif /* DELAY_H_ */

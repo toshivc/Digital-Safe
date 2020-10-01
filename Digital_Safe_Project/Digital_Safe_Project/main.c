@@ -34,12 +34,12 @@ int main(void)
 		
 		if(RecallPasscode(0xA)==attemptPasscode)		//check if correct
 		{
-			delay(10);
+			delay_ms(100);
 			displayUnlock();
 		}
 		else
 		{
-			delay(10);
+			delay_ms(100);
 			displayLock();
 		}
 		

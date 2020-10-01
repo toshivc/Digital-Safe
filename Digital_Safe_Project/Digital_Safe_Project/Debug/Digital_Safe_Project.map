@@ -6,6 +6,10 @@ c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/..
                               Initialise.o (__do_copy_data)
 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_clear_bss.o)
                               Initialise.o (__do_clear_bss)
+c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_muluhisi3.o)
+                              Delay.o (__muluhisi3)
+c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_umulhisi3.o)
+                              c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_muluhisi3.o) (__umulhisi3)
 
 Allocating common symbols
 Common symbol       size              file
@@ -19,6 +23,8 @@ Discarded input sections
  .text          0x00000000        0x0 Delay.o
  .data          0x00000000        0x0 Delay.o
  .bss           0x00000000        0x0 Delay.o
+ .text.delay_sec
+                0x00000000       0xb8 Delay.o
  .text          0x00000000        0x0 Display.o
  .data          0x00000000        0x0 Display.o
  .bss           0x00000000        0x0 Display.o
@@ -86,6 +92,38 @@ Discarded input sections
                 0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_clear_bss.o)
  .text.libgcc.fixed
                 0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_clear_bss.o)
+ .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_muluhisi3.o)
+ .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_muluhisi3.o)
+ .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_muluhisi3.o)
+ .text.libgcc.mul
+                0x00000000       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_muluhisi3.o)
+ .text.libgcc.div
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_muluhisi3.o)
+ .text.libgcc   0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_muluhisi3.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_muluhisi3.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_muluhisi3.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_muluhisi3.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_muluhisi3.o)
+ .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_umulhisi3.o)
+ .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_umulhisi3.o)
+ .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_umulhisi3.o)
+ .text.libgcc.mul
+                0x00000000       0x1e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_umulhisi3.o)
+ .text.libgcc.div
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_umulhisi3.o)
+ .text.libgcc   0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_umulhisi3.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_umulhisi3.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_umulhisi3.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_umulhisi3.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_umulhisi3.o)
 
 Memory Configuration
 
@@ -299,8 +337,9 @@ END GROUP
                 0x0000008e                __vector_20
                 0x00000092                . = ALIGN (0x2)
  *(.text.*)
- .text.delay    0x00000092       0x82 Delay.o
-                0x00000092                delay
+ .text.delay_ms
+                0x00000092       0x82 Delay.o
+                0x00000092                delay_ms
  .text.displayUnlock
                 0x00000114       0xae Display.o
                 0x00000114                displayUnlock
@@ -372,52 +411,53 @@ END GROUP
  *(.fini0)
                 0x000008b8                _etext = .
 
-.data           0x00800060       0x16 load address 0x000008b8
+.data           0x00800060       0x18 load address 0x000008b8
                 0x00800060                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
- .data.key      0x00800060        0x1 KeypadScan.o
-                0x00800060                key
+ .data.keypad3x4
+                0x00800060        0x1 Initialise.o
+                0x00800060                keypad3x4
+ .data.key      0x00800061        0x1 KeypadScan.o
+                0x00800061                key
  .data.portCValue
-                0x00800061        0x1 KeypadScan.o
-                0x00800061                portCValue
+                0x00800062        0x1 KeypadScan.o
+                0x00800062                portCValue
  *(.gnu.linkonce.d*)
  *(.rodata)
  *(.rodata*)
- .rodata.col    0x00800062        0x4 Initialise.o
-                0x00800062                col
- .rodata.Keys   0x00800066       0x10 Initialise.o
-                0x00800066                Keys
+ .rodata.col    0x00800063        0x4 Initialise.o
+                0x00800063                col
+ .rodata.Keys   0x00800067       0x10 Initialise.o
+                0x00800067                Keys
  *(.gnu.linkonce.r*)
-                0x00800076                . = ALIGN (0x2)
-                0x00800076                _edata = .
-                0x00800076                PROVIDE (__data_end, .)
+                0x00800078                . = ALIGN (0x2)
+ *fill*         0x00800077        0x1 
+                0x00800078                _edata = .
+                0x00800078                PROVIDE (__data_end, .)
 
-.bss            0x00800076        0x4
-                0x00800076                PROVIDE (__bss_start, .)
+.bss            0x00800078        0x3
+                0x00800078                PROVIDE (__bss_start, .)
  *(.bss)
  *(.bss*)
  .bss.errorFlag
-                0x00800076        0x1 Initialise.o
-                0x00800076                errorFlag
- .bss.keypad3x4
-                0x00800077        0x1 Initialise.o
-                0x00800077                keypad3x4
+                0x00800078        0x1 Initialise.o
+                0x00800078                errorFlag
  .bss.KeyPressed
-                0x00800078        0x1 KeypadScan.o
-                0x00800078                KeyPressed
+                0x00800079        0x1 KeypadScan.o
+                0x00800079                KeyPressed
  *(COMMON)
- COMMON         0x00800079        0x1 Initialise.o
-                0x00800079                AmountOfColumns
-                0x0080007a                PROVIDE (__bss_end, .)
+ COMMON         0x0080007a        0x1 Initialise.o
+                0x0080007a                AmountOfColumns
+                0x0080007b                PROVIDE (__bss_end, .)
                 0x000008b8                __data_load_start = LOADADDR (.data)
-                0x000008ce                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x000008d0                __data_load_end = (__data_load_start + SIZEOF (.data))
 
-.noinit         0x0080007a        0x0
+.noinit         0x0080007b        0x0
                 [!provide]                PROVIDE (__noinit_start, .)
  *(.noinit*)
                 [!provide]                PROVIDE (__noinit_end, .)
-                0x0080007a                _end = .
+                0x0080007b                _end = .
                 [!provide]                PROVIDE (__heap_start, .)
 
 .eeprom         0x00810000        0x0
@@ -487,87 +527,87 @@ END GROUP
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x00000000      0x120
+.debug_aranges  0x00000000      0x128
  *(.debug_aranges)
  .debug_aranges
-                0x00000000       0x20 Delay.o
+                0x00000000       0x28 Delay.o
  .debug_aranges
-                0x00000020       0x38 Display.o
+                0x00000028       0x38 Display.o
  .debug_aranges
-                0x00000058       0x38 EEPROM.o
+                0x00000060       0x38 EEPROM.o
  .debug_aranges
-                0x00000090       0x30 Initialise.o
+                0x00000098       0x30 Initialise.o
  .debug_aranges
-                0x000000c0       0x40 KeypadScan.o
+                0x000000c8       0x40 KeypadScan.o
  .debug_aranges
-                0x00000100       0x20 main.o
+                0x00000108       0x20 main.o
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000      0xd07
+.debug_info     0x00000000      0xd49
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x4e6 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.3.300/gcc/dev/atmega32a/avr5/crtatmega32a.o
- .debug_info    0x000004e6       0xab Delay.o
- .debug_info    0x00000591      0x161 Display.o
- .debug_info    0x000006f2      0x1df EEPROM.o
- .debug_info    0x000008d1      0x146 Initialise.o
- .debug_info    0x00000a17      0x22f KeypadScan.o
- .debug_info    0x00000c46       0xc1 main.o
+ .debug_info    0x000004e6       0xed Delay.o
+ .debug_info    0x000005d3      0x161 Display.o
+ .debug_info    0x00000734      0x1df EEPROM.o
+ .debug_info    0x00000913      0x146 Initialise.o
+ .debug_info    0x00000a59      0x22f KeypadScan.o
+ .debug_info    0x00000c88       0xc1 main.o
 
-.debug_abbrev   0x00000000      0x8de
+.debug_abbrev   0x00000000      0x8f8
  *(.debug_abbrev)
  .debug_abbrev  0x00000000      0x4a3 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.3.300/gcc/dev/atmega32a/avr5/crtatmega32a.o
- .debug_abbrev  0x000004a3       0x6f Delay.o
- .debug_abbrev  0x00000512       0x8e Display.o
- .debug_abbrev  0x000005a0       0xfe EEPROM.o
- .debug_abbrev  0x0000069e       0x8c Initialise.o
- .debug_abbrev  0x0000072a      0x136 KeypadScan.o
- .debug_abbrev  0x00000860       0x7e main.o
+ .debug_abbrev  0x000004a3       0x89 Delay.o
+ .debug_abbrev  0x0000052c       0x8e Display.o
+ .debug_abbrev  0x000005ba       0xfe EEPROM.o
+ .debug_abbrev  0x000006b8       0x8c Initialise.o
+ .debug_abbrev  0x00000744      0x136 KeypadScan.o
+ .debug_abbrev  0x0000087a       0x7e main.o
 
-.debug_line     0x00000000      0xa7a
+.debug_line     0x00000000      0xadd
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000      0x115 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.3.300/gcc/dev/atmega32a/avr5/crtatmega32a.o
- .debug_line    0x00000115       0xe8 Delay.o
- .debug_line    0x000001fd      0x23a Display.o
- .debug_line    0x00000437      0x1fd EEPROM.o
- .debug_line    0x00000634      0x128 Initialise.o
- .debug_line    0x0000075c      0x241 KeypadScan.o
- .debug_line    0x0000099d       0xdd main.o
+ .debug_line    0x00000115      0x14b Delay.o
+ .debug_line    0x00000260      0x23a Display.o
+ .debug_line    0x0000049a      0x1fd EEPROM.o
+ .debug_line    0x00000697      0x128 Initialise.o
+ .debug_line    0x000007bf      0x241 KeypadScan.o
+ .debug_line    0x00000a00       0xdd main.o
 
-.debug_frame    0x00000000      0x2b8
+.debug_frame    0x00000000      0x2d8
  *(.debug_frame)
- .debug_frame   0x00000000       0x34 Delay.o
- .debug_frame   0x00000034       0x94 Display.o
- .debug_frame   0x000000c8       0x94 EEPROM.o
- .debug_frame   0x0000015c       0x74 Initialise.o
- .debug_frame   0x000001d0       0xb4 KeypadScan.o
- .debug_frame   0x00000284       0x34 main.o
+ .debug_frame   0x00000000       0x54 Delay.o
+ .debug_frame   0x00000054       0x94 Display.o
+ .debug_frame   0x000000e8       0x94 EEPROM.o
+ .debug_frame   0x0000017c       0x74 Initialise.o
+ .debug_frame   0x000001f0       0xb4 KeypadScan.o
+ .debug_frame   0x000002a4       0x34 main.o
 
-.debug_str      0x00000000      0x504
+.debug_str      0x00000000      0x578
  *(.debug_str)
  .debug_str     0x00000000      0x196 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.3.300/gcc/dev/atmega32a/avr5/crtatmega32a.o
- .debug_str     0x00000196      0x181 Delay.o
-                                0x1b5 (size before relaxing)
- .debug_str     0x00000317       0x4d Display.o
-                                0x1cc (size before relaxing)
- .debug_str     0x00000364       0xaf EEPROM.o
+ .debug_str     0x00000196      0x199 Delay.o
+                                0x1cd (size before relaxing)
+ .debug_str     0x0000032f       0x4d Display.o
+                                0x1ce (size before relaxing)
+ .debug_str     0x0000037c      0x114 EEPROM.o
                                 0x245 (size before relaxing)
- .debug_str     0x00000413       0x50 Initialise.o
-                                0x1e7 (size before relaxing)
- .debug_str     0x00000463       0x76 KeypadScan.o
-                                0x22b (size before relaxing)
- .debug_str     0x000004d9       0x2b main.o
-                                0x1b3 (size before relaxing)
+ .debug_str     0x00000490       0x50 Initialise.o
+                                0x1e9 (size before relaxing)
+ .debug_str     0x000004e0       0x6d KeypadScan.o
+                                0x22d (size before relaxing)
+ .debug_str     0x0000054d       0x2b main.o
+                                0x1b5 (size before relaxing)
 
-.debug_loc      0x00000000      0x4d9
+.debug_loc      0x00000000      0x521
  *(.debug_loc)
- .debug_loc     0x00000000       0x48 Delay.o
- .debug_loc     0x00000048      0x120 Display.o
- .debug_loc     0x00000168      0x11e EEPROM.o
- .debug_loc     0x00000286       0xb1 Initialise.o
- .debug_loc     0x00000337      0x15a KeypadScan.o
- .debug_loc     0x00000491       0x48 main.o
+ .debug_loc     0x00000000       0x90 Delay.o
+ .debug_loc     0x00000090      0x120 Display.o
+ .debug_loc     0x000001b0      0x11e EEPROM.o
+ .debug_loc     0x000002ce       0xb1 Initialise.o
+ .debug_loc     0x0000037f      0x15a KeypadScan.o
+ .debug_loc     0x000004d9       0x48 main.o
 
 .debug_macinfo
  *(.debug_macinfo)
@@ -587,14 +627,14 @@ END GROUP
 .debug_pubtypes
  *(.debug_pubtypes)
 
-.debug_ranges   0x00000000       0xc0
+.debug_ranges   0x00000000       0xc8
  *(.debug_ranges)
- .debug_ranges  0x00000000       0x10 Delay.o
- .debug_ranges  0x00000010       0x28 Display.o
- .debug_ranges  0x00000038       0x28 EEPROM.o
- .debug_ranges  0x00000060       0x20 Initialise.o
- .debug_ranges  0x00000080       0x30 KeypadScan.o
- .debug_ranges  0x000000b0       0x10 main.o
+ .debug_ranges  0x00000000       0x18 Delay.o
+ .debug_ranges  0x00000018       0x28 Display.o
+ .debug_ranges  0x00000040       0x28 EEPROM.o
+ .debug_ranges  0x00000068       0x20 Initialise.o
+ .debug_ranges  0x00000088       0x30 KeypadScan.o
+ .debug_ranges  0x000000b8       0x10 main.o
 
 .debug_macro
  *(.debug_macro)

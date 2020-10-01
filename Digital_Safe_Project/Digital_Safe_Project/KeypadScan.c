@@ -41,7 +41,7 @@ unsigned char ReadOne()
 		for (uint8_t j=0; j<AmountOfColumns; j++)
 		{
 			PORTC = col[j];			// Scan each column
-			delay(1);				// Delay for 0.01 sec
+			delay_ms(10);				// Delay for 0.01 sec
 			portCValue = PINC;			// Read port value from pinC
 		
 			// Begin stepping through each column to check if row has logic 0
