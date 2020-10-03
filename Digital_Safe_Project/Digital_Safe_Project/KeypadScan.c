@@ -100,7 +100,7 @@ uint32_t InputPasscode (void)
 		//check if key pressed is a digit
 		if(isDigit(keyValue))
 		{
-			PORTB = keyValue;
+			PORTB = displayKeys(keyValue);	// output key being pressed to LEDs
 			ReadNone();						//waits until finger is lifted off button
 			PORTB = 0x00;
 			
@@ -114,8 +114,18 @@ uint32_t InputPasscode (void)
 			
 		}	
 	}
+	/*
 	while(!(ReadOne()==0xF));		//wait until reads a *
-	return passcode	;
+	return passcode	; */
+	
+	if((ReadOne()==0xF))		//if next key is a #
+	{
+		return passcode	;
+	}
+	else
+	{
+		return 0;
+	}	
 }
 //**************************************************************************************************************************************************
 

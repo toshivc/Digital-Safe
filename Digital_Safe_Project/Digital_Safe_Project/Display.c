@@ -70,3 +70,76 @@ void displayIncorrect(void)
 	}
 }
 //****************************************************************************************
+
+//****************************************************************************************
+// Convert binary value to more realistic LED representation
+uint8_t displayKeys(uint8_t keyValue)
+{
+	switch(keyValue)
+	{
+		case 0x00:
+		return 0x00;
+		break;
+		
+		case 0x01:
+		return 0x01;
+		break;
+		
+		case 0x02:
+		return 0x02;
+		break;
+		
+		case 0x03:
+		return 0x04;
+		break;
+		
+		case 0x04:
+		return 0x08;
+		break;
+		
+		case 0x05:
+		return 0x10;
+		break;
+		
+		case 0x06:
+		return 0x20;
+		break;
+		
+		case 0x07:
+		return 0x40;
+		break;
+		
+		case 0x08:
+		return 0x80;
+		break;
+		
+		case 0x09:	
+		return 0x81;
+		break;
+		
+		case 0x10:
+		return 0x10;
+		break;
+		
+		case 0x0A:
+		return 0x0A;
+		break;
+		
+		case 0x0B:
+		return 0x0B;
+		break;
+		
+		case 0x0C:
+		return 0x0C;
+		break;
+		
+		case 0x0D:
+		return 0x0D;
+		break;
+		
+		default:
+		return 0;
+		
+	}
+	 
+}
