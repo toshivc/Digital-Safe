@@ -561,35 +561,33 @@ uint8_t displayKeys(uint8_t keyValue)
 		break;
 		
 		case 0x0A:
-		return 0x0A;
- 346:	8a e0       	ldi	r24, 0x0A	; 10
+		return 0x03;
+ 346:	83 e0       	ldi	r24, 0x03	; 3
  348:	07 c0       	rjmp	.+14     	; 0x358 <displayKeys+0x74>
 		break;
 		
 		case 0x0B:
-		return 0x0B;
- 34a:	8b e0       	ldi	r24, 0x0B	; 11
+		return 0x0C;
+ 34a:	8c e0       	ldi	r24, 0x0C	; 12
  34c:	05 c0       	rjmp	.+10     	; 0x358 <displayKeys+0x74>
 		break;
 		
 		case 0x0C:
-		return 0x0C;
- 34e:	8c e0       	ldi	r24, 0x0C	; 12
+		return 0x30;
+ 34e:	80 e3       	ldi	r24, 0x30	; 48
  350:	03 c0       	rjmp	.+6      	; 0x358 <displayKeys+0x74>
 		break;
 		
 		case 0x0D:
-		return 0x0D;
- 352:	8d e0       	ldi	r24, 0x0D	; 13
+		return 0xC0;
+ 352:	80 ec       	ldi	r24, 0xC0	; 192
  354:	01 c0       	rjmp	.+2      	; 0x358 <displayKeys+0x74>
 		break;
 		
 		default:
 		return 0;
  356:	80 e0       	ldi	r24, 0x00	; 0
-		
 	}
-	 
  358:	0f 90       	pop	r0
  35a:	df 91       	pop	r29
  35c:	cf 91       	pop	r28

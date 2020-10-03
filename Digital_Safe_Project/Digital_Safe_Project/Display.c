@@ -122,24 +122,22 @@ uint8_t displayKeys(uint8_t keyValue)
 		break;
 		
 		case 0x0A:
-		return 0x0A;
+		return 0x03;
 		break;
 		
 		case 0x0B:
-		return 0x0B;
-		break;
-		
-		case 0x0C:
 		return 0x0C;
 		break;
 		
+		case 0x0C:
+		return 0x30;
+		break;
+		
 		case 0x0D:
-		return 0x0D;
+		return 0xC0;
 		break;
 		
 		default:
 		return 0;
-		
 	}
-	 
 }
