@@ -7,9 +7,29 @@
 #include <avr/io.h>
 #include "Delay.h"
 
-
+//****************************************************************************************
 //unlock LED sequence
 void displayUnlock (void)
+{
+	for (int i = 0; i <4; i++)
+	{
+		PORTB = 1<<(1+i*2);
+		delay_ms(100);
+	}
+	for (int i = 0; i <4; i++)
+	{
+		PORTB = 1<<(7-i*2);
+		delay_ms(100);
+	}
+	PORTB = 0x00;
+	delay_ms(100);
+	PORTB = 0xAA;
+}
+//****************************************************************************************
+
+//****************************************************************************************
+//unlock LED sequence 0 program mode
+void displayUnlockProg (void)
 {
 	for (int i = 0; i <4; i++)
 	{
@@ -149,4 +169,31 @@ void displayLockout(void)
 	PORTB = 0x55;
 	delay_sec(120);
 	PORTB =0;
+}
+//****************************************************************************************
+
+//****************************************************************************************
+void displayUser(uint8_t user)
+{
+	switch(user)
+	{
+		case 0x0A:
+		PORTB = 0x03;
+		break;
+		
+		case 0x0B:
+		PORTB = 0x0C;
+		break;
+			
+		case 0x0C:
+		PORTB = 0x30;
+		break;
+				
+		case 0x0D:
+		PORTB = 0xC0;
+		break;
+			
+		default:
+		return 0;
+	}
 }

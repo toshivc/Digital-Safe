@@ -34,7 +34,7 @@ void ProgramMode(void)
 	
 		if (isUser(user))	// Check if user A B C or D is chosen
 		{
-			PORTB = user;
+			displayUser(user);
 			ReadNone();
 			PORTB = 0;
 		
@@ -45,12 +45,20 @@ void ProgramMode(void)
 				if (RecallPasscode(user) == attemptPasscode)	// If the attempted passcode is equal to the stored passcode, UNLOCK
 				{
 					delay_ms(100);
-					displayUnlock();
-				
-					storePasscode(InputPasscode(),user);
-					displayUnlock();
-					attempts =0;
-					return;
+					displayUnlockProg();
+					
+					/////////////////////////////////////////////////////////
+					uint32_t NewPassword = InputPasscode();
+					uint8_t NewPasswordSize = DigitCount(NewPassword);
+					
+					if((NewPasswordSize >= 6)&& (NewPasswordSize <= 8))
+					{
+						storePasscode(NewPassword,user);
+						displayUnlockProg();
+						attempts = 0;
+						return;
+					}
+
 				}
 				else		// If incorrect, display LOCK
 				{

@@ -19,6 +19,8 @@ void displayProgramming(void);
 void displayIncorrect(void);
 uint8_t displayKeys(uint8_t keyValue);
 void displayLockout(void);
+void displayUser(uint8_t user);
+void displayUnlockProg(void);
 
 
 #endif /* DISPLAY_H_ */

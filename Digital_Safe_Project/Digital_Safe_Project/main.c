@@ -51,7 +51,7 @@ int main(void)
 		
 		if (isUser(user))	// Check if user A B C or D is chosen
 		{
-			PORTB = user;
+			displayUser(user);
 			ReadNone();
 			PORTB = 0;
 			
@@ -63,6 +63,7 @@ int main(void)
 				{
 					delay_ms(100);
 					displayUnlock();
+					while(ReadOne()!= 0x0F);
 				}
 				else		// If incorrect, display LOCK 
 				{

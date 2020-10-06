@@ -24,6 +24,7 @@ void ReadNone (void);
 uint8_t isUser (uint8_t buttonPressed);
 uint8_t isDigit (uint8_t buttonPressed);
 uint8_t isHeld3s (void);
+uint8_t DigitCount(uint32_t NewPasscode);
 
 
 #endif /* KEYPADSCAN_H_ */
