@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\Toshi_2\Documents\Atmel Studio\Digital-Safe\Digital_Safe_asm\Digital_Safe_asm\main.asm Wed Oct 07 00:47:55 2020
+AVRASM ver. 2.2.7  C:\Users\Toshi_2\Documents\Atmel Studio\Digital-Safe\Digital_Safe_asm\Digital_Safe_asm\main.asm Wed Oct 07 00:56:00 2020
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc\m32adef.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc\m32adef.inc'
@@ -831,6 +831,7 @@ AVRASM ver. 2.2.7  C:\Users\Toshi_2\Documents\Atmel Studio\Digital-Safe\Digital_
                                  .def TEMP = R16			; 
                                  .def DELAYTIME = R18	;Use R18 as a delay time amount
                                  .def COUNTER = R19		;USe R19 as a counter for loops and such
+                                 .def TempLED = R17		;;;;;;;;;;;;;;R17 might need to be used for 16bit registers??? maybe use another register
                                  .equ SP = 0xDF			; 
                                  
                                  ; Rename column masks
@@ -965,28 +966,28 @@ AVRASM ver. 2.2.7  C:\Users\Toshi_2\Documents\Atmel Studio\Digital-Safe\Digital_
 000038 3e0e                      		CPI temp, key1		; check for key1
 000039 f419                      		BRNE CheckKey4		; If not equal, check for key4
 00003a e001                      		LDI temp, 0x01		; If equal, temp = 1
-00003b bb08                      		OUT portB, temp		; output key to LED
+00003b e011                      		LDI TempLED, 0x01	
 00003c 9508                      		RET					; Return back
                                  
                                  	CheckKey4:	     	; 
 00003d 3e0d                      		CPI temp, key4		; check for key4
 00003e f419                      		BRNE CheckKey7		; If not equal, check for key7
 00003f e004                      		LDI temp, 0x04		; If equal, temp = 4
-000040 bb08                      		OUT portB, temp		; output key to LED
+000040 e018                      		LDI TempLED, 0x08
 000041 9508                      		RET					; Reutrn back
                                  
                                  	CheckKey7:	     	; 
 000042 3e0b                      		CPI temp, key7		; check for key7
 000043 f419                      		BRNE CheckKey14		; If not equal, check for key10
 000044 e007                      		LDI temp, 0x07		; If equal, temp = 7
-000045 bb08                      		OUT portB, temp		; output key to LED
+000045 e410                      		LDI TempLED, 0x40
 000046 9508                      		RET					; Reutrn back
                                  
                                  	CheckKey14:	     	; 
 000047 3e07                      		CPI temp, key14		; check for key4
 000048 f419                      		BRNE Column2		; If not equal, check for Column2
 000049 ef00                      		LDI temp, 0xF0		; If equal, temp = 10
-00004a bb08                      		OUT portB, temp		; output key to LED
+00004a ef10                      		LDI TempLED, 0xF0
 00004b 9508                      		RET					; Reutrn back
                                  
                                  	Column2:			
@@ -1002,28 +1003,28 @@ AVRASM ver. 2.2.7  C:\Users\Toshi_2\Documents\Atmel Studio\Digital-Safe\Digital_
 000054 3d0e                      		CPI temp, key2		; check for key2
 000055 f419                      		BRNE CheckKey5		; If not equal, check for key5
 000056 e002                      		LDI temp, 0x02		; If equal, temp = 2
-000057 bb08                      		OUT portB, temp		; output key to LED
+000057 e012                      		LDI TempLED, 0x02
 000058 9508                      		RET					; Return back
                                  
                                  	CheckKey5:	     	; 
 000059 3d0d                      		CPI temp, key5		; check for key5
 00005a f419                      		BRNE CheckKey8		; If not equal, check for key8
 00005b e005                      		LDI temp, 0x05		; If equal, temp = 5
-00005c bb08                      		OUT portB, temp		; output key to LED
+00005c e110                      		LDI TempLED, 0x10
 00005d 9508                      		RET					; Reutrn back
                                  
                                  	CheckKey8:	     	; 
 00005e 3d0b                      		CPI temp, key8		; check for key8
 00005f f419                      		BRNE CheckKey0		; If not equal, check for key0
 000060 e008                      		LDI temp, 0x08		; If equal, temp = 8
-000061 bb08                      		OUT portB, temp		; output key to LED
+000061 e810                      		LDI TempLED, 0x80
 000062 9508                      		RET					; Reutrn back
                                  
                                  	CheckKey0:	     	; 
 000063 3d07                      		CPI temp, key0		; check for key0
 000064 f419                      		BRNE Column3		; If not equal, check for Column3
 000065 e000                      		LDI temp, 0x00		; If equal, temp = 0
-000066 bb08                      		OUT portB, temp		; output key to LED
+000066 e010                      		LDI TempLED, 0x00
 000067 9508                      		RET					; Reutrn back
                                  
                                  
@@ -1035,33 +1036,33 @@ AVRASM ver. 2.2.7  C:\Users\Toshi_2\Documents\Atmel Studio\Digital-Safe\Digital_
                                  
 00006d b303                      		IN temp, pinC		; Read PINC values (0x13) and put into temp
 00006e 3b0f                      		CPI temp, col3		; Compare pinC value with col3
-00006f f201                      		BREQ Column1		; Go back to Column1 if equal (key has not been pressed in col3)
+00006f f0a1                      		BREQ Column4		; Go back to Column1 if equal (key has not been pressed in col3)
                                  		
 000070 3b0e                      		CPI temp, key3		; check for key3
 000071 f419                      		BRNE CheckKey6		; If not equal, check for key6
 000072 e003                      		LDI temp, 0x03		; If equal, temp = 3
-000073 bb08                      		OUT portB, temp		; output key to LED
+000073 e014                      		LDI TempLED, 0x04
 000074 9508                      		RET					; Return back
                                  
                                  	CheckKey6:	     	; 
 000075 3b0d                      		CPI temp, key6		; check for key6
 000076 f419                      		BRNE CheckKey9		; If not equal, check for key9
 000077 e006                      		LDI temp, 0x06		; If equal, temp = 6
-000078 bb08                      		OUT portB, temp		; output key to LED
+000078 e210                      		LDI TempLED, 0x20
 000079 9508                      		RET					; Reutrn back
                                  
                                  	CheckKey9:	     	; 
 00007a 3b0b                      		CPI temp, key9		; check for key9
 00007b f419                      		BRNE CheckKey15		; If not equal, check for key11
 00007c e009                      		LDI temp, 0x09		; If equal, temp = 9
-00007d bb08                      		OUT portB, temp		; output key to LED
+00007d e811                      		LDI TempLED, 0x81
 00007e 9508                      		RET					; Reutrn back
                                  
                                  	CheckKey15:	     	    ; 
 00007f 3b07                      		CPI temp, key15		; check for key11
 000080 f419                      		BRNE Column4		; If not equal, check for Column4
 000081 e00f                      		LDI temp, 0x0F		; If equal, temp = 11
-000082 bb08                      		OUT portB, temp		; output key to LED
+000082 e01f                      		LDI TempLED, 0x0F
 000083 9508                      		RET					; Reutrn back
                                  
                                  	Column4:			
@@ -1077,28 +1078,28 @@ AVRASM ver. 2.2.7  C:\Users\Toshi_2\Documents\Atmel Studio\Digital-Safe\Digital_
 00008c 370e                      		CPI temp, key10		; check for key10
 00008d f419                      		BRNE CheckKey11		; If not equal, check for key11
 00008e e00a                      		LDI temp, 0x0A		; If equal, temp = 0x0A
-00008f bb08                      		OUT portB, temp		; output key to LED
+00008f e013                      		LDI TempLED, 0x03
 000090 9508                      		RET					; Return back
                                  
                                  	CheckKey11:	     	; 
 000091 370d                      		CPI temp, key11		; check for key11
 000092 f419                      		BRNE CheckKey12		; If not equal, check for key12
 000093 e00b                      		LDI temp, 0x0B		; If equal, temp = 0x0B
-000094 bb08                      		OUT portB, temp		; output key to LED
+000094 e01c                      		LDI TempLED, 0x0C
 000095 9508                      		RET					; Reutrn back
                                  
                                  	CheckKey12:	     	; 
 000096 370b                      		CPI temp, key12		; check for key
 000097 f419                      		BRNE CheckKey13		; If not equal, check for key11
 000098 e00c                      		LDI temp, 0x0C		; If equal, temp = 0x0C
-000099 bb08                      		OUT portB, temp		; output key to LED
+000099 e310                      		LDI TempLED, 0x30
 00009a 9508                      		RET					; Reutrn back
                                  
                                  	CheckKey13:	     	    ; 
-00009b 3e07                      		CPI temp, key14		; check for key14
+00009b 3707                      		CPI temp, key13		; check for key14
 00009c f419                      		BRNE RoundLoopCol1	; If not equal, check for Column1
 00009d e00d                      		LDI temp, 0x0D		; If equal, temp = 0x0D
-00009e bb08                      		OUT portB, temp		; output key to LED
+00009e ec10                      		LDI TempLED, 0xC0
 00009f 9508                      		RET					; Reutrn back
                                  
                                  	RoundLoopCol1: 
@@ -1123,7 +1124,6 @@ AVRASM ver. 2.2.7  C:\Users\Toshi_2\Documents\Atmel Studio\Digital-Safe\Digital_
                                  ; millisecond timer function 
                                  ;Uses
                                  ;R18	-	Low byte of Delay Length in milliseconds
-                                 ;R19	-	High Byte of Delay Length???
                                  Delay_ms:
 0000a4 930f                      		PUSH TEMP					;save contents for later
 0000a5 931f                      		PUSH R17
@@ -1230,7 +1230,7 @@ counted separately from r26..r31 here.
 "ATmega32A" register use summary:
 x  :   0 y  :   0 z  :   0 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16: 110 r17:   9 r18:   7 r19:  10 r20:   0 
+r13:   0 r14:   0 r15:   0 r16:  94 r17:  25 r18:   7 r19:  10 r20:   0 
 r21:   0 r22:   0 r23:   0 r24:   0 r25:   0 r26:   0 r27:   0 r28:   0 
 r29:   0 r30:   0 r31:   0 
 Registers used: 4 out of 35 (11.4%)
@@ -1246,9 +1246,9 @@ clc   :   0 clh   :   0 cli   :   0 cln   :   0 clr   :   6 cls   :   0
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   2 cpc   :   0 
 cpi   :  22 cpse  :   0 dec   :   0 eor   :   0 fmul  :   0 fmuls :   0 
 fmulsu:   0 icall :   0 ijmp  :   0 in    :   6 inc   :   2 jmp   :   0 
-ld    :   0 ldd   :   0 ldi   :  42 lds   :   0 lpm   :   0 lsl   :   0 
+ld    :   0 ldd   :   0 ldi   :  58 lds   :   0 lpm   :   0 lsl   :   0 
 lsr   :   0 mov   :   0 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
-neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :  40 pop   :   6 
+neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :  24 pop   :   6 
 push  :   6 rcall :   0 ret   :  21 reti  :  16 rjmp  :   3 rol   :   0 
 ror   :   0 sbc   :   0 sbci  :   0 sbi   :   0 sbic  :   0 sbis  :   0 
 sbiw  :   0 sbr   :   0 sbrc  :   0 sbrs  :   0 sec   :   0 seh   :   0 
