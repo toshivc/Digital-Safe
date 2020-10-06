@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\yoyos\Documents\Atmel Studio\7.0\Digital-Safe\Digital_Safe_asm\Digital_Safe_asm\main.asm Tue Oct 06 22:08:39 2020
+AVRASM ver. 2.2.7  C:\Users\yoyos\Documents\Atmel Studio\7.0\Digital-Safe\Digital_Safe_asm\Digital_Safe_asm\main.asm Tue Oct 06 22:32:34 2020
 
 
 EQU  SIGNATURE_000 0000001e
@@ -569,6 +569,7 @@ EQU  TWIaddr      00000026
 EQU  SPMRaddr     00000028
 EQU  INT_VECTORS_SIZE 0000002a
 DEF  TEMP         r16
+DEF  TempLED      r17
 EQU  SP           000000df
 EQU  col1         000000ef
 EQU  col2         000000df
@@ -606,10 +607,10 @@ CSEG Column3      0000005b
 CSEG CheckKey5    0000004c
 CSEG CheckKey8    00000051
 CSEG CheckKey0    00000056
+CSEG Column4      00000076
 CSEG CheckKey6    00000067
 CSEG CheckKey9    0000006c
 CSEG CheckKey15   00000071
-CSEG Column4      00000076
 CSEG RoundLoopcol1 00000091
 CSEG CheckKey11   00000082
 CSEG CheckKey12   00000087
