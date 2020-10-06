@@ -67,7 +67,7 @@ void displayLock (void)
 //Programming mode LED sequence
 void displayProgramming(void)
 {
-	for (int i = 0; i <10; i++)
+	for (int i = 0; i <6; i++)
 	{
 		PORTB = 0xFF;
 		delay_ms(100);
@@ -194,6 +194,6 @@ void displayUser(uint8_t user)
 		break;
 			
 		default:
-		return 0;
+		return;
 	}
 }
