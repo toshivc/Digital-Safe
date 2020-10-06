@@ -8,6 +8,8 @@
 ;***********************************************************
 ; Define variables
 .def TEMP = R16			; 
+.def DELAYTIME = R18	;Use R18 as a delay time amount
+.def COUNTER = R19		;USe R19 as a counter for loops and such
 .equ SP = 0xDF			; 
 
 ; Rename column masks
@@ -69,9 +71,20 @@ start:
 
 		CALL Initialise		; Go to initialise subroutine
 
+
+	
+		LDI R18, 200		;set delay time to 200
 loop: 
-		CALL ReadOne
+		//CALL ReadOne
+		//CALL Display
+
+		LDI TEMP, 0xAA
 		CALL Display
+		CALL Delay_ms
+		LDI TEMP, 0x00
+		CALL Display
+		CALL Delay_ms
+
 		RJMP loop
 
 
@@ -100,6 +113,12 @@ Initialise:
 		OUT PORTC, TEMP		; Set columns to all on (idle state)
 
 		; Timers
+		LDI TEMP, (1<<CS00) | (1<<CS02)		;set prescaler of timer0 to 1024
+		OUT TCCR0, TEMP
+
+		LDI TEMP, (1<<CS10) | (1<<CS12)		;set prescaler of timer1 to 1024
+		OUT TCCR1B, TEMP
+
 
 
 		RET
@@ -109,12 +128,14 @@ Initialise:
 
 ;***********************************************************
 ; ReadOne function 
-
+;Uses
+;TEMP	-	Value of the key presses
 ReadOne:
 	Column1:
 	    LDI	temp, col1		; Assign 1st column to temp
 		OUT portC, temp		; Put temp into portC
-		CALL Delay
+		LDI R18, 50
+		CALL Delay_ms
 
 		IN temp, pinC		; Read PINC values (0x13) and put into temp
 		CPI temp, col1		; Compare pinC value with col1
@@ -150,7 +171,8 @@ ReadOne:
 	Column2:			
 	    LDI	temp, col2		; Assign 2nd column to temp
 		OUT portC, temp		; Put temp into portC
-		CALL Delay
+		LDI R18, 50
+		CALL Delay_ms
 
 		IN temp, pinC		; Read PINC values (0x13) and put into temp
 		CPI temp, col2		; Compare pinC value with col2
@@ -187,7 +209,8 @@ ReadOne:
 	Column3:			
 	    LDI	temp, col3		; Assign 3rd column to temp
 		OUT portC, temp		; Put temp into portC
-		CALL Delay
+		LDI R18, 50
+		CALL Delay_ms
 
 		IN temp, pinC		; Read PINC values (0x13) and put into temp
 		CPI temp, col3		; Compare pinC value with col3
@@ -223,7 +246,8 @@ ReadOne:
 	Column4:			
 	    LDI	temp, col4		; Assign 4th column to temp
 		OUT portC, temp		; Put temp into portC
-		CALL Delay
+		LDI R18, 50
+		CALL Delay_ms
 
 		IN temp, pinC		; Read PINC values (0x13) and put into temp
 		CPI temp, col4		; Compare pinC value with col3
@@ -272,25 +296,97 @@ Display:
 
 					
 ;***************************************************************
+			
+
+;***********************************************************
+; millisecond timer function 
+;Uses
+;R18	-	Low byte of Delay Length in milliseconds
+Delay_ms:
+		PUSH TEMP					;save contents for later
+		PUSH R17
+		PUSH R19
+		CLR R19						;initialise a counter to 0
+
+		LDI TEMP, 0x00				;set timer to 0
+		OUT TCNT0, TEMP
+
+		LDI TEMP, 12				;set output compare to 12
+		OUT OCR0, TEMP
+
+	Delay_ms_L1:
+		LDI TEMP, (1<<OCF0)			;reset overflow counter, (set to 1)
+		OUT TIFR, TEMP
+			
+
+	Delay_ms_L2:
+		IN TEMP, TIFR				;read the overflow bit
+		ANDI TEMP, (1<<OCF0)		;bit mask only the overflow bit
+		CPI TEMP, (1<<OCF0)			;check if it is set to 1
+		BRNE Delay_ms_L2
+
+		LDI TEMP, 0x00				;set timer to 0
+		OUT TCNT0, TEMP
+
+		INC R19
+
+		CP R19, R18					;Compare delay length(R18) with counter(r17)
+		BRLO Delay_ms_L1			;repeat if less then delay length(R18)
+
+		POP R19
+		POP R17
+		POP TEMP
+		RET
+;***********************************************************
+
+;***********************************************************
+;Seconds delay fuction
+;Uses
+;R18	-	Low byte of Delay Length in seconds
+Delay_sec:
+		PUSH TEMP					;save contents for later
+		PUSH R17
+		PUSH R19					;initialise a counter
+
+		CLR TEMP					;set timer to 0
+		CLR R17
+		OUT TCNT1H, TEMP
+		OUT TCNT1L, TEMP
+
+		LDI TEMP, 0xC7				;set output compare to 11719 (2DC7 in hex)
+		LDI R17, 0x2D
+		OUT OCR1AH, R17
+		OUT OCR1AL, TEMP
 		
-;***************************************************************
-Delay:
-         PUSH R16			; save R16 and 17 as we're going to use them
-         PUSH R17       ; as loop counters
-         PUSH R0        ; we'll also use R0 as a zero value
-         CLR R0
-         CLR R16        ; init inner counter
-         CLR R17        ; and outer counter
-L1:      DEC R16         ; counts down from 0 to FF to 0
-			CPSE R16, R0    ; equal to zero?
-			RJMP L1			 ; if not, do it again
-			CLR R16			 ; reinit inner counter
-L2:      DEC R17
-         CPSE R17, R0    ; is it zero yet?
-         RJMP L1			 ; back to inner counter
-;
-         POP R0          ; done, clean up and return
-         POP R17
-         POP R16
-         RET
-.exit 		
+
+		CLR R19						;initialise a counter to 0
+
+	Delay_sec_L1:
+		LDI TEMP, (1<<OCF1A)		;reset overflow counter, (set to 1)
+		OUT TIFR, TEMP
+			
+
+	Delay_sec_L2:
+		IN TEMP, TIFR				;read the overflow bit
+		ANDI TEMP, (1<<OCF1A)		;bit mask only the overflow bit
+		CPI TEMP, (1<<OCF1A)		;check if it is set to 1
+		BRNE Delay_sec_L2
+
+		CLR TEMP					;set timer to 0
+		CLR R17
+		OUT TCNT1H, R17				;TCNT1H
+		OUT TCNT1L, TEMP			;TCNT1L
+
+		INC R19
+
+		CP R19, R18					;Compare delay length(R18) with counter(r17)
+		BRLO Delay_sec_L1			;repeat if less then delay length(R18)
+
+		POP R19
+		POP R17
+		POP TEMP
+		RET
+;***********************************************************	
+	
+	
+	.exit 	;this must always be at the end		
