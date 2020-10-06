@@ -10,6 +10,7 @@
 #include "Modes.h"
 #include "Display.h"
 #include "Delay.h"
+#include "EEPROM.h"
 
 
 // General Mode
@@ -21,36 +22,55 @@ void GeneralMode(void)
 
 void ProgramMode(void)
 {
+	ReadNone(); //wait until nothing is pressed
+	uint8_t attempts = 0;		// Set number of attempts to 0
 	// ENTER PROGRAMMING MODE - check for which user is pressed
-	for (int i = 0; i < 4; i++)
+	while(1)
 	{
-		uint8_t attempts = 0;
-		if (ReadOne() == 0x0A+i)	// Check if user A B C or D is chosen
+		
+		uint8_t user = ReadOne();		//CHANGED added instead of For loop, determines the first key pressed
+		uint32_t attemptPasscode;
+	
+	
+		if (isUser(user))	// Check if user A B C or D is chosen
 		{
-			while (attempts < 3)
+			PORTB = user;
+			ReadNone();
+			PORTB = 0;
+		
+			if (attempts < 3)	// Ensure number of passcode attempts < 3		//CHANGED from while to If as it would always stay in the while loop
 			{
-				uint32_t attemptPasscode = InputPasscode();		// Read the passcode from the keypad
-				if (RecallPasscode(0x0A+i) == attemptPasscode)	// If the attempted passcode is equal to the stored passcode, UNLOCK
+				attemptPasscode = InputPasscode();		// Read the passcode from the keypad
+			
+				if (RecallPasscode(user) == attemptPasscode)	// If the attempted passcode is equal to the stored passcode, UNLOCK
 				{
 					delay_ms(100);
 					displayUnlock();
-					// Set new passcode
-					storePasscode(InputPasscode(), 0xA+i);		//stores the password 12345678 into user slot A
+				
+					storePasscode(InputPasscode(),user);
+					displayUnlock();
+					attempts =0;
+					return;
 				}
-				else
+				else		// If incorrect, display LOCK
 				{
 					delay_ms(100);
 					displayLock();
-					attempts = attempts + 1;
+					attempts = attempts + 1;	// Increment number of attempts by 1
 				}
 			}
-			// LOCKOUT when number of attempts is more than 3
-			lockoutMode();
+			else
+			{
+				// LOCKOUT when number of attempts is more than 3
+				
+				displayLockout();
+				return;
+			}
 		}
-		else
+		else // If any other key is pressed
 		{
 			delay_ms(100);
-			displayLock();
+			displayIncorrect();
 		}
 	}
 }

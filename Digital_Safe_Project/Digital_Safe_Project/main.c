@@ -33,51 +33,66 @@ int main(void)
 		storePasscode(00000000, 0xA+i);		//stores the password 00000000 into user slot if no previous code has been set
 	}
 	*/
-
+	
+	
+	storePasscode(12345678, 0x0A);
+	storePasscode(11223344, 0x0B);
+	storePasscode(00000000, 0x0C);
+	storePasscode(00000000, 0x0D);
+	
+	uint8_t attempts = 0;		// Set number of attempts to 0
 
 	// Start infinite loop
     while (1) 
     {
-		for (int i = 0; i < 4; i++)	
+		uint8_t user = ReadOne();		//CHANGED added instead of For loop, determines the first key pressed
+		uint32_t attemptPasscode;
+		
+		
+		if (isUser(user))	// Check if user A B C or D is chosen
 		{
-			uint8_t attempts = 0;		// Set number of attempts to 0
-			if (ReadOne() == 0x0A+i)	// Check if user A B C or D is chosen
+			PORTB = user;
+			ReadNone();
+			PORTB = 0;
+			
+			if (attempts < 3)	// Ensure number of passcode attempts < 3		//CHANGED from while to If as it would always stay in the while loop
 			{
-				while (attempts < 3)	// Ensure number of passcode attempts < 3
+				attemptPasscode = InputPasscode();		// Read the passcode from the keypad
+				
+				if (RecallPasscode(user) == attemptPasscode)	// If the attempted passcode is equal to the stored passcode, UNLOCK
 				{
-					uint32_t attemptPasscode = InputPasscode();		// Read the passcode from the keypad
-					if (RecallPasscode(0x0A+i) == attemptPasscode)	// If the attempted passcode is equal to the stored passcode, UNLOCK
-					{
-						delay_ms(100);
-						displayUnlock();
-					}
-					else		// If incorrect, display LOCK 
-					{
-						delay_ms(100);
-						displayLock();
-						attempts = attempts + 1;	// Increment number of attempts by 1
-					}
+					delay_ms(100);
+					displayUnlock();
 				}
+				else		// If incorrect, display LOCK 
+				{
+					delay_ms(100);
+					displayLock();
+					attempts = attempts + 1;	// Increment number of attempts by 1
+				}
+			}
+			else
+			{
 				// LOCKOUT when number of attempts is more than 3
-				lockoutMode();
-			}//
+				displayLockout();
+			}	
+		}
 			
 			
-			else if (ReadOne() == 0x0E)		// If the * is pressed
+		else if (user == 0x0E)		// If the * is pressed
+		{
+			if(isHeld3s())
 			{
-				delay_sec(5);				// Wait 5 seconds
-				if (ReadOne() == 0x0E)		// If the * is still pressed (been held down for 5 seconds?)
-				{
-					// ENTER PROGRAMMING MODE - check for which user is pressed
-					ProgramMode();
-				}
-			}
+				displayProgramming();
+				// ENTER PROGRAMMING MODE - check for which user is pressed
+				ProgramMode();
+			}	
+		}
 			
-			else // If any other key is pressed
-			{
-				delay_ms(100);
-				displayLock();
-			}
+		else // If any other key is pressed
+		{
+			delay_ms(100);
+			displayIncorrect();
 		}		
     }
 }
