@@ -34,12 +34,7 @@ int main(void)
 	}
 	*/
 	
-	
-	storePasscode(12345678, 0x0A);
-	storePasscode(11223344, 0x0B);
-	storePasscode(00000000, 0x0C);
-	storePasscode(00000000, 0x0D);
-	
+
 	uint8_t attempts = 0;		// Set number of attempts to 0
 
 	// Start infinite loop
@@ -54,37 +49,39 @@ int main(void)
 			displayUser(user);
 			ReadNone();
 			PORTB = 0;
-			
-			if (attempts < 3)	// Ensure number of passcode attempts < 3		//CHANGED from while to If as it would always stay in the while loop
-			{
-				attemptPasscode = InputPasscode();		// Read the passcode from the keypad
+		
+			attemptPasscode = InputPasscode();		// Read the passcode from the keypad
 				
-				if (RecallPasscode(user) == attemptPasscode)	// If the attempted passcode is equal to the stored passcode, UNLOCK
-				{
-					delay_ms(100);
-					displayUnlock();
-					while(ReadOne()!= 0x0F);
-				}
-				else		// If incorrect, display LOCK 
-				{
-					delay_ms(100);
-					displayLock();
-					attempts = attempts + 1;	// Increment number of attempts by 1
-				}
-			}
-			else
+			if (RecallPasscode(user) == attemptPasscode)	// If the attempted passcode is equal to the stored passcode, UNLOCK
 			{
-				// LOCKOUT when number of attempts is more than 3
-				displayLockout();
+				delay_ms(100);
+				displayUnlock();
+				while(ReadOne()!= 0x0F);		//wait until # is pressed to lock the safe
+				ReadNone();
+				PORTB = 0x00;
+			}
+			else		// If incorrect, display LOCK 
+			{
+				delay_ms(100);
+				displayLock();
+				attempts = attempts + 1;	// Increment number of attempts by 1
+					
+				if (attempts >= 3)	// Ensure number of passcode attempts < 3
+				{
+					// LOCKOUT when number of attempts is more than 3
+					displayLockout();
+				}
 			}	
 		}
 			
 			
 		else if (user == 0x0E)		// If the * is pressed
 		{
+			PORTB = 0xFF;
 			if(isHeld3s())
 			{
 				displayProgramming();
+				PORTB = 0xFF;
 				// ENTER PROGRAMMING MODE - check for which user is pressed
 				ProgramMode();
 			}	

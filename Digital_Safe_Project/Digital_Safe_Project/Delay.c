@@ -74,14 +74,14 @@ void delay_sec(uint16_t delayTime)
 	
 	TCNT1 = 0x0000;		//reset timer to 0
 	OCR1A = 11719;			//set compare register 
-	TIFR = (1<<OCF0);	//reset compare flag
+	TIFR = (1<<OCF1A);	//reset compare flag
 	
 	uint16_t overflowCounter = 0;
 	
 	while (1)
 	{
 		while((TIFR & (1<<OCF1A))==0); //while OCF0, overflow flag is 0
-		TCNT0 = 0x00;		//reset timer to 0
+		TCNT1 = 0x00;		//reset timer to 0
 		TIFR = (1<<OCF1A); //reset compare flag
 		overflowCounter++;
 		if (overflowCounter >= delayTime)

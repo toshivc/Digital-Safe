@@ -27,7 +27,7 @@ void ProgramMode(void)
 	// ENTER PROGRAMMING MODE - check for which user is pressed
 	while(1)
 	{
-		
+	
 		uint8_t user = ReadOne();		//CHANGED added instead of For loop, determines the first key pressed
 		uint32_t attemptPasscode;
 	
@@ -36,49 +36,57 @@ void ProgramMode(void)
 		{
 			displayUser(user);
 			ReadNone();
-			PORTB = 0;
+			PORTB = 0xFF;
 		
-			if (attempts < 3)	// Ensure number of passcode attempts < 3		//CHANGED from while to If as it would always stay in the while loop
-			{
-				attemptPasscode = InputPasscode();		// Read the passcode from the keypad
+			attemptPasscode = InputPasscode();		// Read the passcode from the keypad
 			
-				if (RecallPasscode(user) == attemptPasscode)	// If the attempted passcode is equal to the stored passcode, UNLOCK
-				{
-					delay_ms(100);
-					displayUnlockProg();
+			
+			if (RecallPasscode(user) == attemptPasscode)	// If the attempted passcode is equal to the stored passcode, UNLOCK
+			{
+				delay_ms(100);
+				displayUnlockProg();
+				ReadNone();
+				PORTB =0xff;
 					
-					/////////////////////////////////////////////////////////
-					uint32_t NewPassword = InputPasscode();
-					uint8_t NewPasswordSize = DigitCount(NewPassword);
+				/////////////////////////////////////////////////////////
+				uint32_t NewPassword = InputPasscode();
+				uint8_t NewPasswordSize = DigitCount(NewPassword);
 					
-					if((NewPasswordSize >= 6)&& (NewPasswordSize <= 8))
-					{
-						storePasscode(NewPassword,user);
-						displayUnlockProg();
-						attempts = 0;
-						return;
-					}
-
-				}
-				else		// If incorrect, display LOCK
+				if((NewPasswordSize >= 6)&& (NewPasswordSize <= 8))
 				{
-					delay_ms(100);
-					displayLock();
-					attempts = attempts + 1;	// Increment number of attempts by 1
+					storePasscode(NewPassword,user);
+					displayUnlock();
+					while(ReadOne()!= 0x0F);		//wait until # is pressed to lock the safe
+					ReadNone();
+					PORTB = 0x00;
+					attempts = 0;
+					return;
 				}
 			}
-			else
+			
+			else		// If incorrect, display LOCK
 			{
-				// LOCKOUT when number of attempts is more than 3
+				delay_ms(100);
+				displayLock();
+				ReadNone();
+				PORTB =0xff;
 				
-				displayLockout();
-				return;
+				attempts = attempts + 1;	// Increment number of attempts by 1
+					
+				if (attempts >= 3)	// Ensure number of passcode attempts < 3
+				{
+					// LOCKOUT when number of attempts is more than 3
+					displayLockout();
+				}
 			}
 		}
+		
+		
 		else // If any other key is pressed
 		{
 			delay_ms(100);
 			displayIncorrect();
+			PORTB = 0xFF;
 		}
 	}
 }
