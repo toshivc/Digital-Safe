@@ -54,7 +54,7 @@ void displayLock (void)
 		PORTB = 1<<(i*2);
 		delay_ms(100);
 	}
-	for (int i = 0; i <4; i++)
+	for (int i = 0; i <5; i++)
 	{
 		PORTB = 1<<(8-i*2);
 		delay_ms(100);
