@@ -23,7 +23,7 @@ void GeneralMode(void)
 void ProgramMode(void)
 {
 	ReadNone(); //wait until nothing is pressed
-	uint8_t attempts = 0;		// Set number of attempts to 0
+	uint8_t noOfAttempts = 0;		// Set number of attempts to 0
 	// ENTER PROGRAMMING MODE - check for which user is pressed
 	while(1)
 	{
@@ -59,7 +59,7 @@ void ProgramMode(void)
 					while(ReadOne()!= 0x0F);		//wait until # is pressed to lock the safe
 					ReadNone();
 					PORTB = 0x00;
-					attempts = 0;
+					noOfAttempts = 0;
 					return;
 				}
 			}
@@ -71,9 +71,9 @@ void ProgramMode(void)
 				ReadNone();
 				PORTB =0xff;
 				
-				attempts = attempts + 1;	// Increment number of attempts by 1
+				noOfAttempts = noOfAttempts + 1;	// Increment number of attempts by 1
 					
-				if (attempts >= 3)	// Ensure number of passcode attempts < 3
+				if (noOfAttempts >= 3)	// Ensure number of passcode attempts < 3
 				{
 					// LOCKOUT when number of attempts is more than 3
 					displayLockout();

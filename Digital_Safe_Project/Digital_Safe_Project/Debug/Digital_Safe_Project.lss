@@ -3,31 +3,31 @@ Digital_Safe_Project.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         00000e8a  00000000  00000000  00000094  2**1
+  0 .text         00000eb4  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .data         00000016  00800060  00000e8a  00000f1e  2**0
+  1 .data         00000016  00800060  00000eb4  00000f48  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  2 .bss          00000004  00800076  00800076  00000f34  2**0
+  2 .bss          00000004  00800076  00800076  00000f5e  2**0
                   ALLOC
-  3 .comment      00000030  00000000  00000000  00000f34  2**0
+  3 .comment      00000030  00000000  00000000  00000f5e  2**0
                   CONTENTS, READONLY
-  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000f64  2**2
+  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000f90  2**2
                   CONTENTS, READONLY
-  5 .debug_aranges 00000188  00000000  00000000  00000fa0  2**0
+  5 .debug_aranges 00000180  00000000  00000000  00000fcc  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000fd0  00000000  00000000  00001128  2**0
+  6 .debug_info   00000fb3  00000000  00000000  0000114c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 000009bc  00000000  00000000  000020f8  2**0
+  7 .debug_abbrev 000009d6  00000000  00000000  000020ff  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00000f8c  00000000  00000000  00002ab4  2**0
+  8 .debug_line   00000f5b  00000000  00000000  00002ad5  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  00000418  00000000  00000000  00003a40  2**2
+  9 .debug_frame  000003f8  00000000  00000000  00003a30  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    0000062f  00000000  00000000  00003e58  2**0
+ 10 .debug_str    000005c6  00000000  00000000  00003e28  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    000007a7  00000000  00000000  00004487  2**0
+ 11 .debug_loc    0000075f  00000000  00000000  000043ee  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000118  00000000  00000000  00004c2e  2**0
+ 12 .debug_ranges 00000110  00000000  00000000  00004b4d  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -84,7 +84,7 @@ Disassembly of section .text:
   82:	10 e0       	ldi	r17, 0x00	; 0
   84:	a0 e6       	ldi	r26, 0x60	; 96
   86:	b0 e0       	ldi	r27, 0x00	; 0
-  88:	ea e8       	ldi	r30, 0x8A	; 138
+  88:	e4 eb       	ldi	r30, 0xB4	; 180
   8a:	fe e0       	ldi	r31, 0x0E	; 14
   8c:	02 c0       	rjmp	.+4      	; 0x92 <__do_copy_data+0x10>
   8e:	05 90       	lpm	r0, Z+
@@ -107,12 +107,18 @@ Disassembly of section .text:
   a4:	b2 07       	cpc	r27, r18
   a6:	e1 f7       	brne	.-8      	; 0xa0 <.do_clear_bss_loop>
   a8:	0e 94 f4 05 	call	0xbe8	; 0xbe8 <main>
-  ac:	0c 94 43 07 	jmp	0xe86	; 0xe86 <_exit>
+  ac:	0c 94 58 07 	jmp	0xeb0	; 0xeb0 <_exit>
 
 000000b0 <__bad_interrupt>:
   b0:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 000000b4 <delay_ms>:
+
+
+// ****************************************************************************************
+//Timer with minimum time of 0.001 seconds ie 1ms, max time of 65sec
+void delay_ms(uint16_t delayTime)
+{
   b4:	cf 93       	push	r28
   b6:	df 93       	push	r29
   b8:	00 d0       	rcall	.+0      	; 0xba <delay_ms+0x6>
@@ -121,22 +127,34 @@ Disassembly of section .text:
   be:	de b7       	in	r29, 0x3e	; 62
   c0:	9c 83       	std	Y+4, r25	; 0x04
   c2:	8b 83       	std	Y+3, r24	; 0x03
+	//12MHz divided by 1024 is 11.718KHz, or clock time of 85.3micro seconds
+	//multiplied by 12 gives 0.001024 seconds
+	
+	TCNT0 = 0x00;		//reset timer to 0
   c4:	82 e5       	ldi	r24, 0x52	; 82
   c6:	90 e0       	ldi	r25, 0x00	; 0
   c8:	fc 01       	movw	r30, r24
   ca:	10 82       	st	Z, r1
+	OCR0 = 12;			//set compare register 
   cc:	8c e5       	ldi	r24, 0x5C	; 92
   ce:	90 e0       	ldi	r25, 0x00	; 0
   d0:	2c e0       	ldi	r18, 0x0C	; 12
   d2:	fc 01       	movw	r30, r24
   d4:	20 83       	st	Z, r18
+	TIFR = (1<<OCF0);	//reset compare flag
   d6:	88 e5       	ldi	r24, 0x58	; 88
   d8:	90 e0       	ldi	r25, 0x00	; 0
   da:	22 e0       	ldi	r18, 0x02	; 2
   dc:	fc 01       	movw	r30, r24
   de:	20 83       	st	Z, r18
+	
+	uint16_t overflowCounter = 0;
   e0:	1a 82       	std	Y+2, r1	; 0x02
   e2:	19 82       	std	Y+1, r1	; 0x01
+	
+	while (1)
+	{
+		while((TIFR & (1<<OCF0))==0); //while OCF0, overflow flag is 0
   e4:	00 00       	nop
   e6:	88 e5       	ldi	r24, 0x58	; 88
   e8:	90 e0       	ldi	r25, 0x00	; 0
@@ -148,20 +166,24 @@ Disassembly of section .text:
   f4:	99 27       	eor	r25, r25
   f6:	89 2b       	or	r24, r25
   f8:	b1 f3       	breq	.-20     	; 0xe6 <delay_ms+0x32>
+		TCNT0 = 0x00;		//reset timer to 0
   fa:	82 e5       	ldi	r24, 0x52	; 82
   fc:	90 e0       	ldi	r25, 0x00	; 0
   fe:	fc 01       	movw	r30, r24
  100:	10 82       	st	Z, r1
+		TIFR = (1<<OCF0); //reset compare flag
  102:	88 e5       	ldi	r24, 0x58	; 88
  104:	90 e0       	ldi	r25, 0x00	; 0
  106:	22 e0       	ldi	r18, 0x02	; 2
  108:	fc 01       	movw	r30, r24
  10a:	20 83       	st	Z, r18
+		overflowCounter++;
  10c:	89 81       	ldd	r24, Y+1	; 0x01
  10e:	9a 81       	ldd	r25, Y+2	; 0x02
  110:	01 96       	adiw	r24, 0x01	; 1
  112:	9a 83       	std	Y+2, r25	; 0x02
  114:	89 83       	std	Y+1, r24	; 0x01
+		if (overflowCounter >= delayTime)
  116:	29 81       	ldd	r18, Y+1	; 0x01
  118:	3a 81       	ldd	r19, Y+2	; 0x02
  11a:	8b 81       	ldd	r24, Y+3	; 0x03
@@ -169,8 +191,21 @@ Disassembly of section .text:
  11e:	28 17       	cp	r18, r24
  120:	39 07       	cpc	r19, r25
  122:	08 f4       	brcc	.+2      	; 0x126 <delay_ms+0x72>
+		{
+			return;
+		}
+	}	
  124:	df cf       	rjmp	.-66     	; 0xe4 <delay_ms+0x30>
+		TCNT0 = 0x00;		//reset timer to 0
+		TIFR = (1<<OCF0); //reset compare flag
+		overflowCounter++;
+		if (overflowCounter >= delayTime)
+		{
+			return;
  126:	00 00       	nop
+		}
+	}	
+}
  128:	0f 90       	pop	r0
  12a:	0f 90       	pop	r0
  12c:	0f 90       	pop	r0
@@ -180,6 +215,12 @@ Disassembly of section .text:
  134:	08 95       	ret
 
 00000136 <delay_sec>:
+// ****************************************************************************************
+
+// ****************************************************************************************
+//Timer with minimum time of 1 second, max time of 18hours
+void delay_sec(uint16_t delayTime)
+{
  136:	cf 93       	push	r28
  138:	df 93       	push	r29
  13a:	00 d0       	rcall	.+0      	; 0x13c <delay_sec+0x6>
@@ -188,11 +229,17 @@ Disassembly of section .text:
  140:	de b7       	in	r29, 0x3e	; 62
  142:	9c 83       	std	Y+4, r25	; 0x04
  144:	8b 83       	std	Y+3, r24	; 0x03
+	//delayTime = delayTime * 1000;
+	//12MHz divided by 1024 is 11.718KHz, or clock time of 85.3micro seconds
+	//multiplied by 11719 gives 1.00002 seconds
+	
+	TCNT1 = 0x0000;		//reset timer to 0
  146:	8c e4       	ldi	r24, 0x4C	; 76
  148:	90 e0       	ldi	r25, 0x00	; 0
  14a:	fc 01       	movw	r30, r24
  14c:	11 82       	std	Z+1, r1	; 0x01
  14e:	10 82       	st	Z, r1
+	OCR1A = 11719;			//set compare register 
  150:	8a e4       	ldi	r24, 0x4A	; 74
  152:	90 e0       	ldi	r25, 0x00	; 0
  154:	27 ec       	ldi	r18, 0xC7	; 199
@@ -200,13 +247,20 @@ Disassembly of section .text:
  158:	fc 01       	movw	r30, r24
  15a:	31 83       	std	Z+1, r19	; 0x01
  15c:	20 83       	st	Z, r18
+	TIFR = (1<<OCF1A);	//reset compare flag
  15e:	88 e5       	ldi	r24, 0x58	; 88
  160:	90 e0       	ldi	r25, 0x00	; 0
  162:	20 e1       	ldi	r18, 0x10	; 16
  164:	fc 01       	movw	r30, r24
  166:	20 83       	st	Z, r18
+	
+	uint16_t overflowCounter = 0;
  168:	1a 82       	std	Y+2, r1	; 0x02
  16a:	19 82       	std	Y+1, r1	; 0x01
+	
+	while (1)
+	{
+		while((TIFR & (1<<OCF1A))==0); //while OCF0, overflow flag is 0
  16c:	00 00       	nop
  16e:	88 e5       	ldi	r24, 0x58	; 88
  170:	90 e0       	ldi	r25, 0x00	; 0
@@ -218,21 +272,25 @@ Disassembly of section .text:
  17c:	99 27       	eor	r25, r25
  17e:	89 2b       	or	r24, r25
  180:	b1 f3       	breq	.-20     	; 0x16e <delay_sec+0x38>
+		TCNT1 = 0x00;		//reset timer to 0
  182:	8c e4       	ldi	r24, 0x4C	; 76
  184:	90 e0       	ldi	r25, 0x00	; 0
  186:	fc 01       	movw	r30, r24
  188:	11 82       	std	Z+1, r1	; 0x01
  18a:	10 82       	st	Z, r1
+		TIFR = (1<<OCF1A); //reset compare flag
  18c:	88 e5       	ldi	r24, 0x58	; 88
  18e:	90 e0       	ldi	r25, 0x00	; 0
  190:	20 e1       	ldi	r18, 0x10	; 16
  192:	fc 01       	movw	r30, r24
  194:	20 83       	st	Z, r18
+		overflowCounter++;
  196:	89 81       	ldd	r24, Y+1	; 0x01
  198:	9a 81       	ldd	r25, Y+2	; 0x02
  19a:	01 96       	adiw	r24, 0x01	; 1
  19c:	9a 83       	std	Y+2, r25	; 0x02
  19e:	89 83       	std	Y+1, r24	; 0x01
+		if (overflowCounter >= delayTime)
  1a0:	29 81       	ldd	r18, Y+1	; 0x01
  1a2:	3a 81       	ldd	r19, Y+2	; 0x02
  1a4:	8b 81       	ldd	r24, Y+3	; 0x03
@@ -240,8 +298,21 @@ Disassembly of section .text:
  1a8:	28 17       	cp	r18, r24
  1aa:	39 07       	cpc	r19, r25
  1ac:	08 f4       	brcc	.+2      	; 0x1b0 <delay_sec+0x7a>
+		{
+			return;
+		}
+	}	
  1ae:	de cf       	rjmp	.-68     	; 0x16c <delay_sec+0x36>
+		TCNT1 = 0x00;		//reset timer to 0
+		TIFR = (1<<OCF1A); //reset compare flag
+		overflowCounter++;
+		if (overflowCounter >= delayTime)
+		{
+			return;
  1b0:	00 00       	nop
+		}
+	}	
+}
  1b2:	0f 90       	pop	r0
  1b4:	0f 90       	pop	r0
  1b6:	0f 90       	pop	r0
@@ -251,15 +322,24 @@ Disassembly of section .text:
  1be:	08 95       	ret
 
 000001c0 <displayUnlock>:
+#include "Delay.h"
+
+//****************************************************************************************
+//unlock LED sequence
+void displayUnlock (void)
+{
  1c0:	cf 93       	push	r28
  1c2:	df 93       	push	r29
  1c4:	00 d0       	rcall	.+0      	; 0x1c6 <displayUnlock+0x6>
  1c6:	00 d0       	rcall	.+0      	; 0x1c8 <displayUnlock+0x8>
  1c8:	cd b7       	in	r28, 0x3d	; 61
  1ca:	de b7       	in	r29, 0x3e	; 62
+	for (int i = 0; i <4; i++)
  1cc:	1a 82       	std	Y+2, r1	; 0x02
  1ce:	19 82       	std	Y+1, r1	; 0x01
  1d0:	1b c0       	rjmp	.+54     	; 0x208 <displayUnlock+0x48>
+	{
+		PORTB = 1<<(1+i*2);
  1d2:	88 e3       	ldi	r24, 0x38	; 56
  1d4:	90 e0       	ldi	r25, 0x00	; 0
  1d6:	29 81       	ldd	r18, Y+1	; 0x01
@@ -278,9 +358,16 @@ Disassembly of section .text:
  1f0:	e2 f7       	brpl	.-8      	; 0x1ea <displayUnlock+0x2a>
  1f2:	fc 01       	movw	r30, r24
  1f4:	20 83       	st	Z, r18
+		delay_ms(100);
  1f6:	84 e6       	ldi	r24, 0x64	; 100
  1f8:	90 e0       	ldi	r25, 0x00	; 0
  1fa:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
+
+//****************************************************************************************
+//unlock LED sequence
+void displayUnlock (void)
+{
+	for (int i = 0; i <4; i++)
  1fe:	89 81       	ldd	r24, Y+1	; 0x01
  200:	9a 81       	ldd	r25, Y+2	; 0x02
  202:	01 96       	adiw	r24, 0x01	; 1
@@ -290,9 +377,16 @@ Disassembly of section .text:
  20a:	9a 81       	ldd	r25, Y+2	; 0x02
  20c:	04 97       	sbiw	r24, 0x04	; 4
  20e:	0c f3       	brlt	.-62     	; 0x1d2 <displayUnlock+0x12>
+	{
+		PORTB = 1<<(1+i*2);
+		delay_ms(100);
+	}
+	for (int i = 0; i <4; i++)
  210:	1c 82       	std	Y+4, r1	; 0x04
  212:	1b 82       	std	Y+3, r1	; 0x03
  214:	1c c0       	rjmp	.+56     	; 0x24e <displayUnlock+0x8e>
+	{
+		PORTB = 1<<(7-i*2);
  216:	88 e3       	ldi	r24, 0x38	; 56
  218:	90 e0       	ldi	r25, 0x00	; 0
  21a:	2b 81       	ldd	r18, Y+3	; 0x03
@@ -312,9 +406,16 @@ Disassembly of section .text:
  236:	e2 f7       	brpl	.-8      	; 0x230 <displayUnlock+0x70>
  238:	fc 01       	movw	r30, r24
  23a:	20 83       	st	Z, r18
+		delay_ms(100);
  23c:	84 e6       	ldi	r24, 0x64	; 100
  23e:	90 e0       	ldi	r25, 0x00	; 0
  240:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
+	for (int i = 0; i <4; i++)
+	{
+		PORTB = 1<<(1+i*2);
+		delay_ms(100);
+	}
+	for (int i = 0; i <4; i++)
  244:	8b 81       	ldd	r24, Y+3	; 0x03
  246:	9c 81       	ldd	r25, Y+4	; 0x04
  248:	01 96       	adiw	r24, 0x01	; 1
@@ -324,18 +425,26 @@ Disassembly of section .text:
  250:	9c 81       	ldd	r25, Y+4	; 0x04
  252:	04 97       	sbiw	r24, 0x04	; 4
  254:	04 f3       	brlt	.-64     	; 0x216 <displayUnlock+0x56>
+	{
+		PORTB = 1<<(7-i*2);
+		delay_ms(100);
+	}
+	PORTB = 0x00;
  256:	88 e3       	ldi	r24, 0x38	; 56
  258:	90 e0       	ldi	r25, 0x00	; 0
  25a:	fc 01       	movw	r30, r24
  25c:	10 82       	st	Z, r1
+	delay_ms(100);
  25e:	84 e6       	ldi	r24, 0x64	; 100
  260:	90 e0       	ldi	r25, 0x00	; 0
  262:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
+	PORTB = 0xAA;
  266:	88 e3       	ldi	r24, 0x38	; 56
  268:	90 e0       	ldi	r25, 0x00	; 0
  26a:	2a ea       	ldi	r18, 0xAA	; 170
  26c:	fc 01       	movw	r30, r24
  26e:	20 83       	st	Z, r18
+}
  270:	00 00       	nop
  272:	0f 90       	pop	r0
  274:	0f 90       	pop	r0
@@ -346,15 +455,24 @@ Disassembly of section .text:
  27e:	08 95       	ret
 
 00000280 <displayUnlockProg>:
+//****************************************************************************************
+
+//****************************************************************************************
+//unlock LED sequence 0 program mode
+void displayUnlockProg (void)
+{
  280:	cf 93       	push	r28
  282:	df 93       	push	r29
  284:	00 d0       	rcall	.+0      	; 0x286 <displayUnlockProg+0x6>
  286:	00 d0       	rcall	.+0      	; 0x288 <displayUnlockProg+0x8>
  288:	cd b7       	in	r28, 0x3d	; 61
  28a:	de b7       	in	r29, 0x3e	; 62
+	for (int i = 0; i <4; i++)
  28c:	1a 82       	std	Y+2, r1	; 0x02
  28e:	19 82       	std	Y+1, r1	; 0x01
  290:	1b c0       	rjmp	.+54     	; 0x2c8 <displayUnlockProg+0x48>
+	{
+		PORTB = 1<<(1+i*2);
  292:	88 e3       	ldi	r24, 0x38	; 56
  294:	90 e0       	ldi	r25, 0x00	; 0
  296:	29 81       	ldd	r18, Y+1	; 0x01
@@ -373,9 +491,16 @@ Disassembly of section .text:
  2b0:	e2 f7       	brpl	.-8      	; 0x2aa <displayUnlockProg+0x2a>
  2b2:	fc 01       	movw	r30, r24
  2b4:	20 83       	st	Z, r18
+		delay_ms(100);
  2b6:	84 e6       	ldi	r24, 0x64	; 100
  2b8:	90 e0       	ldi	r25, 0x00	; 0
  2ba:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
+
+//****************************************************************************************
+//unlock LED sequence 0 program mode
+void displayUnlockProg (void)
+{
+	for (int i = 0; i <4; i++)
  2be:	89 81       	ldd	r24, Y+1	; 0x01
  2c0:	9a 81       	ldd	r25, Y+2	; 0x02
  2c2:	01 96       	adiw	r24, 0x01	; 1
@@ -385,9 +510,16 @@ Disassembly of section .text:
  2ca:	9a 81       	ldd	r25, Y+2	; 0x02
  2cc:	04 97       	sbiw	r24, 0x04	; 4
  2ce:	0c f3       	brlt	.-62     	; 0x292 <displayUnlockProg+0x12>
+	{
+		PORTB = 1<<(1+i*2);
+		delay_ms(100);
+	}
+	for (int i = 0; i <4; i++)
  2d0:	1c 82       	std	Y+4, r1	; 0x04
  2d2:	1b 82       	std	Y+3, r1	; 0x03
  2d4:	1c c0       	rjmp	.+56     	; 0x30e <displayUnlockProg+0x8e>
+	{
+		PORTB = 1<<(7-i*2);
  2d6:	88 e3       	ldi	r24, 0x38	; 56
  2d8:	90 e0       	ldi	r25, 0x00	; 0
  2da:	2b 81       	ldd	r18, Y+3	; 0x03
@@ -407,9 +539,16 @@ Disassembly of section .text:
  2f6:	e2 f7       	brpl	.-8      	; 0x2f0 <displayUnlockProg+0x70>
  2f8:	fc 01       	movw	r30, r24
  2fa:	20 83       	st	Z, r18
+		delay_ms(100);
  2fc:	84 e6       	ldi	r24, 0x64	; 100
  2fe:	90 e0       	ldi	r25, 0x00	; 0
  300:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
+	for (int i = 0; i <4; i++)
+	{
+		PORTB = 1<<(1+i*2);
+		delay_ms(100);
+	}
+	for (int i = 0; i <4; i++)
  304:	8b 81       	ldd	r24, Y+3	; 0x03
  306:	9c 81       	ldd	r25, Y+4	; 0x04
  308:	01 96       	adiw	r24, 0x01	; 1
@@ -419,10 +558,16 @@ Disassembly of section .text:
  310:	9c 81       	ldd	r25, Y+4	; 0x04
  312:	04 97       	sbiw	r24, 0x04	; 4
  314:	04 f3       	brlt	.-64     	; 0x2d6 <displayUnlockProg+0x56>
+	{
+		PORTB = 1<<(7-i*2);
+		delay_ms(100);
+	}
+	PORTB = 0x00;
  316:	88 e3       	ldi	r24, 0x38	; 56
  318:	90 e0       	ldi	r25, 0x00	; 0
  31a:	fc 01       	movw	r30, r24
  31c:	10 82       	st	Z, r1
+}
  31e:	00 00       	nop
  320:	0f 90       	pop	r0
  322:	0f 90       	pop	r0
@@ -433,15 +578,24 @@ Disassembly of section .text:
  32c:	08 95       	ret
 
 0000032e <displayLock>:
+//****************************************************************************************
+
+//****************************************************************************************
+//unlock LED sequence
+void displayLock (void)
+{
  32e:	cf 93       	push	r28
  330:	df 93       	push	r29
  332:	00 d0       	rcall	.+0      	; 0x334 <displayLock+0x6>
  334:	00 d0       	rcall	.+0      	; 0x336 <displayLock+0x8>
  336:	cd b7       	in	r28, 0x3d	; 61
  338:	de b7       	in	r29, 0x3e	; 62
+	for (int i = 0; i <4; i++)
  33a:	1a 82       	std	Y+2, r1	; 0x02
  33c:	19 82       	std	Y+1, r1	; 0x01
  33e:	19 c0       	rjmp	.+50     	; 0x372 <displayLock+0x44>
+	{
+		PORTB = 1<<(i*2);
  340:	88 e3       	ldi	r24, 0x38	; 56
  342:	90 e0       	ldi	r25, 0x00	; 0
  344:	29 81       	ldd	r18, Y+1	; 0x01
@@ -458,9 +612,16 @@ Disassembly of section .text:
  35a:	e2 f7       	brpl	.-8      	; 0x354 <displayLock+0x26>
  35c:	fc 01       	movw	r30, r24
  35e:	20 83       	st	Z, r18
+		delay_ms(100);
  360:	84 e6       	ldi	r24, 0x64	; 100
  362:	90 e0       	ldi	r25, 0x00	; 0
  364:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
+
+//****************************************************************************************
+//unlock LED sequence
+void displayLock (void)
+{
+	for (int i = 0; i <4; i++)
  368:	89 81       	ldd	r24, Y+1	; 0x01
  36a:	9a 81       	ldd	r25, Y+2	; 0x02
  36c:	01 96       	adiw	r24, 0x01	; 1
@@ -470,9 +631,16 @@ Disassembly of section .text:
  374:	9a 81       	ldd	r25, Y+2	; 0x02
  376:	04 97       	sbiw	r24, 0x04	; 4
  378:	1c f3       	brlt	.-58     	; 0x340 <displayLock+0x12>
+	{
+		PORTB = 1<<(i*2);
+		delay_ms(100);
+	}
+	for (int i = 0; i <5; i++)
  37a:	1c 82       	std	Y+4, r1	; 0x04
  37c:	1b 82       	std	Y+3, r1	; 0x03
  37e:	1f c0       	rjmp	.+62     	; 0x3be <displayLock+0x90>
+	{
+		PORTB = 1<<(8-i*2);
  380:	88 e3       	ldi	r24, 0x38	; 56
  382:	90 e0       	ldi	r25, 0x00	; 0
  384:	44 e0       	ldi	r20, 0x04	; 4
@@ -495,9 +663,16 @@ Disassembly of section .text:
  3a6:	e2 f7       	brpl	.-8      	; 0x3a0 <displayLock+0x72>
  3a8:	fc 01       	movw	r30, r24
  3aa:	20 83       	st	Z, r18
+		delay_ms(100);
  3ac:	84 e6       	ldi	r24, 0x64	; 100
  3ae:	90 e0       	ldi	r25, 0x00	; 0
  3b0:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
+	for (int i = 0; i <4; i++)
+	{
+		PORTB = 1<<(i*2);
+		delay_ms(100);
+	}
+	for (int i = 0; i <5; i++)
  3b4:	8b 81       	ldd	r24, Y+3	; 0x03
  3b6:	9c 81       	ldd	r25, Y+4	; 0x04
  3b8:	01 96       	adiw	r24, 0x01	; 1
@@ -507,10 +682,16 @@ Disassembly of section .text:
  3c0:	9c 81       	ldd	r25, Y+4	; 0x04
  3c2:	05 97       	sbiw	r24, 0x05	; 5
  3c4:	ec f2       	brlt	.-70     	; 0x380 <displayLock+0x52>
+	{
+		PORTB = 1<<(8-i*2);
+		delay_ms(100);
+	}
+	PORTB = 0x00;
  3c6:	88 e3       	ldi	r24, 0x38	; 56
  3c8:	90 e0       	ldi	r25, 0x00	; 0
  3ca:	fc 01       	movw	r30, r24
  3cc:	10 82       	st	Z, r1
+}
  3ce:	00 00       	nop
  3d0:	0f 90       	pop	r0
  3d2:	0f 90       	pop	r0
@@ -521,29 +702,47 @@ Disassembly of section .text:
  3dc:	08 95       	ret
 
 000003de <displayProgramming>:
+//****************************************************************************************
+
+//****************************************************************************************
+//Programming mode LED sequence
+void displayProgramming(void)
+{
  3de:	cf 93       	push	r28
  3e0:	df 93       	push	r29
  3e2:	00 d0       	rcall	.+0      	; 0x3e4 <displayProgramming+0x6>
  3e4:	cd b7       	in	r28, 0x3d	; 61
  3e6:	de b7       	in	r29, 0x3e	; 62
+	for (int i = 0; i <6; i++)
  3e8:	1a 82       	std	Y+2, r1	; 0x02
  3ea:	19 82       	std	Y+1, r1	; 0x01
  3ec:	16 c0       	rjmp	.+44     	; 0x41a <__LOCK_REGION_LENGTH__+0x1a>
+	{
+		PORTB = 0xFF;
  3ee:	88 e3       	ldi	r24, 0x38	; 56
  3f0:	90 e0       	ldi	r25, 0x00	; 0
  3f2:	2f ef       	ldi	r18, 0xFF	; 255
  3f4:	fc 01       	movw	r30, r24
  3f6:	20 83       	st	Z, r18
+		delay_ms(100);
  3f8:	84 e6       	ldi	r24, 0x64	; 100
  3fa:	90 e0       	ldi	r25, 0x00	; 0
  3fc:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
+		PORTB = 0x00;
  400:	88 e3       	ldi	r24, 0x38	; 56
  402:	90 e0       	ldi	r25, 0x00	; 0
  404:	fc 01       	movw	r30, r24
  406:	10 82       	st	Z, r1
+		delay_ms(100);
  408:	84 e6       	ldi	r24, 0x64	; 100
  40a:	90 e0       	ldi	r25, 0x00	; 0
  40c:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
+
+//****************************************************************************************
+//Programming mode LED sequence
+void displayProgramming(void)
+{
+	for (int i = 0; i <6; i++)
  410:	89 81       	ldd	r24, Y+1	; 0x01
  412:	9a 81       	ldd	r25, Y+2	; 0x02
  414:	01 96       	adiw	r24, 0x01	; 1
@@ -553,6 +752,12 @@ Disassembly of section .text:
  41c:	9a 81       	ldd	r25, Y+2	; 0x02
  41e:	06 97       	sbiw	r24, 0x06	; 6
  420:	34 f3       	brlt	.-52     	; 0x3ee <displayProgramming+0x10>
+		PORTB = 0xFF;
+		delay_ms(100);
+		PORTB = 0x00;
+		delay_ms(100);
+	}
+}
  422:	00 00       	nop
  424:	0f 90       	pop	r0
  426:	0f 90       	pop	r0
@@ -561,29 +766,47 @@ Disassembly of section .text:
  42c:	08 95       	ret
 
 0000042e <displayIncorrect>:
+//****************************************************************************************
+
+//****************************************************************************************
+//Programming mode LED sequence
+void displayIncorrect(void)
+{
  42e:	cf 93       	push	r28
  430:	df 93       	push	r29
  432:	00 d0       	rcall	.+0      	; 0x434 <displayIncorrect+0x6>
  434:	cd b7       	in	r28, 0x3d	; 61
  436:	de b7       	in	r29, 0x3e	; 62
+	for (int i = 0; i <4; i++)
  438:	1a 82       	std	Y+2, r1	; 0x02
  43a:	19 82       	std	Y+1, r1	; 0x01
  43c:	16 c0       	rjmp	.+44     	; 0x46a <displayIncorrect+0x3c>
+	{
+		PORTB = 0x55;
  43e:	88 e3       	ldi	r24, 0x38	; 56
  440:	90 e0       	ldi	r25, 0x00	; 0
  442:	25 e5       	ldi	r18, 0x55	; 85
  444:	fc 01       	movw	r30, r24
  446:	20 83       	st	Z, r18
+		delay_ms(80);
  448:	80 e5       	ldi	r24, 0x50	; 80
  44a:	90 e0       	ldi	r25, 0x00	; 0
  44c:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
+		PORTB = 0x00;
  450:	88 e3       	ldi	r24, 0x38	; 56
  452:	90 e0       	ldi	r25, 0x00	; 0
  454:	fc 01       	movw	r30, r24
  456:	10 82       	st	Z, r1
+		delay_ms(80);
  458:	80 e5       	ldi	r24, 0x50	; 80
  45a:	90 e0       	ldi	r25, 0x00	; 0
  45c:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
+
+//****************************************************************************************
+//Programming mode LED sequence
+void displayIncorrect(void)
+{
+	for (int i = 0; i <4; i++)
  460:	89 81       	ldd	r24, Y+1	; 0x01
  462:	9a 81       	ldd	r25, Y+2	; 0x02
  464:	01 96       	adiw	r24, 0x01	; 1
@@ -593,6 +816,12 @@ Disassembly of section .text:
  46c:	9a 81       	ldd	r25, Y+2	; 0x02
  46e:	04 97       	sbiw	r24, 0x04	; 4
  470:	34 f3       	brlt	.-52     	; 0x43e <displayIncorrect+0x10>
+		PORTB = 0x55;
+		delay_ms(80);
+		PORTB = 0x00;
+		delay_ms(80);
+	}
+}
  472:	00 00       	nop
  474:	0f 90       	pop	r0
  476:	0f 90       	pop	r0
@@ -601,12 +830,19 @@ Disassembly of section .text:
  47c:	08 95       	ret
 
 0000047e <displayKeys>:
+//****************************************************************************************
+
+//****************************************************************************************
+// Convert binary value to more realistic LED representation
+uint8_t displayKeys(uint8_t keyValue)
+{
  47e:	cf 93       	push	r28
  480:	df 93       	push	r29
  482:	1f 92       	push	r1
  484:	cd b7       	in	r28, 0x3d	; 61
  486:	de b7       	in	r29, 0x3e	; 62
  488:	89 83       	std	Y+1, r24	; 0x01
+	switch(keyValue)
  48a:	89 81       	ldd	r24, Y+1	; 0x01
  48c:	88 2f       	mov	r24, r24
  48e:	90 e0       	ldi	r25, 0x00	; 0
@@ -626,72 +862,152 @@ Disassembly of section .text:
  4aa:	86 5d       	subi	r24, 0xD6	; 214
  4ac:	9f 4f       	sbci	r25, 0xFF	; 255
  4ae:	fc 01       	movw	r30, r24
- 4b0:	0c 94 3d 07 	jmp	0xe7a	; 0xe7a <__tablejump2__>
+ 4b0:	0c 94 52 07 	jmp	0xea4	; 0xea4 <__tablejump2__>
+	{
+		case 0x00:
+		return 0x00;
  4b4:	80 e0       	ldi	r24, 0x00	; 0
  4b6:	1d c0       	rjmp	.+58     	; 0x4f2 <displayKeys+0x74>
+		break;
+		
+		case 0x01:
+		return 0x01;
  4b8:	81 e0       	ldi	r24, 0x01	; 1
  4ba:	1b c0       	rjmp	.+54     	; 0x4f2 <displayKeys+0x74>
+		break;
+		
+		case 0x02:
+		return 0x02;
  4bc:	82 e0       	ldi	r24, 0x02	; 2
  4be:	19 c0       	rjmp	.+50     	; 0x4f2 <displayKeys+0x74>
+		break;
+		
+		case 0x03:
+		return 0x04;
  4c0:	84 e0       	ldi	r24, 0x04	; 4
  4c2:	17 c0       	rjmp	.+46     	; 0x4f2 <displayKeys+0x74>
+		break;
+		
+		case 0x04:
+		return 0x08;
  4c4:	88 e0       	ldi	r24, 0x08	; 8
  4c6:	15 c0       	rjmp	.+42     	; 0x4f2 <displayKeys+0x74>
+		break;
+		
+		case 0x05:
+		return 0x10;
  4c8:	80 e1       	ldi	r24, 0x10	; 16
  4ca:	13 c0       	rjmp	.+38     	; 0x4f2 <displayKeys+0x74>
+		break;
+		
+		case 0x06:
+		return 0x20;
  4cc:	80 e2       	ldi	r24, 0x20	; 32
  4ce:	11 c0       	rjmp	.+34     	; 0x4f2 <displayKeys+0x74>
+		break;
+		
+		case 0x07:
+		return 0x40;
  4d0:	80 e4       	ldi	r24, 0x40	; 64
  4d2:	0f c0       	rjmp	.+30     	; 0x4f2 <displayKeys+0x74>
+		break;
+		
+		case 0x08:
+		return 0x80;
  4d4:	80 e8       	ldi	r24, 0x80	; 128
  4d6:	0d c0       	rjmp	.+26     	; 0x4f2 <displayKeys+0x74>
+		break;
+		
+		case 0x09:	
+		return 0x81;
  4d8:	81 e8       	ldi	r24, 0x81	; 129
  4da:	0b c0       	rjmp	.+22     	; 0x4f2 <displayKeys+0x74>
+		break;
+		
+		case 0x10:
+		return 0x10;
  4dc:	80 e1       	ldi	r24, 0x10	; 16
  4de:	09 c0       	rjmp	.+18     	; 0x4f2 <displayKeys+0x74>
+		break;
+		
+		case 0x0A:
+		return 0x03;
  4e0:	83 e0       	ldi	r24, 0x03	; 3
  4e2:	07 c0       	rjmp	.+14     	; 0x4f2 <displayKeys+0x74>
+		break;
+		
+		case 0x0B:
+		return 0x0C;
  4e4:	8c e0       	ldi	r24, 0x0C	; 12
  4e6:	05 c0       	rjmp	.+10     	; 0x4f2 <displayKeys+0x74>
+		break;
+		
+		case 0x0C:
+		return 0x30;
  4e8:	80 e3       	ldi	r24, 0x30	; 48
  4ea:	03 c0       	rjmp	.+6      	; 0x4f2 <displayKeys+0x74>
+		break;
+		
+		case 0x0D:
+		return 0xC0;
  4ec:	80 ec       	ldi	r24, 0xC0	; 192
  4ee:	01 c0       	rjmp	.+2      	; 0x4f2 <displayKeys+0x74>
+		break;
+		
+		default:
+		return 0;
  4f0:	80 e0       	ldi	r24, 0x00	; 0
+	}
+}
  4f2:	0f 90       	pop	r0
  4f4:	df 91       	pop	r29
  4f6:	cf 91       	pop	r28
  4f8:	08 95       	ret
 
 000004fa <displayLockout>:
+//****************************************************************************************
+
+//****************************************************************************************
+void displayLockout(void)
+{
  4fa:	cf 93       	push	r28
  4fc:	df 93       	push	r29
  4fe:	cd b7       	in	r28, 0x3d	; 61
  500:	de b7       	in	r29, 0x3e	; 62
+	PORTB = 0x55;
  502:	88 e3       	ldi	r24, 0x38	; 56
  504:	90 e0       	ldi	r25, 0x00	; 0
  506:	25 e5       	ldi	r18, 0x55	; 85
  508:	fc 01       	movw	r30, r24
  50a:	20 83       	st	Z, r18
+	delay_sec(120);
  50c:	88 e7       	ldi	r24, 0x78	; 120
  50e:	90 e0       	ldi	r25, 0x00	; 0
  510:	0e 94 9b 00 	call	0x136	; 0x136 <delay_sec>
+	PORTB =0;
  514:	88 e3       	ldi	r24, 0x38	; 56
  516:	90 e0       	ldi	r25, 0x00	; 0
  518:	fc 01       	movw	r30, r24
  51a:	10 82       	st	Z, r1
+}
  51c:	00 00       	nop
  51e:	df 91       	pop	r29
  520:	cf 91       	pop	r28
  522:	08 95       	ret
 
 00000524 <displayUser>:
+//****************************************************************************************
+
+//****************************************************************************************
+void displayUser(uint8_t user)
+{
  524:	cf 93       	push	r28
  526:	df 93       	push	r29
  528:	1f 92       	push	r1
  52a:	cd b7       	in	r28, 0x3d	; 61
  52c:	de b7       	in	r29, 0x3e	; 62
  52e:	89 83       	std	Y+1, r24	; 0x01
+	switch(user)
  530:	89 81       	ldd	r24, Y+1	; 0x01
  532:	88 2f       	mov	r24, r24
  534:	90 e0       	ldi	r25, 0x00	; 0
@@ -703,43 +1019,90 @@ Disassembly of section .text:
  540:	1c f4       	brge	.+6      	; 0x548 <displayUser+0x24>
  542:	0a 97       	sbiw	r24, 0x0a	; 10
  544:	39 f0       	breq	.+14     	; 0x554 <displayUser+0x30>
+		case 0x0D:
+		PORTB = 0xC0;
+		break;
+			
+		default:
+		return;
  546:	1e c0       	rjmp	.+60     	; 0x584 <displayUser+0x60>
+//****************************************************************************************
+
+//****************************************************************************************
+void displayUser(uint8_t user)
+{
+	switch(user)
  548:	8c 30       	cpi	r24, 0x0C	; 12
  54a:	91 05       	cpc	r25, r1
  54c:	79 f0       	breq	.+30     	; 0x56c <displayUser+0x48>
  54e:	0d 97       	sbiw	r24, 0x0d	; 13
  550:	99 f0       	breq	.+38     	; 0x578 <displayUser+0x54>
+		case 0x0D:
+		PORTB = 0xC0;
+		break;
+			
+		default:
+		return;
  552:	18 c0       	rjmp	.+48     	; 0x584 <displayUser+0x60>
+void displayUser(uint8_t user)
+{
+	switch(user)
+	{
+		case 0x0A:
+		PORTB = 0x03;
  554:	88 e3       	ldi	r24, 0x38	; 56
  556:	90 e0       	ldi	r25, 0x00	; 0
  558:	23 e0       	ldi	r18, 0x03	; 3
  55a:	fc 01       	movw	r30, r24
  55c:	20 83       	st	Z, r18
+		break;
  55e:	12 c0       	rjmp	.+36     	; 0x584 <displayUser+0x60>
+		
+		case 0x0B:
+		PORTB = 0x0C;
  560:	88 e3       	ldi	r24, 0x38	; 56
  562:	90 e0       	ldi	r25, 0x00	; 0
  564:	2c e0       	ldi	r18, 0x0C	; 12
  566:	fc 01       	movw	r30, r24
  568:	20 83       	st	Z, r18
+		break;
  56a:	0c c0       	rjmp	.+24     	; 0x584 <displayUser+0x60>
+			
+		case 0x0C:
+		PORTB = 0x30;
  56c:	88 e3       	ldi	r24, 0x38	; 56
  56e:	90 e0       	ldi	r25, 0x00	; 0
  570:	20 e3       	ldi	r18, 0x30	; 48
  572:	fc 01       	movw	r30, r24
  574:	20 83       	st	Z, r18
+		break;
  576:	06 c0       	rjmp	.+12     	; 0x584 <displayUser+0x60>
+				
+		case 0x0D:
+		PORTB = 0xC0;
  578:	88 e3       	ldi	r24, 0x38	; 56
  57a:	90 e0       	ldi	r25, 0x00	; 0
  57c:	20 ec       	ldi	r18, 0xC0	; 192
  57e:	fc 01       	movw	r30, r24
  580:	20 83       	st	Z, r18
+		break;
  582:	00 00       	nop
+			
+		default:
+		return;
+	}
  584:	0f 90       	pop	r0
  586:	df 91       	pop	r29
  588:	cf 91       	pop	r28
  58a:	08 95       	ret
 
 0000058c <write_EEPROM>:
+//Takes in the address of the location to write to, and the data to write into that address
+//returns nothing(error code flag set?)
+
+//do we need to use ware leveling(using multiple addresses so as not to damage EEPROM)
+void write_EEPROM(uint8_t WriteData, uint16_t WriteAddress)
+{
  58c:	cf 93       	push	r28
  58e:	df 93       	push	r29
  590:	00 d0       	rcall	.+0      	; 0x592 <write_EEPROM+0x6>
@@ -749,14 +1112,26 @@ Disassembly of section .text:
  598:	89 83       	std	Y+1, r24	; 0x01
  59a:	7b 83       	std	Y+3, r23	; 0x03
  59c:	6a 83       	std	Y+2, r22	; 0x02
+//should disable global interrupts here if we use them
+	
+	//check if address is valid
+	if(WriteAddress > 0x400)	//only 2^10 = 1024 addresses
  59e:	8a 81       	ldd	r24, Y+2	; 0x02
  5a0:	9b 81       	ldd	r25, Y+3	; 0x03
  5a2:	81 30       	cpi	r24, 0x01	; 1
  5a4:	94 40       	sbci	r25, 0x04	; 4
  5a6:	20 f0       	brcs	.+8      	; 0x5b0 <write_EEPROM+0x24>
+		{
+			errorFlag =3;
  5a8:	83 e0       	ldi	r24, 0x03	; 3
  5aa:	80 93 76 00 	sts	0x0076, r24	; 0x800076 <__data_end>
+			return;			//Set some debug flag?
  5ae:	1a c0       	rjmp	.+52     	; 0x5e4 <write_EEPROM+0x58>
+		}
+	
+	
+	//Wait till previous write operation is completed(i.e. wait till EEWE becomes zero).
+	while(EECR & (1 << EEWE));	//b 0000 0010
  5b0:	00 00       	nop
  5b2:	8c e3       	ldi	r24, 0x3C	; 60
  5b4:	90 e0       	ldi	r25, 0x00	; 0
@@ -768,6 +1143,12 @@ Disassembly of section .text:
  5c0:	99 27       	eor	r25, r25
  5c2:	89 2b       	or	r24, r25
  5c4:	b1 f7       	brne	.-20     	; 0x5b2 <write_EEPROM+0x26>
+	//Wait until SPMEN in SPMCR becomes zero		Dont think this step is necessary
+	// only relevant if the software contains a boot loader allowing the CPU to program the Flash. If the Flash is never being updated by the CPU, can be omitted
+
+	//Load the EEPROM address into EEAR at which the data has to be stored.
+	//high and low registers, high register will always be 0 for us.
+	EEAR = WriteAddress;
  5c6:	8e e3       	ldi	r24, 0x3E	; 62
  5c8:	90 e0       	ldi	r25, 0x00	; 0
  5ca:	2a 81       	ldd	r18, Y+2	; 0x02
@@ -775,14 +1156,26 @@ Disassembly of section .text:
  5ce:	fc 01       	movw	r30, r24
  5d0:	31 83       	std	Z+1, r19	; 0x01
  5d2:	20 83       	st	Z, r18
+
+	//Load the data into EEDR which has to be stored in EEPROM.
+	EEDR = WriteData;
  5d4:	8d e3       	ldi	r24, 0x3D	; 61
  5d6:	90 e0       	ldi	r25, 0x00	; 0
  5d8:	29 81       	ldd	r18, Y+1	; 0x01
  5da:	fc 01       	movw	r30, r24
  5dc:	20 83       	st	Z, r18
+
+	//Set the EEMWE (EEPROM Master Write Enable).
+	asm("SBI 0x1C, 0x02");
  5de:	e2 9a       	sbi	0x1c, 2	; 28
+	//set EEWE in EECR to 0			Dont think this step is necessary. Why is it listed?
+
+	//Within four clock cycles after 4th step, set EEWE(Eeprom Write Enable) to 1 to trigger the EEPROM Write Operation
+	asm("SBI 0x1C, 0x01");
  5e0:	e1 9a       	sbi	0x1c, 1	; 28
+return;
  5e2:	00 00       	nop
+}
  5e4:	0f 90       	pop	r0
  5e6:	0f 90       	pop	r0
  5e8:	0f 90       	pop	r0
@@ -791,6 +1184,12 @@ Disassembly of section .text:
  5ee:	08 95       	ret
 
 000005f0 <read_EEPROM>:
+//****************************************************************************************
+
+//****************************************************************************************
+//Read EEPROM
+uint8_t read_EEPROM(uint16_t readAddress)
+{
  5f0:	cf 93       	push	r28
  5f2:	df 93       	push	r29
  5f4:	00 d0       	rcall	.+0      	; 0x5f6 <read_EEPROM+0x6>
@@ -798,13 +1197,21 @@ Disassembly of section .text:
  5f8:	de b7       	in	r29, 0x3e	; 62
  5fa:	9a 83       	std	Y+2, r25	; 0x02
  5fc:	89 83       	std	Y+1, r24	; 0x01
+	//check if address is valid
+	if(readAddress > 0x400)	//only 2^10 = 1024 addresses
  5fe:	89 81       	ldd	r24, Y+1	; 0x01
  600:	9a 81       	ldd	r25, Y+2	; 0x02
  602:	81 30       	cpi	r24, 0x01	; 1
  604:	94 40       	sbci	r25, 0x04	; 4
  606:	10 f0       	brcs	.+4      	; 0x60c <read_EEPROM+0x1c>
+	{
+		return 0;			//Set some debug flag?
  608:	80 e0       	ldi	r24, 0x00	; 0
  60a:	1f c0       	rjmp	.+62     	; 0x64a <read_EEPROM+0x5a>
+	}
+	
+	//WAit for completion of previous Write operation.
+	while(EECR & (1 << EEWE));
  60c:	00 00       	nop
  60e:	8c e3       	ldi	r24, 0x3C	; 60
  610:	90 e0       	ldi	r25, 0x00	; 0
@@ -816,6 +1223,9 @@ Disassembly of section .text:
  61c:	99 27       	eor	r25, r25
  61e:	89 2b       	or	r24, r25
  620:	b1 f7       	brne	.-20     	; 0x60e <read_EEPROM+0x1e>
+
+	//Load the EEPROM address into EEAR from where the data needs to be read.
+	EEAR = readAddress;
  622:	8e e3       	ldi	r24, 0x3E	; 62
  624:	90 e0       	ldi	r25, 0x00	; 0
  626:	29 81       	ldd	r18, Y+1	; 0x01
@@ -823,6 +1233,9 @@ Disassembly of section .text:
  62a:	fc 01       	movw	r30, r24
  62c:	31 83       	std	Z+1, r19	; 0x01
  62e:	20 83       	st	Z, r18
+
+	//Trigger the EEPROM read operation by setting EERE (EEPROM Read Enable).
+	EECR |= (1 <<EERE);
  630:	8c e3       	ldi	r24, 0x3C	; 60
  632:	90 e0       	ldi	r25, 0x00	; 0
  634:	2c e3       	ldi	r18, 0x3C	; 60
@@ -832,10 +1245,14 @@ Disassembly of section .text:
  63c:	21 60       	ori	r18, 0x01	; 1
  63e:	fc 01       	movw	r30, r24
  640:	20 83       	st	Z, r18
+
+	//Wait for some time (about 1ms) and collect the read data from EEDR.
+	return EEDR;
  642:	8d e3       	ldi	r24, 0x3D	; 61
  644:	90 e0       	ldi	r25, 0x00	; 0
  646:	fc 01       	movw	r30, r24
  648:	80 81       	ld	r24, Z
+}
  64a:	0f 90       	pop	r0
  64c:	0f 90       	pop	r0
  64e:	df 91       	pop	r29
@@ -843,6 +1260,12 @@ Disassembly of section .text:
  652:	08 95       	ret
 
 00000654 <storePasscode>:
+//****************************************************************************************
+//Store Passcode stores 4 bytes of passcode into memory location defined by the user.
+//32 bit passcode must be divided into 4 bytes
+//each byte is stored in location 0x00XY, where X is the hex value of the user, and Y is which byte is being stored
+void storePasscode (unsigned long int Passcode, uint8_t user)
+{
  654:	cf 93       	push	r28
  656:	df 93       	push	r29
  658:	cd b7       	in	r28, 0x3d	; 61
@@ -858,16 +1281,31 @@ Disassembly of section .text:
  66c:	89 8b       	std	Y+17, r24	; 0x11
  66e:	9a 8b       	std	Y+18, r25	; 0x12
  670:	4b 8b       	std	Y+19, r20	; 0x13
+	//check if user input is valid
+	if (!isUser(user))
  672:	8b 89       	ldd	r24, Y+19	; 0x13
  674:	0e 94 7a 05 	call	0xaf4	; 0xaf4 <isUser>
  678:	88 23       	and	r24, r24
  67a:	21 f4       	brne	.+8      	; 0x684 <storePasscode+0x30>
+	{
+		//set some debug flag
+		errorFlag = 2;
  67c:	82 e0       	ldi	r24, 0x02	; 2
  67e:	80 93 76 00 	sts	0x0076, r24	; 0x800076 <__data_end>
+		return;
  682:	67 c0       	rjmp	.+206    	; 0x752 <storePasscode+0xfe>
+	
+	//store each byte of passcode
+	uint8_t passcodeByte[4];
+	uint16_t passcodeAddress[4];
+	
+	for(int i = 0; i<4; i++)
  684:	1a 82       	std	Y+2, r1	; 0x02
  686:	19 82       	std	Y+1, r1	; 0x01
  688:	5e c0       	rjmp	.+188    	; 0x746 <storePasscode+0xf2>
+	{
+		//store each byte of passcode into an array
+		passcodeByte[i] = Passcode>>(8*i);
  68a:	89 81       	ldd	r24, Y+1	; 0x01
  68c:	9a 81       	ldd	r25, Y+2	; 0x02
  68e:	9c 01       	movw	r18, r24
@@ -898,6 +1336,8 @@ Disassembly of section .text:
  6c0:	93 1f       	adc	r25, r19
  6c2:	fc 01       	movw	r30, r24
  6c4:	40 83       	st	Z, r20
+		//define the location to store the passcode in EEPROM
+		passcodeAddress[i]= (user<<4)|(4-i);
  6c6:	8b 89       	ldd	r24, Y+19	; 0x13
  6c8:	88 2f       	mov	r24, r24
  6ca:	90 e0       	ldi	r25, 0x00	; 0
@@ -932,6 +1372,8 @@ Disassembly of section .text:
  704:	fc 01       	movw	r30, r24
  706:	51 83       	std	Z+1, r21	; 0x01
  708:	40 83       	st	Z, r20
+		//write the byte to the location in EEPROM
+		write_EEPROM(passcodeByte[i],passcodeAddress[i]);
  70a:	89 81       	ldd	r24, Y+1	; 0x01
  70c:	9a 81       	ldd	r25, Y+2	; 0x02
  70e:	88 0f       	add	r24, r24
@@ -956,6 +1398,12 @@ Disassembly of section .text:
  734:	80 81       	ld	r24, Z
  736:	ba 01       	movw	r22, r20
  738:	0e 94 c6 02 	call	0x58c	; 0x58c <write_EEPROM>
+	
+	//store each byte of passcode
+	uint8_t passcodeByte[4];
+	uint16_t passcodeAddress[4];
+	
+	for(int i = 0; i<4; i++)
  73c:	89 81       	ldd	r24, Y+1	; 0x01
  73e:	9a 81       	ldd	r25, Y+2	; 0x02
  740:	01 96       	adiw	r24, 0x01	; 1
@@ -966,7 +1414,14 @@ Disassembly of section .text:
  74a:	04 97       	sbiw	r24, 0x04	; 4
  74c:	0c f4       	brge	.+2      	; 0x750 <storePasscode+0xfc>
  74e:	9d cf       	rjmp	.-198    	; 0x68a <storePasscode+0x36>
+		//define the location to store the passcode in EEPROM
+		passcodeAddress[i]= (user<<4)|(4-i);
+		//write the byte to the location in EEPROM
+		write_EEPROM(passcodeByte[i],passcodeAddress[i]);
+	}
+	return;
  750:	00 00       	nop
+}
  752:	63 96       	adiw	r28, 0x13	; 19
  754:	0f b6       	in	r0, 0x3f	; 63
  756:	f8 94       	cli
@@ -978,6 +1433,12 @@ Disassembly of section .text:
  762:	08 95       	ret
 
 00000764 <RecallPasscode>:
+//****************************************************************************************
+
+//****************************************************************************************
+//Reads the passcode from EEPROM and stores it into a long int
+unsigned long int RecallPasscode(uint8_t user)
+{
  764:	cf 93       	push	r28
  766:	df 93       	push	r29
  768:	cd b7       	in	r28, 0x3d	; 61
@@ -989,17 +1450,23 @@ Disassembly of section .text:
  774:	0f be       	out	0x3f, r0	; 63
  776:	cd bf       	out	0x3d, r28	; 61
  778:	8b 87       	std	Y+11, r24	; 0x0b
+unsigned long int tempValue = 0;
  77a:	1f 82       	std	Y+7, r1	; 0x07
  77c:	18 86       	std	Y+8, r1	; 0x08
  77e:	19 86       	std	Y+9, r1	; 0x09
  780:	1a 86       	std	Y+10, r1	; 0x0a
+unsigned long int passcode = 0;	
  782:	19 82       	std	Y+1, r1	; 0x01
  784:	1a 82       	std	Y+2, r1	; 0x02
  786:	1b 82       	std	Y+3, r1	; 0x03
  788:	1c 82       	std	Y+4, r1	; 0x04
+	for (int i = 0; i<4; i++)
  78a:	1e 82       	std	Y+6, r1	; 0x06
  78c:	1d 82       	std	Y+5, r1	; 0x05
  78e:	43 c0       	rjmp	.+134    	; 0x816 <RecallPasscode+0xb2>
+	{
+		//read the EEPROM value at location of user from LSB to MSB
+		tempValue = read_EEPROM((user<<4)|(4-i));
  790:	8b 85       	ldd	r24, Y+11	; 0x0b
  792:	88 2f       	mov	r24, r24
  794:	90 e0       	ldi	r25, 0x00	; 0
@@ -1029,6 +1496,7 @@ Disassembly of section .text:
  7c6:	98 87       	std	Y+8, r25	; 0x08
  7c8:	a9 87       	std	Y+9, r26	; 0x09
  7ca:	ba 87       	std	Y+10, r27	; 0x0a
+		passcode |= tempValue<<(8*i);			//add each byte together to form a 4 byte passcode
  7cc:	8d 81       	ldd	r24, Y+5	; 0x05
  7ce:	9e 81       	ldd	r25, Y+6	; 0x06
  7d0:	9c 01       	movw	r18, r24
@@ -1061,6 +1529,12 @@ Disassembly of section .text:
  806:	9a 83       	std	Y+2, r25	; 0x02
  808:	ab 83       	std	Y+3, r26	; 0x03
  80a:	bc 83       	std	Y+4, r27	; 0x04
+//Reads the passcode from EEPROM and stores it into a long int
+unsigned long int RecallPasscode(uint8_t user)
+{
+unsigned long int tempValue = 0;
+unsigned long int passcode = 0;	
+	for (int i = 0; i<4; i++)
  80c:	8d 81       	ldd	r24, Y+5	; 0x05
  80e:	9e 81       	ldd	r25, Y+6	; 0x06
  810:	01 96       	adiw	r24, 0x01	; 1
@@ -1071,10 +1545,17 @@ Disassembly of section .text:
  81a:	04 97       	sbiw	r24, 0x04	; 4
  81c:	0c f4       	brge	.+2      	; 0x820 <RecallPasscode+0xbc>
  81e:	b8 cf       	rjmp	.-144    	; 0x790 <RecallPasscode+0x2c>
+	{
+		//read the EEPROM value at location of user from LSB to MSB
+		tempValue = read_EEPROM((user<<4)|(4-i));
+		passcode |= tempValue<<(8*i);			//add each byte together to form a 4 byte passcode
+	}
+	return passcode;
  820:	89 81       	ldd	r24, Y+1	; 0x01
  822:	9a 81       	ldd	r25, Y+2	; 0x02
  824:	ab 81       	ldd	r26, Y+3	; 0x03
  826:	bc 81       	ldd	r27, Y+4	; 0x04
+}
  828:	bc 01       	movw	r22, r24
  82a:	cd 01       	movw	r24, r26
  82c:	2b 96       	adiw	r28, 0x0b	; 11
@@ -1088,81 +1569,132 @@ Disassembly of section .text:
  83c:	08 95       	ret
 
 0000083e <initLEDs>:
+// START FUNCTIONS
+
+//****************************************************************************************
+//	Initialise output LEDs - PORTB
+void initLEDs(void)
+{
  83e:	cf 93       	push	r28
  840:	df 93       	push	r29
  842:	cd b7       	in	r28, 0x3d	; 61
  844:	de b7       	in	r29, 0x3e	; 62
+	DDRB = 0xFF;		// Set all LEDs to outputs
  846:	87 e3       	ldi	r24, 0x37	; 55
  848:	90 e0       	ldi	r25, 0x00	; 0
  84a:	2f ef       	ldi	r18, 0xFF	; 255
  84c:	fc 01       	movw	r30, r24
  84e:	20 83       	st	Z, r18
+	PORTB = 0x00;		// Turn all LEDs off
  850:	88 e3       	ldi	r24, 0x38	; 56
  852:	90 e0       	ldi	r25, 0x00	; 0
  854:	fc 01       	movw	r30, r24
  856:	10 82       	st	Z, r1
+}
  858:	00 00       	nop
  85a:	df 91       	pop	r29
  85c:	cf 91       	pop	r28
  85e:	08 95       	ret
 
 00000860 <initKeypad>:
+
+
+//****************************************************************************************
+//	Initialise keypad - PORTC
+void initKeypad(void)
+{
  860:	cf 93       	push	r28
  862:	df 93       	push	r29
  864:	cd b7       	in	r28, 0x3d	; 61
  866:	de b7       	in	r29, 0x3e	; 62
+	if(keypad3x4 == 1)
  868:	80 91 77 00 	lds	r24, 0x0077	; 0x800077 <keypad3x4>
  86c:	81 30       	cpi	r24, 0x01	; 1
  86e:	99 f4       	brne	.+38     	; 0x896 <initKeypad+0x36>
+	{
+		DDRC = 0x95;		// Set rows to inputs and columns to outputs
  870:	84 e3       	ldi	r24, 0x34	; 52
  872:	90 e0       	ldi	r25, 0x00	; 0
  874:	25 e9       	ldi	r18, 0x95	; 149
  876:	fc 01       	movw	r30, r24
  878:	20 83       	st	Z, r18
+		PORTC = 0x6A;		// Enable the pull-up resistors on the row inputs
  87a:	85 e3       	ldi	r24, 0x35	; 53
  87c:	90 e0       	ldi	r25, 0x00	; 0
  87e:	2a e6       	ldi	r18, 0x6A	; 106
  880:	fc 01       	movw	r30, r24
  882:	20 83       	st	Z, r18
+		PORTC = 0xFF;		// Set the columns to all on (idle state) & ensure pull-ups are still enabled
  884:	85 e3       	ldi	r24, 0x35	; 53
  886:	90 e0       	ldi	r25, 0x00	; 0
  888:	2f ef       	ldi	r18, 0xFF	; 255
  88a:	fc 01       	movw	r30, r24
  88c:	20 83       	st	Z, r18
+		
+		AmountOfColumns =3;
  88e:	83 e0       	ldi	r24, 0x03	; 3
  890:	80 93 79 00 	sts	0x0079, r24	; 0x800079 <AmountOfColumns>
+		PORTC = 0xFF;		// Set the columns to all on (idle state) & ensure pull-ups are still enabled
+		
+		AmountOfColumns =4;
+	}
+
+}
  894:	12 c0       	rjmp	.+36     	; 0x8ba <initKeypad+0x5a>
+		
+		AmountOfColumns =3;
+	}
+	else
+	{
+		DDRC = 0xF0;		// Set rows to inputs and columns to outputs
  896:	84 e3       	ldi	r24, 0x34	; 52
  898:	90 e0       	ldi	r25, 0x00	; 0
  89a:	20 ef       	ldi	r18, 0xF0	; 240
  89c:	fc 01       	movw	r30, r24
  89e:	20 83       	st	Z, r18
+		PORTC = 0x0F;		// Enable the pull-up resistors on the row inputs
  8a0:	85 e3       	ldi	r24, 0x35	; 53
  8a2:	90 e0       	ldi	r25, 0x00	; 0
  8a4:	2f e0       	ldi	r18, 0x0F	; 15
  8a6:	fc 01       	movw	r30, r24
  8a8:	20 83       	st	Z, r18
+		PORTC = 0xFF;		// Set the columns to all on (idle state) & ensure pull-ups are still enabled
  8aa:	85 e3       	ldi	r24, 0x35	; 53
  8ac:	90 e0       	ldi	r25, 0x00	; 0
  8ae:	2f ef       	ldi	r18, 0xFF	; 255
  8b0:	fc 01       	movw	r30, r24
  8b2:	20 83       	st	Z, r18
+		
+		AmountOfColumns =4;
  8b4:	84 e0       	ldi	r24, 0x04	; 4
  8b6:	80 93 79 00 	sts	0x0079, r24	; 0x800079 <AmountOfColumns>
+	}
+
+}
  8ba:	00 00       	nop
  8bc:	df 91       	pop	r29
  8be:	cf 91       	pop	r28
  8c0:	08 95       	ret
 
 000008c2 <initTimers>:
+
+
+//****************************************************************************************
+//Initialise Timers
+void initTimers(void)
+{
  8c2:	cf 93       	push	r28
  8c4:	df 93       	push	r29
  8c6:	cd b7       	in	r28, 0x3d	; 61
  8c8:	de b7       	in	r29, 0x3e	; 62
+	//set timer0 counter to 0
+	TCNT0 = 0x00;
  8ca:	82 e5       	ldi	r24, 0x52	; 82
  8cc:	90 e0       	ldi	r25, 0x00	; 0
  8ce:	fc 01       	movw	r30, r24
  8d0:	10 82       	st	Z, r1
+	//set clock prescaler to divide by 1024 of timer0
+	TCCR0 |= (1<<CS00) | (0<<CS01) | (1<<CS02);
  8d2:	83 e5       	ldi	r24, 0x53	; 83
  8d4:	90 e0       	ldi	r25, 0x00	; 0
  8d6:	23 e5       	ldi	r18, 0x53	; 83
@@ -1172,11 +1704,16 @@ Disassembly of section .text:
  8de:	25 60       	ori	r18, 0x05	; 5
  8e0:	fc 01       	movw	r30, r24
  8e2:	20 83       	st	Z, r18
+	
+	//set time1 counter to 0;
+	TCNT1 = 0x0000;
  8e4:	8c e4       	ldi	r24, 0x4C	; 76
  8e6:	90 e0       	ldi	r25, 0x00	; 0
  8e8:	fc 01       	movw	r30, r24
  8ea:	11 82       	std	Z+1, r1	; 0x01
  8ec:	10 82       	st	Z, r1
+	//set clock prescaler to divide by 1024 of timer1
+	TCCR1B |= (1<<CS10) | (0<<CS11) | (1<<CS12);
  8ee:	8e e4       	ldi	r24, 0x4E	; 78
  8f0:	90 e0       	ldi	r25, 0x00	; 0
  8f2:	2e e4       	ldi	r18, 0x4E	; 78
@@ -1186,20 +1723,37 @@ Disassembly of section .text:
  8fa:	25 60       	ori	r18, 0x05	; 5
  8fc:	fc 01       	movw	r30, r24
  8fe:	20 83       	st	Z, r18
+}
  900:	00 00       	nop
  902:	df 91       	pop	r29
  904:	cf 91       	pop	r28
  906:	08 95       	ret
 
 00000908 <ReadOne>:
+// START FUNCTIONS
+
+//**************************************************************************************************************************************************
+// Function that checks if one key has been pressed 
+unsigned char ReadOne() 
+{
  908:	cf 93       	push	r28
  90a:	df 93       	push	r29
  90c:	00 d0       	rcall	.+0      	; 0x90e <ReadOne+0x6>
  90e:	cd b7       	in	r28, 0x3d	; 61
  910:	de b7       	in	r29, 0x3e	; 62
+	// Set KeyPressed to 0
+	KeyPressed = 0x00;
  912:	10 92 78 00 	sts	0x0078, r1	; 0x800078 <KeyPressed>
+	
+	while(1)	//can get rid of while loop, it just keeps reading until a key is pressed instead of only reading once when its called
+	{
+
+		// Scanning column: write the column mask to port C
+		for (uint8_t j=0; j<AmountOfColumns; j++)
  916:	19 82       	std	Y+1, r1	; 0x01
  918:	3f c0       	rjmp	.+126    	; 0x998 <ReadOne+0x90>
+		{
+			PORTC = col[j];			// Scan each column
  91a:	85 e3       	ldi	r24, 0x35	; 53
  91c:	90 e0       	ldi	r25, 0x00	; 0
  91e:	29 81       	ldd	r18, Y+1	; 0x01
@@ -1211,14 +1765,19 @@ Disassembly of section .text:
  92a:	20 81       	ld	r18, Z
  92c:	fc 01       	movw	r30, r24
  92e:	20 83       	st	Z, r18
+			delay_ms(10);				// Delay for 0.01 sec
  930:	8a e0       	ldi	r24, 0x0A	; 10
  932:	90 e0       	ldi	r25, 0x00	; 0
  934:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
+			portCValue = PINC;			// Read port value from pinC
  938:	83 e3       	ldi	r24, 0x33	; 51
  93a:	90 e0       	ldi	r25, 0x00	; 0
  93c:	fc 01       	movw	r30, r24
  93e:	80 81       	ld	r24, Z
  940:	80 93 61 00 	sts	0x0061, r24	; 0x800061 <portCValue>
+		
+			// Begin stepping through each column to check if row has logic 0
+			if (portCValue != col[j])
  944:	89 81       	ldd	r24, Y+1	; 0x01
  946:	88 2f       	mov	r24, r24
  948:	90 e0       	ldi	r25, 0x00	; 0
@@ -1229,8 +1788,14 @@ Disassembly of section .text:
  952:	80 91 61 00 	lds	r24, 0x0061	; 0x800061 <portCValue>
  956:	98 17       	cp	r25, r24
  958:	e1 f0       	breq	.+56     	; 0x992 <ReadOne+0x8a>
+			{
+				//rebounce??
+				//Step through each key
+				for(uint8_t k = 0; k < 16; k++)
  95a:	1a 82       	std	Y+2, r1	; 0x02
  95c:	17 c0       	rjmp	.+46     	; 0x98c <ReadOne+0x84>
+				{
+					if(portCValue == Keys[k])
  95e:	8a 81       	ldd	r24, Y+2	; 0x02
  960:	88 2f       	mov	r24, r24
  962:	90 e0       	ldi	r25, 0x00	; 0
@@ -1241,18 +1806,36 @@ Disassembly of section .text:
  96c:	80 91 61 00 	lds	r24, 0x0061	; 0x800061 <portCValue>
  970:	98 17       	cp	r25, r24
  972:	49 f4       	brne	.+18     	; 0x986 <ReadOne+0x7e>
+					{
+						key = k;
  974:	8a 81       	ldd	r24, Y+2	; 0x02
  976:	80 93 60 00 	sts	0x0060, r24	; 0x800060 <__DATA_REGION_ORIGIN__>
+						//*portBPort = k;
+						KeyPressed = 1;
  97a:	81 e0       	ldi	r24, 0x01	; 1
  97c:	80 93 78 00 	sts	0x0078, r24	; 0x800078 <KeyPressed>
+						//break;						//return here instead of break??
+						return key;
  980:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <__DATA_REGION_ORIGIN__>
  984:	10 c0       	rjmp	.+32     	; 0x9a6 <ReadOne+0x9e>
+			// Begin stepping through each column to check if row has logic 0
+			if (portCValue != col[j])
+			{
+				//rebounce??
+				//Step through each key
+				for(uint8_t k = 0; k < 16; k++)
  986:	8a 81       	ldd	r24, Y+2	; 0x02
  988:	8f 5f       	subi	r24, 0xFF	; 255
  98a:	8a 83       	std	Y+2, r24	; 0x02
  98c:	8a 81       	ldd	r24, Y+2	; 0x02
  98e:	80 31       	cpi	r24, 0x10	; 16
  990:	30 f3       	brcs	.-52     	; 0x95e <ReadOne+0x56>
+	
+	while(1)	//can get rid of while loop, it just keeps reading until a key is pressed instead of only reading once when its called
+	{
+
+		// Scanning column: write the column mask to port C
+		for (uint8_t j=0; j<AmountOfColumns; j++)
  992:	89 81       	ldd	r24, Y+1	; 0x01
  994:	8f 5f       	subi	r24, 0xFF	; 255
  996:	89 83       	std	Y+1, r24	; 0x01
@@ -1261,7 +1844,15 @@ Disassembly of section .text:
  99e:	98 17       	cp	r25, r24
  9a0:	08 f4       	brcc	.+2      	; 0x9a4 <ReadOne+0x9c>
  9a2:	bb cf       	rjmp	.-138    	; 0x91a <ReadOne+0x12>
+						return key;
+					}		
+				}
+			}
+		}
+	}
  9a4:	b8 cf       	rjmp	.-144    	; 0x916 <ReadOne+0xe>
+	return key;		//this should never execute
+}
  9a6:	0f 90       	pop	r0
  9a8:	0f 90       	pop	r0
  9aa:	df 91       	pop	r29
@@ -1269,13 +1860,22 @@ Disassembly of section .text:
  9ae:	08 95       	ret
 
 000009b0 <ReadNone>:
+//**************************************************************************************************************************************************
+
+//**************************************************************************************************************************************************
+//Check if key has been lifted. ie debounce?
+void ReadNone (void)
+{
  9b0:	cf 93       	push	r28
  9b2:	df 93       	push	r29
  9b4:	cd b7       	in	r28, 0x3d	; 61
  9b6:	de b7       	in	r29, 0x3e	; 62
+	if(keypad3x4==1)
  9b8:	80 91 77 00 	lds	r24, 0x0077	; 0x800077 <keypad3x4>
  9bc:	81 30       	cpi	r24, 0x01	; 1
  9be:	69 f4       	brne	.+26     	; 0x9da <ReadNone+0x2a>
+	{
+		while((PINC&0x6A)!=0x6A);	//exits when PINC inputs are all high 
  9c0:	00 00       	nop
  9c2:	83 e3       	ldi	r24, 0x33	; 51
  9c4:	90 e0       	ldi	r25, 0x00	; 0
@@ -1288,7 +1888,19 @@ Disassembly of section .text:
  9d2:	8a 36       	cpi	r24, 0x6A	; 106
  9d4:	91 05       	cpc	r25, r1
  9d6:	a9 f7       	brne	.-22     	; 0x9c2 <ReadNone+0x12>
+	else
+	{
+		while((PINC&0x0F)!=0x0F);	//exits when PINC inputs are all high 
+	}
+	
+}
  9d8:	0b c0       	rjmp	.+22     	; 0x9f0 <ReadNone+0x40>
+	{
+		while((PINC&0x6A)!=0x6A);	//exits when PINC inputs are all high 
+	}
+	else
+	{
+		while((PINC&0x0F)!=0x0F);	//exits when PINC inputs are all high 
  9da:	00 00       	nop
  9dc:	83 e3       	ldi	r24, 0x33	; 51
  9de:	90 e0       	ldi	r25, 0x00	; 0
@@ -1300,12 +1912,21 @@ Disassembly of section .text:
  9ea:	99 27       	eor	r25, r25
  9ec:	0f 97       	sbiw	r24, 0x0f	; 15
  9ee:	b1 f7       	brne	.-20     	; 0x9dc <ReadNone+0x2c>
+	}
+	
+}
  9f0:	00 00       	nop
  9f2:	df 91       	pop	r29
  9f4:	cf 91       	pop	r28
  9f6:	08 95       	ret
 
 000009f8 <InputPasscode>:
+//**************************************************************************************************************************************************
+
+//**************************************************************************************************************************************************
+//Combine 6-8 digits into a passcode
+uint32_t InputPasscode (void)
+{
  9f8:	0f 93       	push	r16
  9fa:	1f 93       	push	r17
  9fc:	cf 93       	push	r28
@@ -1318,38 +1939,56 @@ Disassembly of section .text:
  a0a:	de bf       	out	0x3e, r29	; 62
  a0c:	0f be       	out	0x3f, r0	; 63
  a0e:	cd bf       	out	0x3d, r28	; 61
+	uint32_t passcode = 0;
  a10:	19 82       	std	Y+1, r1	; 0x01
  a12:	1a 82       	std	Y+2, r1	; 0x02
  a14:	1b 82       	std	Y+3, r1	; 0x03
  a16:	1c 82       	std	Y+4, r1	; 0x04
+	for (int i =0; i<8; i++)
  a18:	1e 82       	std	Y+6, r1	; 0x06
  a1a:	1d 82       	std	Y+5, r1	; 0x05
  a1c:	4d c0       	rjmp	.+154    	; 0xab8 <InputPasscode+0xc0>
+	{
+		uint8_t keyValue = ReadOne();	//store digit pressed by user
  a1e:	0e 94 84 04 	call	0x908	; 0x908 <ReadOne>
  a22:	8f 83       	std	Y+7, r24	; 0x07
+		
+		if(keyValue==0xF)					//if # is pressed
  a24:	8f 81       	ldd	r24, Y+7	; 0x07
  a26:	8f 30       	cpi	r24, 0x0F	; 15
  a28:	29 f4       	brne	.+10     	; 0xa34 <InputPasscode+0x3c>
+		{
+			return passcode;
  a2a:	89 81       	ldd	r24, Y+1	; 0x01
  a2c:	9a 81       	ldd	r25, Y+2	; 0x02
  a2e:	ab 81       	ldd	r26, Y+3	; 0x03
  a30:	bc 81       	ldd	r27, Y+4	; 0x04
  a32:	53 c0       	rjmp	.+166    	; 0xada <InputPasscode+0xe2>
+		}
+		
+		//check if key pressed is a digit
+		if(isDigit(keyValue))
  a34:	8f 81       	ldd	r24, Y+7	; 0x07
  a36:	0e 94 8d 05 	call	0xb1a	; 0xb1a <isDigit>
  a3a:	88 23       	and	r24, r24
  a3c:	89 f1       	breq	.+98     	; 0xaa0 <InputPasscode+0xa8>
+		{
+			PORTB = displayKeys(keyValue);	// output key being pressed to LEDs
  a3e:	08 e3       	ldi	r16, 0x38	; 56
  a40:	10 e0       	ldi	r17, 0x00	; 0
  a42:	8f 81       	ldd	r24, Y+7	; 0x07
  a44:	0e 94 3f 02 	call	0x47e	; 0x47e <displayKeys>
  a48:	f8 01       	movw	r30, r16
  a4a:	80 83       	st	Z, r24
+			ReadNone();						//waits until finger is lifted off button
  a4c:	0e 94 d8 04 	call	0x9b0	; 0x9b0 <ReadNone>
+			PORTB = 0x00;
  a50:	88 e3       	ldi	r24, 0x38	; 56
  a52:	90 e0       	ldi	r25, 0x00	; 0
  a54:	fc 01       	movw	r30, r24
  a56:	10 82       	st	Z, r1
+			
+			passcode = passcode*10 + keyValue;	//add each digit into a long int
  a58:	89 81       	ldd	r24, Y+1	; 0x01
  a5a:	9a 81       	ldd	r25, Y+2	; 0x02
  a5c:	ab 81       	ldd	r26, Y+3	; 0x03
@@ -1386,12 +2025,24 @@ Disassembly of section .text:
  a9a:	ab 83       	std	Y+3, r26	; 0x03
  a9c:	bc 83       	std	Y+4, r27	; 0x04
  a9e:	07 c0       	rjmp	.+14     	; 0xaae <InputPasscode+0xb6>
+		}
+		else
+		{
+			//not a valid input
+			i--;		//dont increment length counter if not valid
  aa0:	8d 81       	ldd	r24, Y+5	; 0x05
  aa2:	9e 81       	ldd	r25, Y+6	; 0x06
  aa4:	01 97       	sbiw	r24, 0x01	; 1
  aa6:	9e 83       	std	Y+6, r25	; 0x06
  aa8:	8d 83       	std	Y+5, r24	; 0x05
+			displayIncorrect();
  aaa:	0e 94 17 02 	call	0x42e	; 0x42e <displayIncorrect>
+//**************************************************************************************************************************************************
+//Combine 6-8 digits into a passcode
+uint32_t InputPasscode (void)
+{
+	uint32_t passcode = 0;
+	for (int i =0; i<8; i++)
  aae:	8d 81       	ldd	r24, Y+5	; 0x05
  ab0:	9e 81       	ldd	r25, Y+6	; 0x06
  ab2:	01 96       	adiw	r24, 0x01	; 1
@@ -1402,17 +2053,31 @@ Disassembly of section .text:
  abc:	08 97       	sbiw	r24, 0x08	; 8
  abe:	0c f4       	brge	.+2      	; 0xac2 <InputPasscode+0xca>
  ac0:	ae cf       	rjmp	.-164    	; 0xa1e <InputPasscode+0x26>
+	}
+	/*
+	while(!(ReadOne()==0xF));		//wait until reads a *
+	return passcode	; */
+	
+	if((ReadOne()==0xF))		//if next key is a #
  ac2:	0e 94 84 04 	call	0x908	; 0x908 <ReadOne>
  ac6:	8f 30       	cpi	r24, 0x0F	; 15
  ac8:	29 f4       	brne	.+10     	; 0xad4 <InputPasscode+0xdc>
+	{
+		return passcode	;
  aca:	89 81       	ldd	r24, Y+1	; 0x01
  acc:	9a 81       	ldd	r25, Y+2	; 0x02
  ace:	ab 81       	ldd	r26, Y+3	; 0x03
  ad0:	bc 81       	ldd	r27, Y+4	; 0x04
  ad2:	03 c0       	rjmp	.+6      	; 0xada <InputPasscode+0xe2>
+	}
+	else
+	{
+		return 0;
  ad4:	80 e0       	ldi	r24, 0x00	; 0
  ad6:	90 e0       	ldi	r25, 0x00	; 0
  ad8:	dc 01       	movw	r26, r24
+	}	
+}
  ada:	bc 01       	movw	r22, r24
  adc:	cd 01       	movw	r24, r26
  ade:	27 96       	adiw	r28, 0x07	; 7
@@ -1428,57 +2093,103 @@ Disassembly of section .text:
  af2:	08 95       	ret
 
 00000af4 <isUser>:
+//**************************************************************************************************************************************************
+
+//**************************************************************************************************************************************************
+//is the input a letter, a,b,c, or d. returns 1 if a valid user code
+uint8_t isUser (uint8_t buttonPressed)
+{
  af4:	cf 93       	push	r28
  af6:	df 93       	push	r29
  af8:	1f 92       	push	r1
  afa:	cd b7       	in	r28, 0x3d	; 61
  afc:	de b7       	in	r29, 0x3e	; 62
  afe:	89 83       	std	Y+1, r24	; 0x01
+	switch(buttonPressed)
  b00:	89 81       	ldd	r24, Y+1	; 0x01
  b02:	88 2f       	mov	r24, r24
  b04:	90 e0       	ldi	r25, 0x00	; 0
  b06:	0a 97       	sbiw	r24, 0x0a	; 10
  b08:	04 97       	sbiw	r24, 0x04	; 4
  b0a:	10 f4       	brcc	.+4      	; 0xb10 <isUser+0x1c>
+	{
+		case 0x0A:
+		case 0x0B:
+		case 0x0C:
+		case 0x0D:
+		return 1;
  b0c:	81 e0       	ldi	r24, 0x01	; 1
  b0e:	01 c0       	rjmp	.+2      	; 0xb12 <isUser+0x1e>
+		
+		default:	//invalid user code		Set some debug flag here
+		return 0;
  b10:	80 e0       	ldi	r24, 0x00	; 0
+	}
+}
  b12:	0f 90       	pop	r0
  b14:	df 91       	pop	r29
  b16:	cf 91       	pop	r28
  b18:	08 95       	ret
 
 00000b1a <isDigit>:
+//**************************************************************************************************************************************************
+
+//**************************************************************************************************************************************************
+//is the user input a digit. returns 1 if value is a digit
+uint8_t isDigit (uint8_t buttonPressed)
+{
  b1a:	cf 93       	push	r28
  b1c:	df 93       	push	r29
  b1e:	1f 92       	push	r1
  b20:	cd b7       	in	r28, 0x3d	; 61
  b22:	de b7       	in	r29, 0x3e	; 62
  b24:	89 83       	std	Y+1, r24	; 0x01
+	switch(buttonPressed)
  b26:	89 81       	ldd	r24, Y+1	; 0x01
  b28:	88 2f       	mov	r24, r24
  b2a:	90 e0       	ldi	r25, 0x00	; 0
  b2c:	0a 97       	sbiw	r24, 0x0a	; 10
  b2e:	10 f4       	brcc	.+4      	; 0xb34 <isDigit+0x1a>
+		case 0x05:
+		case 0x06:
+		case 0x07:
+		case 0x08:
+		case 0x09:
+		return 1;
  b30:	81 e0       	ldi	r24, 0x01	; 1
  b32:	01 c0       	rjmp	.+2      	; 0xb36 <isDigit+0x1c>
+		
+		default:	//invalid user code		Set some debug flag here
+		return 0;
  b34:	80 e0       	ldi	r24, 0x00	; 0
+	}
+}
  b36:	0f 90       	pop	r0
  b38:	df 91       	pop	r29
  b3a:	cf 91       	pop	r28
  b3c:	08 95       	ret
 
 00000b3e <isHeld3s>:
+//**************************************************************************************************************************************************
+
+//**************************************************************************************************************************************************
+//Return one if the selected key has been held for 3 seconds. return 0 if not
+uint8_t isHeld3s (void)
+{
  b3e:	cf 93       	push	r28
  b40:	df 93       	push	r29
  b42:	1f 92       	push	r1
  b44:	cd b7       	in	r28, 0x3d	; 61
  b46:	de b7       	in	r29, 0x3e	; 62
+	for(uint8_t i = 0; i<255; i++)
  b48:	19 82       	std	Y+1, r1	; 0x01
  b4a:	13 c0       	rjmp	.+38     	; 0xb72 <isHeld3s+0x34>
+	{
+		delay_ms(12);			//0.012*255 =3.06secs
  b4c:	8c e0       	ldi	r24, 0x0C	; 12
  b4e:	90 e0       	ldi	r25, 0x00	; 0
  b50:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
+		if((PINC&0x0F)==0x0F)
  b54:	83 e3       	ldi	r24, 0x33	; 51
  b56:	90 e0       	ldi	r25, 0x00	; 0
  b58:	fc 01       	movw	r30, r24
@@ -1489,21 +2200,41 @@ Disassembly of section .text:
  b62:	99 27       	eor	r25, r25
  b64:	0f 97       	sbiw	r24, 0x0f	; 15
  b66:	11 f4       	brne	.+4      	; 0xb6c <isHeld3s+0x2e>
+		{
+			return 0;
  b68:	80 e0       	ldi	r24, 0x00	; 0
  b6a:	07 c0       	rjmp	.+14     	; 0xb7a <isHeld3s+0x3c>
+
+//**************************************************************************************************************************************************
+//Return one if the selected key has been held for 3 seconds. return 0 if not
+uint8_t isHeld3s (void)
+{
+	for(uint8_t i = 0; i<255; i++)
  b6c:	89 81       	ldd	r24, Y+1	; 0x01
  b6e:	8f 5f       	subi	r24, 0xFF	; 255
  b70:	89 83       	std	Y+1, r24	; 0x01
  b72:	89 81       	ldd	r24, Y+1	; 0x01
  b74:	8f 3f       	cpi	r24, 0xFF	; 255
  b76:	51 f7       	brne	.-44     	; 0xb4c <isHeld3s+0xe>
+		if((PINC&0x0F)==0x0F)
+		{
+			return 0;
+		}
+	}
+	return 1;
  b78:	81 e0       	ldi	r24, 0x01	; 1
+}
  b7a:	0f 90       	pop	r0
  b7c:	df 91       	pop	r29
  b7e:	cf 91       	pop	r28
  b80:	08 95       	ret
 
 00000b82 <DigitCount>:
+//**************************************************************************************************************************************************
+
+//**************************************************************************************************************************************************
+uint8_t DigitCount(uint32_t NewPasscode)
+{
  b82:	cf 93       	push	r28
  b84:	df 93       	push	r29
  b86:	00 d0       	rcall	.+0      	; 0xb88 <DigitCount+0x6>
@@ -1515,8 +2246,12 @@ Disassembly of section .text:
  b92:	7b 83       	std	Y+3, r23	; 0x03
  b94:	8c 83       	std	Y+4, r24	; 0x04
  b96:	9d 83       	std	Y+5, r25	; 0x05
+	uint8_t count = 0;
  b98:	19 82       	std	Y+1, r1	; 0x01
+	while (NewPasscode != 0)
  b9a:	15 c0       	rjmp	.+42     	; 0xbc6 <DigitCount+0x44>
+	{
+		NewPasscode /= 10;
  b9c:	8a 81       	ldd	r24, Y+2	; 0x02
  b9e:	9b 81       	ldd	r25, Y+3	; 0x03
  ba0:	ac 81       	ldd	r26, Y+4	; 0x04
@@ -1527,16 +2262,23 @@ Disassembly of section .text:
  baa:	50 e0       	ldi	r21, 0x00	; 0
  bac:	bc 01       	movw	r22, r24
  bae:	cd 01       	movw	r24, r26
- bb0:	0e 94 1b 07 	call	0xe36	; 0xe36 <__udivmodsi4>
+ bb0:	0e 94 30 07 	call	0xe60	; 0xe60 <__udivmodsi4>
  bb4:	da 01       	movw	r26, r20
  bb6:	c9 01       	movw	r24, r18
  bb8:	8a 83       	std	Y+2, r24	; 0x02
  bba:	9b 83       	std	Y+3, r25	; 0x03
  bbc:	ac 83       	std	Y+4, r26	; 0x04
  bbe:	bd 83       	std	Y+5, r27	; 0x05
+		++count;
  bc0:	89 81       	ldd	r24, Y+1	; 0x01
  bc2:	8f 5f       	subi	r24, 0xFF	; 255
  bc4:	89 83       	std	Y+1, r24	; 0x01
+
+//**************************************************************************************************************************************************
+uint8_t DigitCount(uint32_t NewPasscode)
+{
+	uint8_t count = 0;
+	while (NewPasscode != 0)
  bc6:	8a 81       	ldd	r24, Y+2	; 0x02
  bc8:	9b 81       	ldd	r25, Y+3	; 0x03
  bca:	ac 81       	ldd	r26, Y+4	; 0x04
@@ -1545,7 +2287,13 @@ Disassembly of section .text:
  bd0:	8a 2b       	or	r24, r26
  bd2:	8b 2b       	or	r24, r27
  bd4:	19 f7       	brne	.-58     	; 0xb9c <DigitCount+0x1a>
+	{
+		NewPasscode /= 10;
+		++count;
+	}
+	return count;
  bd6:	89 81       	ldd	r24, Y+1	; 0x01
+}
  bd8:	0f 90       	pop	r0
  bda:	0f 90       	pop	r0
  bdc:	0f 90       	pop	r0
@@ -1566,7 +2314,7 @@ int main(void)
  bea:	df 93       	push	r29
  bec:	cd b7       	in	r28, 0x3d	; 61
  bee:	de b7       	in	r29, 0x3e	; 62
- bf0:	27 97       	sbiw	r28, 0x07	; 7
+ bf0:	29 97       	sbiw	r28, 0x09	; 9
  bf2:	0f b6       	in	r0, 0x3f	; 63
  bf4:	f8 94       	cli
  bf6:	de bf       	out	0x3e, r29	; 62
@@ -1579,370 +2327,474 @@ int main(void)
  c00:	0e 94 1f 04 	call	0x83e	; 0x83e <initLEDs>
 	initKeypad();
  c04:	0e 94 30 04 	call	0x860	; 0x860 <initKeypad>
+	
+	//DONT KNOW IF NECESSARY
+	// Set all passcodes to zero 
+	for (int i=0; i < 4; i++)
+ c08:	1a 82       	std	Y+2, r1	; 0x02
+ c0a:	19 82       	std	Y+1, r1	; 0x01
+ c0c:	0d c0       	rjmp	.+26     	; 0xc28 <main+0x40>
+	{
+		storePasscode(00000000, 0xA+i);		//stores the password 00000000 into user slot if no previous code has been set
+ c0e:	89 81       	ldd	r24, Y+1	; 0x01
+ c10:	86 5f       	subi	r24, 0xF6	; 246
+ c12:	48 2f       	mov	r20, r24
+ c14:	60 e0       	ldi	r22, 0x00	; 0
+ c16:	70 e0       	ldi	r23, 0x00	; 0
+ c18:	cb 01       	movw	r24, r22
+ c1a:	0e 94 2a 03 	call	0x654	; 0x654 <storePasscode>
+	initLEDs();
+	initKeypad();
+	
+	//DONT KNOW IF NECESSARY
+	// Set all passcodes to zero 
+	for (int i=0; i < 4; i++)
+ c1e:	89 81       	ldd	r24, Y+1	; 0x01
+ c20:	9a 81       	ldd	r25, Y+2	; 0x02
+ c22:	01 96       	adiw	r24, 0x01	; 1
+ c24:	9a 83       	std	Y+2, r25	; 0x02
+ c26:	89 83       	std	Y+1, r24	; 0x01
+ c28:	89 81       	ldd	r24, Y+1	; 0x01
+ c2a:	9a 81       	ldd	r25, Y+2	; 0x02
+ c2c:	04 97       	sbiw	r24, 0x04	; 4
+ c2e:	7c f3       	brlt	.-34     	; 0xc0e <main+0x26>
 		storePasscode(00000000, 0xA+i);		//stores the password 00000000 into user slot if no previous code has been set
 	}
-	*/
+	
 	
 
-	uint8_t attempts = 0;		// Set number of attempts to 0
- c08:	19 82       	std	Y+1, r1	; 0x01
+	uint8_t noOfAttempts = 0;		// Set number of attempts to 0
+ c30:	1b 82       	std	Y+3, r1	; 0x03
 	uint8_t previousUser = 0;	//store what the previous user was
- c0a:	1a 82       	std	Y+2, r1	; 0x02
+ c32:	1c 82       	std	Y+4, r1	; 0x04
 
 	// Start infinite loop
     while (1) 
     {
 		uint8_t user = ReadOne();		//CHANGED added instead of For loop, determines the first key pressed
- c0c:	0e 94 84 04 	call	0x908	; 0x908 <ReadOne>
- c10:	8b 83       	std	Y+3, r24	; 0x03
+ c34:	0e 94 84 04 	call	0x908	; 0x908 <ReadOne>
+ c38:	8d 83       	std	Y+5, r24	; 0x05
 		uint32_t attemptPasscode;
 		
-		if (previousUser != user)
- c12:	9a 81       	ldd	r25, Y+2	; 0x02
- c14:	8b 81       	ldd	r24, Y+3	; 0x03
- c16:	98 17       	cp	r25, r24
- c18:	09 f0       	breq	.+2      	; 0xc1c <main+0x34>
+		if (previousUser != user)		//reset the attempts if a different user is pressed
+ c3a:	9c 81       	ldd	r25, Y+4	; 0x04
+ c3c:	8d 81       	ldd	r24, Y+5	; 0x05
+ c3e:	98 17       	cp	r25, r24
+ c40:	09 f0       	breq	.+2      	; 0xc44 <main+0x5c>
 		{
-			attempts = 0;
- c1a:	19 82       	std	Y+1, r1	; 0x01
+			noOfAttempts = 0;
+ c42:	1b 82       	std	Y+3, r1	; 0x03
 		}
 		
 		
 		if (isUser(user))	// Check if user A B C or D is chosen
- c1c:	8b 81       	ldd	r24, Y+3	; 0x03
- c1e:	0e 94 7a 05 	call	0xaf4	; 0xaf4 <isUser>
- c22:	88 23       	and	r24, r24
- c24:	09 f4       	brne	.+2      	; 0xc28 <main+0x40>
- c26:	43 c0       	rjmp	.+134    	; 0xcae <main+0xc6>
+ c44:	8d 81       	ldd	r24, Y+5	; 0x05
+ c46:	0e 94 7a 05 	call	0xaf4	; 0xaf4 <isUser>
+ c4a:	88 23       	and	r24, r24
+ c4c:	09 f4       	brne	.+2      	; 0xc50 <main+0x68>
+ c4e:	44 c0       	rjmp	.+136    	; 0xcd8 <main+0xf0>
 		{
 			displayUser(user);
- c28:	8b 81       	ldd	r24, Y+3	; 0x03
- c2a:	0e 94 92 02 	call	0x524	; 0x524 <displayUser>
+ c50:	8d 81       	ldd	r24, Y+5	; 0x05
+ c52:	0e 94 92 02 	call	0x524	; 0x524 <displayUser>
 			ReadNone();
- c2e:	0e 94 d8 04 	call	0x9b0	; 0x9b0 <ReadNone>
+ c56:	0e 94 d8 04 	call	0x9b0	; 0x9b0 <ReadNone>
 			PORTB = 0;
- c32:	88 e3       	ldi	r24, 0x38	; 56
- c34:	90 e0       	ldi	r25, 0x00	; 0
- c36:	fc 01       	movw	r30, r24
- c38:	10 82       	st	Z, r1
+ c5a:	88 e3       	ldi	r24, 0x38	; 56
+ c5c:	90 e0       	ldi	r25, 0x00	; 0
+ c5e:	fc 01       	movw	r30, r24
+ c60:	10 82       	st	Z, r1
 			
 			
 			previousUser = user;					//store the user to check if that user has had 3 attempts
- c3a:	8b 81       	ldd	r24, Y+3	; 0x03
- c3c:	8a 83       	std	Y+2, r24	; 0x02
+ c62:	8d 81       	ldd	r24, Y+5	; 0x05
+ c64:	8c 83       	std	Y+4, r24	; 0x04
 			attemptPasscode = InputPasscode();		// Read the passcode from the keypad
- c3e:	0e 94 fc 04 	call	0x9f8	; 0x9f8 <InputPasscode>
- c42:	dc 01       	movw	r26, r24
- c44:	cb 01       	movw	r24, r22
- c46:	8c 83       	std	Y+4, r24	; 0x04
- c48:	9d 83       	std	Y+5, r25	; 0x05
- c4a:	ae 83       	std	Y+6, r26	; 0x06
- c4c:	bf 83       	std	Y+7, r27	; 0x07
+ c66:	0e 94 fc 04 	call	0x9f8	; 0x9f8 <InputPasscode>
+ c6a:	dc 01       	movw	r26, r24
+ c6c:	cb 01       	movw	r24, r22
+ c6e:	8e 83       	std	Y+6, r24	; 0x06
+ c70:	9f 83       	std	Y+7, r25	; 0x07
+ c72:	a8 87       	std	Y+8, r26	; 0x08
+ c74:	b9 87       	std	Y+9, r27	; 0x09
 				
 			if (RecallPasscode(user) == attemptPasscode)	// If the attempted passcode is equal to the stored passcode, UNLOCK
- c4e:	8b 81       	ldd	r24, Y+3	; 0x03
- c50:	0e 94 b2 03 	call	0x764	; 0x764 <RecallPasscode>
- c54:	9b 01       	movw	r18, r22
- c56:	ac 01       	movw	r20, r24
- c58:	8c 81       	ldd	r24, Y+4	; 0x04
- c5a:	9d 81       	ldd	r25, Y+5	; 0x05
- c5c:	ae 81       	ldd	r26, Y+6	; 0x06
- c5e:	bf 81       	ldd	r27, Y+7	; 0x07
- c60:	28 17       	cp	r18, r24
- c62:	39 07       	cpc	r19, r25
- c64:	4a 07       	cpc	r20, r26
- c66:	5b 07       	cpc	r21, r27
- c68:	91 f4       	brne	.+36     	; 0xc8e <main+0xa6>
+ c76:	8d 81       	ldd	r24, Y+5	; 0x05
+ c78:	0e 94 b2 03 	call	0x764	; 0x764 <RecallPasscode>
+ c7c:	9b 01       	movw	r18, r22
+ c7e:	ac 01       	movw	r20, r24
+ c80:	8e 81       	ldd	r24, Y+6	; 0x06
+ c82:	9f 81       	ldd	r25, Y+7	; 0x07
+ c84:	a8 85       	ldd	r26, Y+8	; 0x08
+ c86:	b9 85       	ldd	r27, Y+9	; 0x09
+ c88:	28 17       	cp	r18, r24
+ c8a:	39 07       	cpc	r19, r25
+ c8c:	4a 07       	cpc	r20, r26
+ c8e:	5b 07       	cpc	r21, r27
+ c90:	99 f4       	brne	.+38     	; 0xcb8 <main+0xd0>
 			{
 				delay_ms(100);
- c6a:	84 e6       	ldi	r24, 0x64	; 100
- c6c:	90 e0       	ldi	r25, 0x00	; 0
- c6e:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
+ c92:	84 e6       	ldi	r24, 0x64	; 100
+ c94:	90 e0       	ldi	r25, 0x00	; 0
+ c96:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
 				displayUnlock();
- c72:	0e 94 e0 00 	call	0x1c0	; 0x1c0 <displayUnlock>
+ c9a:	0e 94 e0 00 	call	0x1c0	; 0x1c0 <displayUnlock>
 				while(ReadOne()!= 0x0F);		//wait until # is pressed to lock the safe
- c76:	00 00       	nop
- c78:	0e 94 84 04 	call	0x908	; 0x908 <ReadOne>
- c7c:	8f 30       	cpi	r24, 0x0F	; 15
- c7e:	e1 f7       	brne	.-8      	; 0xc78 <main+0x90>
+ c9e:	00 00       	nop
+ ca0:	0e 94 84 04 	call	0x908	; 0x908 <ReadOne>
+ ca4:	8f 30       	cpi	r24, 0x0F	; 15
+ ca6:	e1 f7       	brne	.-8      	; 0xca0 <main+0xb8>
 				ReadNone();
- c80:	0e 94 d8 04 	call	0x9b0	; 0x9b0 <ReadNone>
+ ca8:	0e 94 d8 04 	call	0x9b0	; 0x9b0 <ReadNone>
 				PORTB = 0x00;
- c84:	88 e3       	ldi	r24, 0x38	; 56
- c86:	90 e0       	ldi	r25, 0x00	; 0
- c88:	fc 01       	movw	r30, r24
- c8a:	10 82       	st	Z, r1
- c8c:	bf cf       	rjmp	.-130    	; 0xc0c <main+0x24>
+ cac:	88 e3       	ldi	r24, 0x38	; 56
+ cae:	90 e0       	ldi	r25, 0x00	; 0
+ cb0:	fc 01       	movw	r30, r24
+ cb2:	10 82       	st	Z, r1
+				noOfAttempts =0;
+ cb4:	1b 82       	std	Y+3, r1	; 0x03
+ cb6:	be cf       	rjmp	.-132    	; 0xc34 <main+0x4c>
 			}
 			else		// If incorrect, display LOCK 
 			{
 				delay_ms(100);
- c8e:	84 e6       	ldi	r24, 0x64	; 100
- c90:	90 e0       	ldi	r25, 0x00	; 0
- c92:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
+ cb8:	84 e6       	ldi	r24, 0x64	; 100
+ cba:	90 e0       	ldi	r25, 0x00	; 0
+ cbc:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
 				displayLock();
- c96:	0e 94 97 01 	call	0x32e	; 0x32e <displayLock>
-				attempts = attempts + 1;	// Increment number of attempts by 1
- c9a:	89 81       	ldd	r24, Y+1	; 0x01
- c9c:	8f 5f       	subi	r24, 0xFF	; 255
- c9e:	89 83       	std	Y+1, r24	; 0x01
+ cc0:	0e 94 97 01 	call	0x32e	; 0x32e <displayLock>
+				noOfAttempts = noOfAttempts + 1;	// Increment number of attempts by 1
+ cc4:	8b 81       	ldd	r24, Y+3	; 0x03
+ cc6:	8f 5f       	subi	r24, 0xFF	; 255
+ cc8:	8b 83       	std	Y+3, r24	; 0x03
 					
-				if (attempts >= 3)	// Ensure number of passcode attempts < 3
- ca0:	89 81       	ldd	r24, Y+1	; 0x01
- ca2:	83 30       	cpi	r24, 0x03	; 3
- ca4:	08 f4       	brcc	.+2      	; 0xca8 <main+0xc0>
- ca6:	b2 cf       	rjmp	.-156    	; 0xc0c <main+0x24>
+				if (noOfAttempts >= 3)	// Ensure number of passcode attempts < 3
+ cca:	8b 81       	ldd	r24, Y+3	; 0x03
+ ccc:	83 30       	cpi	r24, 0x03	; 3
+ cce:	08 f4       	brcc	.+2      	; 0xcd2 <main+0xea>
+ cd0:	b1 cf       	rjmp	.-158    	; 0xc34 <main+0x4c>
 				{
 					// LOCKOUT when number of attempts is more than 3
 					displayLockout();
- ca8:	0e 94 7d 02 	call	0x4fa	; 0x4fa <displayLockout>
- cac:	af cf       	rjmp	.-162    	; 0xc0c <main+0x24>
+ cd2:	0e 94 7d 02 	call	0x4fa	; 0x4fa <displayLockout>
+ cd6:	ae cf       	rjmp	.-164    	; 0xc34 <main+0x4c>
 				}
 			}	
 		}
 			
 			
 		else if (user == 0x0E)		// If the * is pressed
- cae:	8b 81       	ldd	r24, Y+3	; 0x03
- cb0:	8e 30       	cpi	r24, 0x0E	; 14
- cb2:	c9 f4       	brne	.+50     	; 0xce6 <main+0xfe>
+ cd8:	8d 81       	ldd	r24, Y+5	; 0x05
+ cda:	8e 30       	cpi	r24, 0x0E	; 14
+ cdc:	c9 f4       	brne	.+50     	; 0xd10 <main+0x128>
 		{
 			PORTB = 0xFF;
- cb4:	88 e3       	ldi	r24, 0x38	; 56
- cb6:	90 e0       	ldi	r25, 0x00	; 0
- cb8:	2f ef       	ldi	r18, 0xFF	; 255
- cba:	fc 01       	movw	r30, r24
- cbc:	20 83       	st	Z, r18
+ cde:	88 e3       	ldi	r24, 0x38	; 56
+ ce0:	90 e0       	ldi	r25, 0x00	; 0
+ ce2:	2f ef       	ldi	r18, 0xFF	; 255
+ ce4:	fc 01       	movw	r30, r24
+ ce6:	20 83       	st	Z, r18
 			if(isHeld3s())
- cbe:	0e 94 9f 05 	call	0xb3e	; 0xb3e <isHeld3s>
- cc2:	88 23       	and	r24, r24
- cc4:	49 f0       	breq	.+18     	; 0xcd8 <main+0xf0>
+ ce8:	0e 94 9f 05 	call	0xb3e	; 0xb3e <isHeld3s>
+ cec:	88 23       	and	r24, r24
+ cee:	49 f0       	breq	.+18     	; 0xd02 <main+0x11a>
 			{
 				displayProgramming();
- cc6:	0e 94 ef 01 	call	0x3de	; 0x3de <displayProgramming>
+ cf0:	0e 94 ef 01 	call	0x3de	; 0x3de <displayProgramming>
 				PORTB = 0xFF;
- cca:	88 e3       	ldi	r24, 0x38	; 56
- ccc:	90 e0       	ldi	r25, 0x00	; 0
- cce:	2f ef       	ldi	r18, 0xFF	; 255
- cd0:	fc 01       	movw	r30, r24
- cd2:	20 83       	st	Z, r18
+ cf4:	88 e3       	ldi	r24, 0x38	; 56
+ cf6:	90 e0       	ldi	r25, 0x00	; 0
+ cf8:	2f ef       	ldi	r18, 0xFF	; 255
+ cfa:	fc 01       	movw	r30, r24
+ cfc:	20 83       	st	Z, r18
 				// ENTER PROGRAMMING MODE - check for which user is pressed
 				ProgramMode();
- cd4:	0e 94 7a 06 	call	0xcf4	; 0xcf4 <ProgramMode>
+ cfe:	0e 94 8f 06 	call	0xd1e	; 0xd1e <ProgramMode>
 			}	
 			ReadNone();
- cd8:	0e 94 d8 04 	call	0x9b0	; 0x9b0 <ReadNone>
+ d02:	0e 94 d8 04 	call	0x9b0	; 0x9b0 <ReadNone>
 			PORTB = 0;
- cdc:	88 e3       	ldi	r24, 0x38	; 56
- cde:	90 e0       	ldi	r25, 0x00	; 0
- ce0:	fc 01       	movw	r30, r24
- ce2:	10 82       	st	Z, r1
- ce4:	93 cf       	rjmp	.-218    	; 0xc0c <main+0x24>
+ d06:	88 e3       	ldi	r24, 0x38	; 56
+ d08:	90 e0       	ldi	r25, 0x00	; 0
+ d0a:	fc 01       	movw	r30, r24
+ d0c:	10 82       	st	Z, r1
+ d0e:	92 cf       	rjmp	.-220    	; 0xc34 <main+0x4c>
 		}
 			
 		else // If any other key is pressed
 		{
 			delay_ms(100);
- ce6:	84 e6       	ldi	r24, 0x64	; 100
- ce8:	90 e0       	ldi	r25, 0x00	; 0
- cea:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
+ d10:	84 e6       	ldi	r24, 0x64	; 100
+ d12:	90 e0       	ldi	r25, 0x00	; 0
+ d14:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
 			displayIncorrect();
- cee:	0e 94 17 02 	call	0x42e	; 0x42e <displayIncorrect>
+ d18:	0e 94 17 02 	call	0x42e	; 0x42e <displayIncorrect>
 		}		
     }
- cf2:	8c cf       	rjmp	.-232    	; 0xc0c <main+0x24>
+ d1c:	8b cf       	rjmp	.-234    	; 0xc34 <main+0x4c>
 
-00000cf4 <ProgramMode>:
- cf4:	cf 93       	push	r28
- cf6:	df 93       	push	r29
- cf8:	cd b7       	in	r28, 0x3d	; 61
- cfa:	de b7       	in	r29, 0x3e	; 62
- cfc:	2b 97       	sbiw	r28, 0x0b	; 11
- cfe:	0f b6       	in	r0, 0x3f	; 63
- d00:	f8 94       	cli
- d02:	de bf       	out	0x3e, r29	; 62
- d04:	0f be       	out	0x3f, r0	; 63
- d06:	cd bf       	out	0x3d, r28	; 61
- d08:	0e 94 d8 04 	call	0x9b0	; 0x9b0 <ReadNone>
- d0c:	19 82       	std	Y+1, r1	; 0x01
- d0e:	0e 94 84 04 	call	0x908	; 0x908 <ReadOne>
- d12:	8a 83       	std	Y+2, r24	; 0x02
- d14:	8a 81       	ldd	r24, Y+2	; 0x02
- d16:	0e 94 7a 05 	call	0xaf4	; 0xaf4 <isUser>
- d1a:	88 23       	and	r24, r24
- d1c:	09 f4       	brne	.+2      	; 0xd20 <ProgramMode+0x2c>
- d1e:	76 c0       	rjmp	.+236    	; 0xe0c <ProgramMode+0x118>
- d20:	8a 81       	ldd	r24, Y+2	; 0x02
- d22:	0e 94 92 02 	call	0x524	; 0x524 <displayUser>
- d26:	0e 94 d8 04 	call	0x9b0	; 0x9b0 <ReadNone>
- d2a:	88 e3       	ldi	r24, 0x38	; 56
- d2c:	90 e0       	ldi	r25, 0x00	; 0
- d2e:	2f ef       	ldi	r18, 0xFF	; 255
- d30:	fc 01       	movw	r30, r24
- d32:	20 83       	st	Z, r18
- d34:	0e 94 fc 04 	call	0x9f8	; 0x9f8 <InputPasscode>
- d38:	dc 01       	movw	r26, r24
- d3a:	cb 01       	movw	r24, r22
- d3c:	8b 83       	std	Y+3, r24	; 0x03
- d3e:	9c 83       	std	Y+4, r25	; 0x04
- d40:	ad 83       	std	Y+5, r26	; 0x05
- d42:	be 83       	std	Y+6, r27	; 0x06
- d44:	8a 81       	ldd	r24, Y+2	; 0x02
- d46:	0e 94 b2 03 	call	0x764	; 0x764 <RecallPasscode>
- d4a:	9b 01       	movw	r18, r22
- d4c:	ac 01       	movw	r20, r24
- d4e:	8b 81       	ldd	r24, Y+3	; 0x03
- d50:	9c 81       	ldd	r25, Y+4	; 0x04
- d52:	ad 81       	ldd	r26, Y+5	; 0x05
- d54:	be 81       	ldd	r27, Y+6	; 0x06
- d56:	28 17       	cp	r18, r24
- d58:	39 07       	cpc	r19, r25
- d5a:	4a 07       	cpc	r20, r26
- d5c:	5b 07       	cpc	r21, r27
- d5e:	09 f0       	breq	.+2      	; 0xd62 <ProgramMode+0x6e>
- d60:	3e c0       	rjmp	.+124    	; 0xdde <ProgramMode+0xea>
- d62:	84 e6       	ldi	r24, 0x64	; 100
- d64:	90 e0       	ldi	r25, 0x00	; 0
- d66:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
- d6a:	0e 94 40 01 	call	0x280	; 0x280 <displayUnlockProg>
- d6e:	0e 94 d8 04 	call	0x9b0	; 0x9b0 <ReadNone>
- d72:	88 e3       	ldi	r24, 0x38	; 56
- d74:	90 e0       	ldi	r25, 0x00	; 0
- d76:	2f ef       	ldi	r18, 0xFF	; 255
- d78:	fc 01       	movw	r30, r24
- d7a:	20 83       	st	Z, r18
- d7c:	0e 94 fc 04 	call	0x9f8	; 0x9f8 <InputPasscode>
- d80:	dc 01       	movw	r26, r24
- d82:	cb 01       	movw	r24, r22
- d84:	8f 83       	std	Y+7, r24	; 0x07
- d86:	98 87       	std	Y+8, r25	; 0x08
- d88:	a9 87       	std	Y+9, r26	; 0x09
- d8a:	ba 87       	std	Y+10, r27	; 0x0a
- d8c:	8f 81       	ldd	r24, Y+7	; 0x07
- d8e:	98 85       	ldd	r25, Y+8	; 0x08
- d90:	a9 85       	ldd	r26, Y+9	; 0x09
- d92:	ba 85       	ldd	r27, Y+10	; 0x0a
- d94:	bc 01       	movw	r22, r24
- d96:	cd 01       	movw	r24, r26
- d98:	0e 94 c1 05 	call	0xb82	; 0xb82 <DigitCount>
- d9c:	8b 87       	std	Y+11, r24	; 0x0b
- d9e:	8b 85       	ldd	r24, Y+11	; 0x0b
- da0:	86 30       	cpi	r24, 0x06	; 6
- da2:	08 f4       	brcc	.+2      	; 0xda6 <ProgramMode+0xb2>
- da4:	b4 cf       	rjmp	.-152    	; 0xd0e <ProgramMode+0x1a>
- da6:	8b 85       	ldd	r24, Y+11	; 0x0b
- da8:	89 30       	cpi	r24, 0x09	; 9
- daa:	08 f0       	brcs	.+2      	; 0xdae <ProgramMode+0xba>
- dac:	b0 cf       	rjmp	.-160    	; 0xd0e <ProgramMode+0x1a>
- dae:	8f 81       	ldd	r24, Y+7	; 0x07
- db0:	98 85       	ldd	r25, Y+8	; 0x08
- db2:	a9 85       	ldd	r26, Y+9	; 0x09
- db4:	ba 85       	ldd	r27, Y+10	; 0x0a
- db6:	4a 81       	ldd	r20, Y+2	; 0x02
- db8:	bc 01       	movw	r22, r24
- dba:	cd 01       	movw	r24, r26
- dbc:	0e 94 2a 03 	call	0x654	; 0x654 <storePasscode>
- dc0:	0e 94 e0 00 	call	0x1c0	; 0x1c0 <displayUnlock>
- dc4:	00 00       	nop
- dc6:	0e 94 84 04 	call	0x908	; 0x908 <ReadOne>
- dca:	8f 30       	cpi	r24, 0x0F	; 15
- dcc:	e1 f7       	brne	.-8      	; 0xdc6 <ProgramMode+0xd2>
- dce:	0e 94 d8 04 	call	0x9b0	; 0x9b0 <ReadNone>
- dd2:	88 e3       	ldi	r24, 0x38	; 56
- dd4:	90 e0       	ldi	r25, 0x00	; 0
- dd6:	fc 01       	movw	r30, r24
- dd8:	10 82       	st	Z, r1
- dda:	19 82       	std	Y+1, r1	; 0x01
- ddc:	23 c0       	rjmp	.+70     	; 0xe24 <ProgramMode+0x130>
- dde:	84 e6       	ldi	r24, 0x64	; 100
- de0:	90 e0       	ldi	r25, 0x00	; 0
- de2:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
- de6:	0e 94 97 01 	call	0x32e	; 0x32e <displayLock>
- dea:	0e 94 d8 04 	call	0x9b0	; 0x9b0 <ReadNone>
- dee:	88 e3       	ldi	r24, 0x38	; 56
- df0:	90 e0       	ldi	r25, 0x00	; 0
- df2:	2f ef       	ldi	r18, 0xFF	; 255
- df4:	fc 01       	movw	r30, r24
- df6:	20 83       	st	Z, r18
- df8:	89 81       	ldd	r24, Y+1	; 0x01
- dfa:	8f 5f       	subi	r24, 0xFF	; 255
- dfc:	89 83       	std	Y+1, r24	; 0x01
- dfe:	89 81       	ldd	r24, Y+1	; 0x01
- e00:	83 30       	cpi	r24, 0x03	; 3
- e02:	08 f4       	brcc	.+2      	; 0xe06 <ProgramMode+0x112>
- e04:	84 cf       	rjmp	.-248    	; 0xd0e <ProgramMode+0x1a>
- e06:	0e 94 7d 02 	call	0x4fa	; 0x4fa <displayLockout>
- e0a:	81 cf       	rjmp	.-254    	; 0xd0e <ProgramMode+0x1a>
- e0c:	84 e6       	ldi	r24, 0x64	; 100
- e0e:	90 e0       	ldi	r25, 0x00	; 0
- e10:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
- e14:	0e 94 17 02 	call	0x42e	; 0x42e <displayIncorrect>
+00000d1e <ProgramMode>:
+
+}
+
+
+void ProgramMode(void)
+{
+ d1e:	cf 93       	push	r28
+ d20:	df 93       	push	r29
+ d22:	cd b7       	in	r28, 0x3d	; 61
+ d24:	de b7       	in	r29, 0x3e	; 62
+ d26:	2b 97       	sbiw	r28, 0x0b	; 11
+ d28:	0f b6       	in	r0, 0x3f	; 63
+ d2a:	f8 94       	cli
+ d2c:	de bf       	out	0x3e, r29	; 62
+ d2e:	0f be       	out	0x3f, r0	; 63
+ d30:	cd bf       	out	0x3d, r28	; 61
+	ReadNone(); //wait until nothing is pressed
+ d32:	0e 94 d8 04 	call	0x9b0	; 0x9b0 <ReadNone>
+	uint8_t noOfAttempts = 0;		// Set number of attempts to 0
+ d36:	19 82       	std	Y+1, r1	; 0x01
+	// ENTER PROGRAMMING MODE - check for which user is pressed
+	while(1)
+	{
+	
+		uint8_t user = ReadOne();		//CHANGED added instead of For loop, determines the first key pressed
+ d38:	0e 94 84 04 	call	0x908	; 0x908 <ReadOne>
+ d3c:	8a 83       	std	Y+2, r24	; 0x02
+		uint32_t attemptPasscode;
+	
+	
+		if (isUser(user))	// Check if user A B C or D is chosen
+ d3e:	8a 81       	ldd	r24, Y+2	; 0x02
+ d40:	0e 94 7a 05 	call	0xaf4	; 0xaf4 <isUser>
+ d44:	88 23       	and	r24, r24
+ d46:	09 f4       	brne	.+2      	; 0xd4a <ProgramMode+0x2c>
+ d48:	76 c0       	rjmp	.+236    	; 0xe36 <ProgramMode+0x118>
+		{
+			displayUser(user);
+ d4a:	8a 81       	ldd	r24, Y+2	; 0x02
+ d4c:	0e 94 92 02 	call	0x524	; 0x524 <displayUser>
+			ReadNone();
+ d50:	0e 94 d8 04 	call	0x9b0	; 0x9b0 <ReadNone>
+			PORTB = 0xFF;
+ d54:	88 e3       	ldi	r24, 0x38	; 56
+ d56:	90 e0       	ldi	r25, 0x00	; 0
+ d58:	2f ef       	ldi	r18, 0xFF	; 255
+ d5a:	fc 01       	movw	r30, r24
+ d5c:	20 83       	st	Z, r18
+		
+			attemptPasscode = InputPasscode();		// Read the passcode from the keypad
+ d5e:	0e 94 fc 04 	call	0x9f8	; 0x9f8 <InputPasscode>
+ d62:	dc 01       	movw	r26, r24
+ d64:	cb 01       	movw	r24, r22
+ d66:	8b 83       	std	Y+3, r24	; 0x03
+ d68:	9c 83       	std	Y+4, r25	; 0x04
+ d6a:	ad 83       	std	Y+5, r26	; 0x05
+ d6c:	be 83       	std	Y+6, r27	; 0x06
+			
+			
+			if (RecallPasscode(user) == attemptPasscode)	// If the attempted passcode is equal to the stored passcode, UNLOCK
+ d6e:	8a 81       	ldd	r24, Y+2	; 0x02
+ d70:	0e 94 b2 03 	call	0x764	; 0x764 <RecallPasscode>
+ d74:	9b 01       	movw	r18, r22
+ d76:	ac 01       	movw	r20, r24
+ d78:	8b 81       	ldd	r24, Y+3	; 0x03
+ d7a:	9c 81       	ldd	r25, Y+4	; 0x04
+ d7c:	ad 81       	ldd	r26, Y+5	; 0x05
+ d7e:	be 81       	ldd	r27, Y+6	; 0x06
+ d80:	28 17       	cp	r18, r24
+ d82:	39 07       	cpc	r19, r25
+ d84:	4a 07       	cpc	r20, r26
+ d86:	5b 07       	cpc	r21, r27
+ d88:	09 f0       	breq	.+2      	; 0xd8c <ProgramMode+0x6e>
+ d8a:	3e c0       	rjmp	.+124    	; 0xe08 <ProgramMode+0xea>
+			{
+				delay_ms(100);
+ d8c:	84 e6       	ldi	r24, 0x64	; 100
+ d8e:	90 e0       	ldi	r25, 0x00	; 0
+ d90:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
+				displayUnlockProg();
+ d94:	0e 94 40 01 	call	0x280	; 0x280 <displayUnlockProg>
+				ReadNone();
+ d98:	0e 94 d8 04 	call	0x9b0	; 0x9b0 <ReadNone>
+				PORTB =0xff;
+ d9c:	88 e3       	ldi	r24, 0x38	; 56
+ d9e:	90 e0       	ldi	r25, 0x00	; 0
+ da0:	2f ef       	ldi	r18, 0xFF	; 255
+ da2:	fc 01       	movw	r30, r24
+ da4:	20 83       	st	Z, r18
+					
+				/////////////////////////////////////////////////////////
+				uint32_t NewPassword = InputPasscode();
+ da6:	0e 94 fc 04 	call	0x9f8	; 0x9f8 <InputPasscode>
+ daa:	dc 01       	movw	r26, r24
+ dac:	cb 01       	movw	r24, r22
+ dae:	8f 83       	std	Y+7, r24	; 0x07
+ db0:	98 87       	std	Y+8, r25	; 0x08
+ db2:	a9 87       	std	Y+9, r26	; 0x09
+ db4:	ba 87       	std	Y+10, r27	; 0x0a
+				uint8_t NewPasswordSize = DigitCount(NewPassword);
+ db6:	8f 81       	ldd	r24, Y+7	; 0x07
+ db8:	98 85       	ldd	r25, Y+8	; 0x08
+ dba:	a9 85       	ldd	r26, Y+9	; 0x09
+ dbc:	ba 85       	ldd	r27, Y+10	; 0x0a
+ dbe:	bc 01       	movw	r22, r24
+ dc0:	cd 01       	movw	r24, r26
+ dc2:	0e 94 c1 05 	call	0xb82	; 0xb82 <DigitCount>
+ dc6:	8b 87       	std	Y+11, r24	; 0x0b
+					
+				if((NewPasswordSize >= 6)&& (NewPasswordSize <= 8))
+ dc8:	8b 85       	ldd	r24, Y+11	; 0x0b
+ dca:	86 30       	cpi	r24, 0x06	; 6
+ dcc:	08 f4       	brcc	.+2      	; 0xdd0 <ProgramMode+0xb2>
+ dce:	b4 cf       	rjmp	.-152    	; 0xd38 <ProgramMode+0x1a>
+ dd0:	8b 85       	ldd	r24, Y+11	; 0x0b
+ dd2:	89 30       	cpi	r24, 0x09	; 9
+ dd4:	08 f0       	brcs	.+2      	; 0xdd8 <ProgramMode+0xba>
+ dd6:	b0 cf       	rjmp	.-160    	; 0xd38 <ProgramMode+0x1a>
+				{
+					storePasscode(NewPassword,user);
+ dd8:	8f 81       	ldd	r24, Y+7	; 0x07
+ dda:	98 85       	ldd	r25, Y+8	; 0x08
+ ddc:	a9 85       	ldd	r26, Y+9	; 0x09
+ dde:	ba 85       	ldd	r27, Y+10	; 0x0a
+ de0:	4a 81       	ldd	r20, Y+2	; 0x02
+ de2:	bc 01       	movw	r22, r24
+ de4:	cd 01       	movw	r24, r26
+ de6:	0e 94 2a 03 	call	0x654	; 0x654 <storePasscode>
+					displayUnlock();
+ dea:	0e 94 e0 00 	call	0x1c0	; 0x1c0 <displayUnlock>
+					while(ReadOne()!= 0x0F);		//wait until # is pressed to lock the safe
+ dee:	00 00       	nop
+ df0:	0e 94 84 04 	call	0x908	; 0x908 <ReadOne>
+ df4:	8f 30       	cpi	r24, 0x0F	; 15
+ df6:	e1 f7       	brne	.-8      	; 0xdf0 <ProgramMode+0xd2>
+					ReadNone();
+ df8:	0e 94 d8 04 	call	0x9b0	; 0x9b0 <ReadNone>
+					PORTB = 0x00;
+ dfc:	88 e3       	ldi	r24, 0x38	; 56
+ dfe:	90 e0       	ldi	r25, 0x00	; 0
+ e00:	fc 01       	movw	r30, r24
+ e02:	10 82       	st	Z, r1
+					noOfAttempts = 0;
+ e04:	19 82       	std	Y+1, r1	; 0x01
+					return;
+ e06:	23 c0       	rjmp	.+70     	; 0xe4e <ProgramMode+0x130>
+				}
+			}
+			
+			else		// If incorrect, display LOCK
+			{
+				delay_ms(100);
+ e08:	84 e6       	ldi	r24, 0x64	; 100
+ e0a:	90 e0       	ldi	r25, 0x00	; 0
+ e0c:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
+				displayLock();
+ e10:	0e 94 97 01 	call	0x32e	; 0x32e <displayLock>
+				ReadNone();
+ e14:	0e 94 d8 04 	call	0x9b0	; 0x9b0 <ReadNone>
+				PORTB =0xff;
  e18:	88 e3       	ldi	r24, 0x38	; 56
  e1a:	90 e0       	ldi	r25, 0x00	; 0
  e1c:	2f ef       	ldi	r18, 0xFF	; 255
  e1e:	fc 01       	movw	r30, r24
  e20:	20 83       	st	Z, r18
- e22:	75 cf       	rjmp	.-278    	; 0xd0e <ProgramMode+0x1a>
- e24:	2b 96       	adiw	r28, 0x0b	; 11
- e26:	0f b6       	in	r0, 0x3f	; 63
- e28:	f8 94       	cli
- e2a:	de bf       	out	0x3e, r29	; 62
- e2c:	0f be       	out	0x3f, r0	; 63
- e2e:	cd bf       	out	0x3d, r28	; 61
- e30:	df 91       	pop	r29
- e32:	cf 91       	pop	r28
- e34:	08 95       	ret
+				
+				noOfAttempts = noOfAttempts + 1;	// Increment number of attempts by 1
+ e22:	89 81       	ldd	r24, Y+1	; 0x01
+ e24:	8f 5f       	subi	r24, 0xFF	; 255
+ e26:	89 83       	std	Y+1, r24	; 0x01
+					
+				if (noOfAttempts >= 3)	// Ensure number of passcode attempts < 3
+ e28:	89 81       	ldd	r24, Y+1	; 0x01
+ e2a:	83 30       	cpi	r24, 0x03	; 3
+ e2c:	08 f4       	brcc	.+2      	; 0xe30 <ProgramMode+0x112>
+ e2e:	84 cf       	rjmp	.-248    	; 0xd38 <ProgramMode+0x1a>
+				{
+					// LOCKOUT when number of attempts is more than 3
+					displayLockout();
+ e30:	0e 94 7d 02 	call	0x4fa	; 0x4fa <displayLockout>
+ e34:	81 cf       	rjmp	.-254    	; 0xd38 <ProgramMode+0x1a>
+		}
+		
+		
+		else // If any other key is pressed
+		{
+			delay_ms(100);
+ e36:	84 e6       	ldi	r24, 0x64	; 100
+ e38:	90 e0       	ldi	r25, 0x00	; 0
+ e3a:	0e 94 5a 00 	call	0xb4	; 0xb4 <delay_ms>
+			displayIncorrect();
+ e3e:	0e 94 17 02 	call	0x42e	; 0x42e <displayIncorrect>
+			PORTB = 0xFF;
+ e42:	88 e3       	ldi	r24, 0x38	; 56
+ e44:	90 e0       	ldi	r25, 0x00	; 0
+ e46:	2f ef       	ldi	r18, 0xFF	; 255
+ e48:	fc 01       	movw	r30, r24
+ e4a:	20 83       	st	Z, r18
+		}
+	}
+ e4c:	75 cf       	rjmp	.-278    	; 0xd38 <ProgramMode+0x1a>
+ e4e:	2b 96       	adiw	r28, 0x0b	; 11
+ e50:	0f b6       	in	r0, 0x3f	; 63
+ e52:	f8 94       	cli
+ e54:	de bf       	out	0x3e, r29	; 62
+ e56:	0f be       	out	0x3f, r0	; 63
+ e58:	cd bf       	out	0x3d, r28	; 61
+ e5a:	df 91       	pop	r29
+ e5c:	cf 91       	pop	r28
+ e5e:	08 95       	ret
 
-00000e36 <__udivmodsi4>:
- e36:	a1 e2       	ldi	r26, 0x21	; 33
- e38:	1a 2e       	mov	r1, r26
- e3a:	aa 1b       	sub	r26, r26
- e3c:	bb 1b       	sub	r27, r27
- e3e:	fd 01       	movw	r30, r26
- e40:	0d c0       	rjmp	.+26     	; 0xe5c <__udivmodsi4_ep>
+00000e60 <__udivmodsi4>:
+ e60:	a1 e2       	ldi	r26, 0x21	; 33
+ e62:	1a 2e       	mov	r1, r26
+ e64:	aa 1b       	sub	r26, r26
+ e66:	bb 1b       	sub	r27, r27
+ e68:	fd 01       	movw	r30, r26
+ e6a:	0d c0       	rjmp	.+26     	; 0xe86 <__udivmodsi4_ep>
 
-00000e42 <__udivmodsi4_loop>:
- e42:	aa 1f       	adc	r26, r26
- e44:	bb 1f       	adc	r27, r27
- e46:	ee 1f       	adc	r30, r30
- e48:	ff 1f       	adc	r31, r31
- e4a:	a2 17       	cp	r26, r18
- e4c:	b3 07       	cpc	r27, r19
- e4e:	e4 07       	cpc	r30, r20
- e50:	f5 07       	cpc	r31, r21
- e52:	20 f0       	brcs	.+8      	; 0xe5c <__udivmodsi4_ep>
- e54:	a2 1b       	sub	r26, r18
- e56:	b3 0b       	sbc	r27, r19
- e58:	e4 0b       	sbc	r30, r20
- e5a:	f5 0b       	sbc	r31, r21
+00000e6c <__udivmodsi4_loop>:
+ e6c:	aa 1f       	adc	r26, r26
+ e6e:	bb 1f       	adc	r27, r27
+ e70:	ee 1f       	adc	r30, r30
+ e72:	ff 1f       	adc	r31, r31
+ e74:	a2 17       	cp	r26, r18
+ e76:	b3 07       	cpc	r27, r19
+ e78:	e4 07       	cpc	r30, r20
+ e7a:	f5 07       	cpc	r31, r21
+ e7c:	20 f0       	brcs	.+8      	; 0xe86 <__udivmodsi4_ep>
+ e7e:	a2 1b       	sub	r26, r18
+ e80:	b3 0b       	sbc	r27, r19
+ e82:	e4 0b       	sbc	r30, r20
+ e84:	f5 0b       	sbc	r31, r21
 
-00000e5c <__udivmodsi4_ep>:
- e5c:	66 1f       	adc	r22, r22
- e5e:	77 1f       	adc	r23, r23
- e60:	88 1f       	adc	r24, r24
- e62:	99 1f       	adc	r25, r25
- e64:	1a 94       	dec	r1
- e66:	69 f7       	brne	.-38     	; 0xe42 <__udivmodsi4_loop>
- e68:	60 95       	com	r22
- e6a:	70 95       	com	r23
- e6c:	80 95       	com	r24
- e6e:	90 95       	com	r25
- e70:	9b 01       	movw	r18, r22
- e72:	ac 01       	movw	r20, r24
- e74:	bd 01       	movw	r22, r26
- e76:	cf 01       	movw	r24, r30
- e78:	08 95       	ret
+00000e86 <__udivmodsi4_ep>:
+ e86:	66 1f       	adc	r22, r22
+ e88:	77 1f       	adc	r23, r23
+ e8a:	88 1f       	adc	r24, r24
+ e8c:	99 1f       	adc	r25, r25
+ e8e:	1a 94       	dec	r1
+ e90:	69 f7       	brne	.-38     	; 0xe6c <__udivmodsi4_loop>
+ e92:	60 95       	com	r22
+ e94:	70 95       	com	r23
+ e96:	80 95       	com	r24
+ e98:	90 95       	com	r25
+ e9a:	9b 01       	movw	r18, r22
+ e9c:	ac 01       	movw	r20, r24
+ e9e:	bd 01       	movw	r22, r26
+ ea0:	cf 01       	movw	r24, r30
+ ea2:	08 95       	ret
 
-00000e7a <__tablejump2__>:
- e7a:	ee 0f       	add	r30, r30
- e7c:	ff 1f       	adc	r31, r31
- e7e:	05 90       	lpm	r0, Z+
- e80:	f4 91       	lpm	r31, Z
- e82:	e0 2d       	mov	r30, r0
- e84:	09 94       	ijmp
+00000ea4 <__tablejump2__>:
+ ea4:	ee 0f       	add	r30, r30
+ ea6:	ff 1f       	adc	r31, r31
+ ea8:	05 90       	lpm	r0, Z+
+ eaa:	f4 91       	lpm	r31, Z
+ eac:	e0 2d       	mov	r30, r0
+ eae:	09 94       	ijmp
 
-00000e86 <_exit>:
- e86:	f8 94       	cli
+00000eb0 <_exit>:
+ eb0:	f8 94       	cli
 
-00000e88 <__stop_program>:
- e88:	ff cf       	rjmp	.-2      	; 0xe88 <__stop_program>
+00000eb2 <__stop_program>:
+ eb2:	ff cf       	rjmp	.-2      	; 0xeb2 <__stop_program>

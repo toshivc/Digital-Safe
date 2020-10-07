@@ -26,16 +26,16 @@ int main(void)
 	initLEDs();
 	initKeypad();
 	
-	/* DONT KNOW IF NECESSARY
+	//DONT KNOW IF NECESSARY
 	// Set all passcodes to zero 
 	for (int i=0; i < 4; i++)
 	{
 		storePasscode(00000000, 0xA+i);		//stores the password 00000000 into user slot if no previous code has been set
 	}
-	*/
+	
 	
 
-	uint8_t attempts = 0;		// Set number of attempts to 0
+	uint8_t noOfAttempts = 0;		// Set number of attempts to 0
 	uint8_t previousUser = 0;	//store what the previous user was
 
 	// Start infinite loop
@@ -46,7 +46,7 @@ int main(void)
 		
 		if (previousUser != user)		//reset the attempts if a different user is pressed
 		{
-			attempts = 0;
+			noOfAttempts = 0;
 		}
 		
 		
@@ -67,14 +67,15 @@ int main(void)
 				while(ReadOne()!= 0x0F);		//wait until # is pressed to lock the safe
 				ReadNone();
 				PORTB = 0x00;
+				noOfAttempts =0;
 			}
 			else		// If incorrect, display LOCK 
 			{
 				delay_ms(100);
 				displayLock();
-				attempts = attempts + 1;	// Increment number of attempts by 1
+				noOfAttempts = noOfAttempts + 1;	// Increment number of attempts by 1
 					
-				if (attempts >= 3)	// Ensure number of passcode attempts < 3
+				if (noOfAttempts >= 3)	// Ensure number of passcode attempts < 3
 				{
 					// LOCKOUT when number of attempts is more than 3
 					displayLockout();
