@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\yoyos\Documents\Atmel Studio\7.0\Digital-Safe\Digital_Safe_asm\Digital_Safe_asm\main.asm Wed Oct 07 14:01:35 2020
+AVRASM ver. 2.2.7  C:\Users\Toshi_2\Documents\Atmel Studio\Digital-Safe\Digital_Safe_asm\Digital_Safe_asm\main.asm Wed Oct 07 21:19:21 2020
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc\m32adef.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.3.300\avrasm\inc\m32adef.inc'
@@ -891,23 +891,20 @@ AVRASM ver. 2.2.7  C:\Users\yoyos\Documents\Atmel Studio\7.0\Digital-Safe\Digita
 000011 ed0f                      		LDI TEMP, SP		; Init Stack Pointer
 000012 bf0d                      		OUT 0x3D, TEMP		; Load TEMP value into 0x3D
                                  
-000013 940e 0021                 		CALL Initialise		; Go to initialise subroutine
+000013 940e 0020                 		CALL Initialise		; Go to initialise subroutine
                                  
                                  
                                  	
-000015 ec28                      		LDI R18, 200		;set delay time to 200
+000015 ec28                      		LDI DELAYTIME, 200		;set delay time to 200
                                  loop: 
-                                 		//CALL ReadOne
-                                 		//CALL Display
+000016 940e 002f                 		CALL ReadOne
+000018 940e 009c                 		CALL Display
                                  
-000016 ea0a                      		LDI TEMP, 0xAA
-000017 940e 00a2                 		CALL Display
-000019 940e 00a4                 		CALL Delay_ms
-00001b e000                      		LDI TEMP, 0x00
-00001c 940e 00a2                 		CALL Display
-00001e 940e 00a4                 		CALL Delay_ms
+00001a 940e 0096                 		CALL ReadNone
+00001c e060                      		LDI TempLED, 0x00
+00001d 940e 009c                 		CALL Display
                                  
-000020 cff5                      		RJMP loop
+00001f cff6                      		RJMP loop
                                  
                                  
                                  
@@ -918,32 +915,32 @@ AVRASM ver. 2.2.7  C:\Users\yoyos\Documents\Atmel Studio\7.0\Digital-Safe\Digita
                                  ; Initialise PORT B, PORT C and PORT C timers
                                  Initialise:	
                                  		; Initalise Port B
-000021 ef0f                      		LDI TEMP, 0xFF		; 0b11111111
-000022 bb07                      		OUT DDRB, TEMP		; Outputs to DDRB (all outputs)
+000020 ef0f                      		LDI TEMP, 0xFF		; 0b11111111
+000021 bb07                      		OUT DDRB, TEMP		; Outputs to DDRB (all outputs)
                                  
-000023 e000                      		LDI TEMP, 0x00		; 0b00000000
-000024 bb08                      		OUT PORTB, TEMP		; Turns all LEDs off
+000022 e000                      		LDI TEMP, 0x00		; 0b00000000
+000023 bb08                      		OUT PORTB, TEMP		; Turns all LEDs off
                                  
                                  		; Initialise Port C
-000025 ef00                      		LDI TEMP, 0xF0		; 0b11110000
-000026 bb04                      		OUT DDRC, TEMP		; Outptus to DDRC (sets rows to inputs and columns to outputs)
+000024 ef00                      		LDI TEMP, 0xF0		; 0b11110000
+000025 bb04                      		OUT DDRC, TEMP		; Outptus to DDRC (sets rows to inputs and columns to outputs)
                                  
-000027 e00f                      		LDI TEMP, 0x0F		; 0b00001111
-000028 bb05                      		OUT PORTC, TEMP		; Enable pull up resistors on the row inptus
+000026 e00f                      		LDI TEMP, 0x0F		; 0b00001111
+000027 bb05                      		OUT PORTC, TEMP		; Enable pull up resistors on the row inptus
                                  
-000029 ef0f                      		LDI TEMP, 0xFF		; 0b11111111
-00002a bb05                      		OUT PORTC, TEMP		; Set columns to all on (idle state)
+000028 ef0f                      		LDI TEMP, 0xFF		; 0b11111111
+000029 bb05                      		OUT PORTC, TEMP		; Set columns to all on (idle state)
                                  
                                  		; Timers
-00002b e005                      		LDI TEMP, (1<<CS00) | (1<<CS02)		;set prescaler of timer0 to 1024
-00002c bf03                      		OUT TCCR0, TEMP
+00002a e005                      		LDI TEMP, (1<<CS00) | (1<<CS02)		;set prescaler of timer0 to 1024
+00002b bf03                      		OUT TCCR0, TEMP
                                  
-00002d e005                      		LDI TEMP, (1<<CS10) | (1<<CS12)		;set prescaler of timer1 to 1024
-00002e bd0e                      		OUT TCCR1B, TEMP
+00002c e005                      		LDI TEMP, (1<<CS10) | (1<<CS12)		;set prescaler of timer1 to 1024
+00002d bd0e                      		OUT TCCR1B, TEMP
                                  
                                  
                                  
-00002f 9508                      		RET
+00002e 9508                      		RET
                                  
                                  ;***********************************************************
                                  
@@ -954,167 +951,181 @@ AVRASM ver. 2.2.7  C:\Users\yoyos\Documents\Atmel Studio\7.0\Digital-Safe\Digita
                                  ;TEMP	-	Value of the key presses
                                  ReadOne:
                                  	Column1:
-000030 ee0f                      	    LDI	temp, col1		; Assign 1st column to temp
-000031 bb05                      		OUT portC, temp		; Put temp into portC
-000032 e322                      		LDI R18, 50
-000033 940e 00a4                 		CALL Delay_ms
+00002f ee0f                      	    LDI	temp, col1		; Assign 1st column to temp
+000030 bb05                      		OUT portC, temp		; Put temp into portC
+000031 e322                      		LDI R18, 50
+000032 940e 009e                 		CALL Delay_ms
                                  
-000035 b303                      		IN temp, pinC		; Read PINC values (0x13) and put into temp
-000036 3e0f                      		CPI temp, col1		; Compare pinC value with col1
-000037 f0a1                      		BREQ Column2		; Go to Column2 if equal (key has not been pressed in col1)
+000034 b303                      		IN temp, pinC		; Read PINC values (0x13) and put into temp
+000035 3e0f                      		CPI temp, col1		; Compare pinC value with col1
+000036 f081                      		BREQ Column2		; Go to Column2 if equal (key has not been pressed in col1)
                                  		
-000038 3e0e                      		CPI temp, key1		; check for key1
-000039 f419                      		BRNE CheckKey4		; If not equal, check for key4
-00003a e001                      		LDI temp, 0x01		; If equal, temp = 1
-00003b e061                      		LDI TempLED, 0x01	
-00003c 9508                      		RET					; Return back
+000037 3e0e                      		CPI temp, key1		; check for key1
+000038 f411                      		BRNE CheckKey4		; If not equal, check for key4
+000039 e061                      		LDI TempLED, 0x01	; If equal, temp = 1
+00003a 9508                      		RET					; Return back
                                  
                                  	CheckKey4:	     	; 
-00003d 3e0d                      		CPI temp, key4		; check for key4
-00003e f419                      		BRNE CheckKey7		; If not equal, check for key7
-00003f e004                      		LDI temp, 0x04		; If equal, temp = 4
-000040 e068                      		LDI TempLED, 0x08
-000041 9508                      		RET					; Reutrn back
+00003b 3e0d                      		CPI temp, key4		; check for key4
+00003c f411                      		BRNE CheckKey7		; If not equal, check for key7
+00003d e068                      		LDI TempLED, 0x08	; If equal, temp = 4
+00003e 9508                      		RET					; Reutrn back
                                  
                                  	CheckKey7:	     	; 
-000042 3e0b                      		CPI temp, key7		; check for key7
-000043 f419                      		BRNE CheckKey14		; If not equal, check for key10
-000044 e007                      		LDI temp, 0x07		; If equal, temp = 7
-000045 e460                      		LDI TempLED, 0x40
-000046 9508                      		RET					; Reutrn back
+00003f 3e0b                      		CPI temp, key7		; check for key7
+000040 f411                      		BRNE CheckKey14		; If not equal, check for key10	
+000041 e460                      		LDI TempLED, 0x40	; If equal, temp = 7
+000042 9508                      		RET					; Reutrn back
                                  
                                  	CheckKey14:	     	; 
-000047 3e07                      		CPI temp, key14		; check for key4
-000048 f419                      		BRNE Column2		; If not equal, check for Column2
-000049 ef00                      		LDI temp, 0xF0		; If equal, temp = 10
-00004a ef60                      		LDI TempLED, 0xF0
-00004b 9508                      		RET					; Reutrn back
+000043 3e07                      		CPI temp, key14		; check for key4
+000044 f411                      		BRNE Column2		; If not equal, check for Column2
+000045 ef6f                      		LDI TempLED, 0xFF	; If equal, temp = 10
+000046 9508                      		RET					; Reutrn back
                                  
                                  	Column2:			
-00004c ed0f                      	    LDI	temp, col2		; Assign 2nd column to temp
-00004d bb05                      		OUT portC, temp		; Put temp into portC
-00004e e322                      		LDI R18, 50
-00004f 940e 00a4                 		CALL Delay_ms
+000047 ed0f                      	    LDI	temp, col2		; Assign 2nd column to temp
+000048 bb05                      		OUT portC, temp		; Put temp into portC
+000049 e322                      		LDI R18, 50
+00004a 940e 009e                 		CALL Delay_ms
                                  
-000051 b303                      		IN temp, pinC		; Read PINC values (0x13) and put into temp
-000052 3d0f                      		CPI temp, col2		; Compare pinC value with col2
-000053 f0a1                      		BREQ Column3		; Go to Column3 if equal (key has not been pressed in col2)
+00004c b303                      		IN temp, pinC		; Read PINC values (0x13) and put into temp
+00004d 3d0f                      		CPI temp, col2		; Compare pinC value with col2
+00004e f081                      		BREQ Column3		; Go to Column3 if equal (key has not been pressed in col2)
                                  		
-000054 3d0e                      		CPI temp, key2		; check for key2
-000055 f419                      		BRNE CheckKey5		; If not equal, check for key5
-000056 e002                      		LDI temp, 0x02		; If equal, temp = 2
-000057 e062                      		LDI TempLED, 0x02
-000058 9508                      		RET					; Return back
+00004f 3d0e                      		CPI temp, key2		; check for key2
+000050 f411                      		BRNE CheckKey5		; If not equal, check for key5	
+000051 e062                      		LDI TempLED, 0x02	; If equal, temp = 2
+000052 9508                      		RET					; Return back
                                  
                                  	CheckKey5:	     	; 
-000059 3d0d                      		CPI temp, key5		; check for key5
-00005a f419                      		BRNE CheckKey8		; If not equal, check for key8
-00005b e005                      		LDI temp, 0x05		; If equal, temp = 5
-00005c e160                      		LDI TempLED, 0x10
-00005d 9508                      		RET					; Reutrn back
+000053 3d0d                      		CPI temp, key5		; check for key5
+000054 f411                      		BRNE CheckKey8		; If not equal, check for key8
+000055 e160                      		LDI TempLED, 0x10	; If equal, temp = 5
+000056 9508                      		RET					; Reutrn back
                                  
                                  	CheckKey8:	     	; 
-00005e 3d0b                      		CPI temp, key8		; check for key8
-00005f f419                      		BRNE CheckKey0		; If not equal, check for key0
-000060 e008                      		LDI temp, 0x08		; If equal, temp = 8
-000061 e860                      		LDI TempLED, 0x80
-000062 9508                      		RET					; Reutrn back
+000057 3d0b                      		CPI temp, key8		; check for key8
+000058 f411                      		BRNE CheckKey0		; If not equal, check for key0
+000059 e860                      		LDI TempLED, 0x80	; If equal, temp = 8
+00005a 9508                      		RET					; Reutrn back
                                  
                                  	CheckKey0:	     	; 
-000063 3d07                      		CPI temp, key0		; check for key0
-000064 f419                      		BRNE Column3		; If not equal, check for Column3
-000065 e000                      		LDI temp, 0x00		; If equal, temp = 0
-000066 e060                      		LDI TempLED, 0x00
-000067 9508                      		RET					; Reutrn back
+00005b 3d07                      		CPI temp, key0		; check for key0
+00005c f411                      		BRNE Column3		; If not equal, check for Column3
+00005d e060                      		LDI TempLED, 0x00	; If equal, temp = 0
+00005e 9508                      		RET					; Reutrn back
                                  
                                  
                                  	Column3:			
-000068 eb0f                      	    LDI	temp, col3		; Assign 3rd column to temp
-000069 bb05                      		OUT portC, temp		; Put temp into portC
-00006a e322                      		LDI R18, 50
-00006b 940e 00a4                 		CALL Delay_ms
+00005f eb0f                      	    LDI	temp, col3		; Assign 3rd column to temp
+000060 bb05                      		OUT portC, temp		; Put temp into portC
+000061 e322                      		LDI R18, 50
+000062 940e 009e                 		CALL Delay_ms
                                  
-00006d b303                      		IN temp, pinC		; Read PINC values (0x13) and put into temp
-00006e 3b0f                      		CPI temp, col3		; Compare pinC value with col3
-00006f f0a1                      		BREQ Column4		; Go back to Column1 if equal (key has not been pressed in col3)
+000064 b303                      		IN temp, pinC		; Read PINC values (0x13) and put into temp
+000065 3b0f                      		CPI temp, col3		; Compare pinC value with col3
+000066 f081                      		BREQ Column4		; Go back to Column1 if equal (key has not been pressed in col3)
                                  		
-000070 3b0e                      		CPI temp, key3		; check for key3
-000071 f419                      		BRNE CheckKey6		; If not equal, check for key6
-000072 e003                      		LDI temp, 0x03		; If equal, temp = 3
-000073 e064                      		LDI TempLED, 0x04
-000074 9508                      		RET					; Return back
+000067 3b0e                      		CPI temp, key3		; check for key3
+000068 f411                      		BRNE CheckKey6		; If not equal, check for key6
+000069 e064                      		LDI TempLED, 0x04	; If equal, temp = 3
+00006a 9508                      		RET					; Return back
                                  
                                  	CheckKey6:	     	; 
-000075 3b0d                      		CPI temp, key6		; check for key6
-000076 f419                      		BRNE CheckKey9		; If not equal, check for key9
-000077 e006                      		LDI temp, 0x06		; If equal, temp = 6
-000078 e260                      		LDI TempLED, 0x20
-000079 9508                      		RET					; Reutrn back
+00006b 3b0d                      		CPI temp, key6		; check for key6
+00006c f411                      		BRNE CheckKey9		; If not equal, check for key9
+00006d e260                      		LDI TempLED, 0x20	; If equal, temp = 6
+00006e 9508                      		RET					; Reutrn back
                                  
                                  	CheckKey9:	     	; 
-00007a 3b0b                      		CPI temp, key9		; check for key9
-00007b f419                      		BRNE CheckKey15		; If not equal, check for key11
-00007c e009                      		LDI temp, 0x09		; If equal, temp = 9
-00007d e861                      		LDI TempLED, 0x81
-00007e 9508                      		RET					; Reutrn back
+00006f 3b0b                      		CPI temp, key9		; check for key9
+000070 f411                      		BRNE CheckKey15		; If not equal, check for key11
+000071 e861                      		LDI TempLED, 0x81	; If equal, temp = 9
+000072 9508                      		RET					; Reutrn back
                                  
                                  	CheckKey15:	     	    ; 
-00007f 3b07                      		CPI temp, key15		; check for key11
-000080 f419                      		BRNE Column4		; If not equal, check for Column4
-000081 e00f                      		LDI temp, 0x0F		; If equal, temp = 11
-000082 e06f                      		LDI TempLED, 0x0F
-000083 9508                      		RET					; Reutrn back
+000073 3b07                      		CPI temp, key15		; check for key11
+000074 f411                      		BRNE Column4		; If not equal, check for Column4	
+000075 e06f                      		LDI TempLED, 0x0F	; If equal, temp = 11
+000076 9508                      		RET					; Reutrn back
                                  
                                  	Column4:			
-000084 e70f                      	    LDI	temp, col4		; Assign 4th column to temp
-000085 bb05                      		OUT portC, temp		; Put temp into portC
-000086 e322                      		LDI R18, 50
-000087 940e 00a4                 		CALL Delay_ms
+000077 e70f                      	    LDI	temp, col4		; Assign 4th column to temp
+000078 bb05                      		OUT portC, temp		; Put temp into portC
+000079 e322                      		LDI R18, 50
+00007a 940e 009e                 		CALL Delay_ms
                                  
-000089 b303                      		IN temp, pinC		; Read PINC values (0x13) and put into temp
-00008a 370f                      		CPI temp, col4		; Compare pinC value with col3
-00008b f0a1                      		BREQ RoundLoopcol1		; Go back to Column1 if equal (key has not been pressed in col3)
+00007c b303                      		IN temp, pinC		; Read PINC values (0x13) and put into temp
+00007d 370f                      		CPI temp, col4		; Compare pinC value with col3
+00007e f081                      		BREQ RoundLoopcol1		; Go back to Column1 if equal (key has not been pressed in col3)
                                  		
-00008c 370e                      		CPI temp, key10		; check for key10
-00008d f419                      		BRNE CheckKey11		; If not equal, check for key11
-00008e e00a                      		LDI temp, 0x0A		; If equal, temp = 0x0A
-00008f e063                      		LDI TempLED, 0x03
-000090 9508                      		RET					; Return back
+00007f 370e                      		CPI temp, key10		; check for key10
+000080 f411                      		BRNE CheckKey11		; If not equal, check for key11
+000081 e063                      		LDI TempLED, 0x03	; If equal, temp = 0x0A
+000082 9508                      		RET					; Return back
                                  
                                  	CheckKey11:	     	; 
-000091 370d                      		CPI temp, key11		; check for key11
-000092 f419                      		BRNE CheckKey12		; If not equal, check for key12
-000093 e00b                      		LDI temp, 0x0B		; If equal, temp = 0x0B
-000094 e06c                      		LDI TempLED, 0x0C
-000095 9508                      		RET					; Reutrn back
+000083 370d                      		CPI temp, key11		; check for key11
+000084 f411                      		BRNE CheckKey12		; If not equal, check for key12
+000085 e06c                      		LDI TempLED, 0x0C	; If equal, temp = 0x0B
+000086 9508                      		RET					; Reutrn back
                                  
                                  	CheckKey12:	     	; 
-000096 370b                      		CPI temp, key12		; check for key
-000097 f419                      		BRNE CheckKey13		; If not equal, check for key11
-000098 e00c                      		LDI temp, 0x0C		; If equal, temp = 0x0C
-000099 e360                      		LDI TempLED, 0x30
-00009a 9508                      		RET					; Reutrn back
+000087 370b                      		CPI temp, key12		; check for key
+000088 f411                      		BRNE CheckKey13		; If not equal, check for key11
+000089 e360                      		LDI TempLED, 0x30	; If equal, temp = 0x0C
+00008a 9508                      		RET					; Reutrn back
                                  
                                  	CheckKey13:	     	    ; 
-00009b 3707                      		CPI temp, key13		; check for key14
-00009c f419                      		BRNE RoundLoopCol1	; If not equal, check for Column1
-00009d e00d                      		LDI temp, 0x0D		; If equal, temp = 0x0D
-00009e ec60                      		LDI TempLED, 0xC0
-00009f 9508                      		RET					; Reutrn back
+00008b 3707                      		CPI temp, key13		; check for key14
+00008c f411                      		BRNE RoundLoopCol1	; If not equal, check for Column1
+00008d ec60                      		LDI TempLED, 0xC0	; If equal, temp = 0x0D
+00008e 9508                      		RET					; Reutrn back
                                  
                                  	RoundLoopCol1: 
-0000a0 cf8f                      		RJMP Column1 
+00008f cf9f                      		RJMP Column1 
                                  
                                  
-0000a1 9508                      	    RET
+000090 9508                      	    RET
                                  ;***************************************************************
+                                 
+                                 ;***********************************************************
+                                 ;take in 6-8 inputs and store in 4 bytes
+                                 ;Uses
+                                 ;R18	-	Low byte of Delay Length in seconds
+                                 ;R
+                                 InputPasscode:
+000091 910f                      			POP R16
+000092 911f                      			POP R17
+                                 
+                                 
+                                 			
+                                 
+000093 911f                      			POP R17
+000094 910f                      			POP R16
+000095 9508                      			RET
+                                 
+                                 ;***********************************************************
+                                 ;waits until nothing is pressed
+                                 ReadNone:
+000096 930f                      			PUSH TEMP
+                                 
+                                 		ReadNone_L1:
+000097 b303                      			IN TEMP, PINC		;read PINC 
+000098 700f                      			ANDI TEMP, 0x0F		;Mask only the input pins
+000099 300f                      			CPI TEMP, 0x0F
+00009a f7e1                      			BRNE ReadNone_L1	;Loop if not all columns are high
+                                 
+00009b 910f                      			POP TEMP
+                                 
                                  
                                  ;************************************************************************
                                  ;
                                  ; takes whatever is in the Temp register and outputs it to the LEDs
                                  Display:
-0000a2 bb08                      	    	OUT	PORTB, TEMP
-0000a3 9508                      			RET
+00009c bb68                      	    	OUT	PORTB, TempLED
+00009d 9508                      			RET
                                  
                                  					
                                  ;***************************************************************
@@ -1125,40 +1136,40 @@ AVRASM ver. 2.2.7  C:\Users\yoyos\Documents\Atmel Studio\7.0\Digital-Safe\Digita
                                  ;Uses
                                  ;R18	-	Low byte of Delay Length in milliseconds
                                  Delay_ms:
-0000a4 930f                      		PUSH TEMP					;save contents for later
-0000a5 931f                      		PUSH R17
-0000a6 933f                      		PUSH R19
-0000a7 2733                      		CLR R19						;initialise a counter to 0
+00009e 930f                      		PUSH TEMP					;save contents for later
+00009f 931f                      		PUSH R17
+0000a0 933f                      		PUSH R19
+0000a1 2733                      		CLR COUNTER					;initialise a counter(R19) to 0
                                  
-0000a8 e000                      		LDI TEMP, 0x00				;set timer to 0
-0000a9 bf02                      		OUT TCNT0, TEMP
+0000a2 e000                      		LDI TEMP, 0x00				;set timer to 0
+0000a3 bf02                      		OUT TCNT0, TEMP
                                  
-0000aa e00c                      		LDI TEMP, 12				;set output compare to 12
-0000ab bf0c                      		OUT OCR0, TEMP
+0000a4 e00c                      		LDI TEMP, 12				;set output compare to 12
+0000a5 bf0c                      		OUT OCR0, TEMP
                                  
                                  	Delay_ms_L1:
-0000ac e002                      		LDI TEMP, (1<<OCF0)			;reset overflow counter, (set to 1)
-0000ad bf08                      		OUT TIFR, TEMP
+0000a6 e002                      		LDI TEMP, (1<<OCF0)			;reset overflow counter, (set to 1)
+0000a7 bf08                      		OUT TIFR, TEMP
                                  			
                                  
                                  	Delay_ms_L2:
-0000ae b708                      		IN TEMP, TIFR				;read the overflow bit
-0000af 7002                      		ANDI TEMP, (1<<OCF0)		;bit mask only the overflow bit
-0000b0 3002                      		CPI TEMP, (1<<OCF0)			;check if it is set to 1
-0000b1 f7e1                      		BRNE Delay_ms_L2
+0000a8 b708                      		IN TEMP, TIFR				;read the overflow bit
+0000a9 7002                      		ANDI TEMP, (1<<OCF0)		;bit mask only the overflow bit
+0000aa 3002                      		CPI TEMP, (1<<OCF0)			;check if it is set to 1
+0000ab f7e1                      		BRNE Delay_ms_L2
                                  
-0000b2 e000                      		LDI TEMP, 0x00				;set timer to 0
-0000b3 bf02                      		OUT TCNT0, TEMP
+0000ac e000                      		LDI TEMP, 0x00				;set timer to 0
+0000ad bf02                      		OUT TCNT0, TEMP
                                  
-0000b4 9533                      		INC R19
+0000ae 9533                      		INC COUNTER
                                  
-0000b5 1732                      		CP R19, R18					;Compare delay length(R18) with counter(r17)
-0000b6 f3a8                      		BRLO Delay_ms_L1			;repeat if less then delay length(R18)
+0000af 1732                      		CP COUNTER, R18					;Compare delay length(R18) with counter(r17)
+0000b0 f3a8                      		BRLO Delay_ms_L1			;repeat if less then delay length(R18)
                                  
-0000b7 913f                      		POP R19
-0000b8 911f                      		POP R17
-0000b9 910f                      		POP TEMP
-0000ba 9508                      		RET
+0000b1 913f                      		POP R19
+0000b2 911f                      		POP R17
+0000b3 910f                      		POP TEMP
+0000b4 9508                      		RET
                                  ;***********************************************************
                                  
                                  ;***********************************************************
@@ -1166,50 +1177,52 @@ AVRASM ver. 2.2.7  C:\Users\yoyos\Documents\Atmel Studio\7.0\Digital-Safe\Digita
                                  ;Uses
                                  ;R18	-	Low byte of Delay Length in seconds
                                  Delay_sec:
-0000bb 930f                      		PUSH TEMP					;save contents for later
-0000bc 931f                      		PUSH R17
-0000bd 933f                      		PUSH R19					;initialise a counter
+0000b5 930f                      		PUSH TEMP					;save contents for later
+0000b6 931f                      		PUSH R17
+0000b7 933f                      		PUSH R19					;initialise a counter
                                  
-0000be 2700                      		CLR TEMP					;set timer to 0
-0000bf 2711                      		CLR R17
-0000c0 bd0d                      		OUT TCNT1H, TEMP
-0000c1 bd0c                      		OUT TCNT1L, TEMP
+0000b8 2700                      		CLR TEMP					;set timer to 0
+0000b9 2711                      		CLR R17
+0000ba bd0d                      		OUT TCNT1H, TEMP
+0000bb bd0c                      		OUT TCNT1L, TEMP
                                  
-0000c2 ec07                      		LDI TEMP, 0xC7				;set output compare to 11719 (2DC7 in hex)
-0000c3 e21d                      		LDI R17, 0x2D
-0000c4 bd1b                      		OUT OCR1AH, R17
-0000c5 bd0a                      		OUT OCR1AL, TEMP
+0000bc ec07                      		LDI TEMP, 0xC7				;set output compare to 11719 (2DC7 in hex)
+0000bd e21d                      		LDI R17, 0x2D
+0000be bd1b                      		OUT OCR1AH, R17
+0000bf bd0a                      		OUT OCR1AL, TEMP
                                  		
                                  
-0000c6 2733                      		CLR R19						;initialise a counter to 0
+0000c0 2733                      		CLR COUNTER						;initialise a counter(R19) to 0
                                  
                                  	Delay_sec_L1:
-0000c7 e100                      		LDI TEMP, (1<<OCF1A)		;reset overflow counter, (set to 1)
-0000c8 bf08                      		OUT TIFR, TEMP
+0000c1 e100                      		LDI TEMP, (1<<OCF1A)		;reset overflow counter, (set to 1)
+0000c2 bf08                      		OUT TIFR, TEMP
                                  			
                                  
                                  	Delay_sec_L2:
-0000c9 b708                      		IN TEMP, TIFR				;read the overflow bit
-0000ca 7100                      		ANDI TEMP, (1<<OCF1A)		;bit mask only the overflow bit
-0000cb 3100                      		CPI TEMP, (1<<OCF1A)		;check if it is set to 1
-0000cc f7e1                      		BRNE Delay_sec_L2
+0000c3 b708                      		IN TEMP, TIFR				;read the overflow bit
+0000c4 7100                      		ANDI TEMP, (1<<OCF1A)		;bit mask only the overflow bit
+0000c5 3100                      		CPI TEMP, (1<<OCF1A)		;check if it is set to 1
+0000c6 f7e1                      		BRNE Delay_sec_L2
                                  
-0000cd 2700                      		CLR TEMP					;set timer to 0
-0000ce 2711                      		CLR R17
-0000cf bd1d                      		OUT TCNT1H, R17				;TCNT1H
-0000d0 bd0c                      		OUT TCNT1L, TEMP			;TCNT1L
+0000c7 2700                      		CLR TEMP					;set timer to 0
+0000c8 2711                      		CLR R17
+0000c9 bd1d                      		OUT TCNT1H, R17				;TCNT1H
+0000ca bd0c                      		OUT TCNT1L, TEMP			;TCNT1L
                                  
-0000d1 9533                      		INC R19
+0000cb 9533                      		INC COUNTER
                                  
-0000d2 1732                      		CP R19, R18					;Compare delay length(R18) with counter(r17)
-0000d3 f398                      		BRLO Delay_sec_L1			;repeat if less then delay length(R18)
+0000cc 1732                      		CP COUNTER, R18				;Compare delay length(R18) with counter(r17)
+0000cd f398                      		BRLO Delay_sec_L1			;repeat if less then delay length(R18)
                                  
-0000d4 913f                      		POP R19
-0000d5 911f                      		POP R17
-0000d6 910f                      		POP TEMP
-0000d7 9508                      		RET
+0000ce 913f                      		POP R19
+0000cf 911f                      		POP R17
+0000d0 910f                      		POP TEMP
+0000d1 9508                      		RET
                                  ;***********************************************************	
-                                 	
+                                 
+                                 
+                                 
                                  	
 
 
@@ -1230,26 +1243,26 @@ counted separately from r26..r31 here.
 "ATmega32A" register use summary:
 x  :   0 y  :   0 z  :   0 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16:  94 r17:   9 r18:   7 r19:  10 r20:   0 
-r21:   0 r22:  16 r23:   0 r24:   0 r25:   0 r26:   0 r27:   0 r28:   0 
+r13:   0 r14:   0 r15:   0 r16:  82 r17:  11 r18:   7 r19:  10 r20:   0 
+r21:   0 r22:  18 r23:   0 r24:   0 r25:   0 r26:   0 r27:   0 r28:   0 
 r29:   0 r30:   0 r31:   0 
 Registers used: 5 out of 35 (14.3%)
 
 "ATmega32A" instruction use summary:
 .lds  :   0 .sts  :   0 adc   :   0 add   :   0 adiw  :   0 and   :   0 
-andi  :   2 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
+andi  :   3 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
 brcc  :   0 brcs  :   0 break :   0 breq  :   4 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   2 brlt  :   0 brmi  :   0 
-brne  :  18 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
+brne  :  19 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
 brvs  :   0 bset  :   0 bst   :   0 call  :   9 cbi   :   0 cbr   :   0 
 clc   :   0 clh   :   0 cli   :   0 cln   :   0 clr   :   6 cls   :   0 
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   2 cpc   :   0 
-cpi   :  22 cpse  :   0 dec   :   0 eor   :   0 fmul  :   0 fmuls :   0 
-fmulsu:   0 icall :   0 ijmp  :   0 in    :   6 inc   :   2 jmp   :   0 
-ld    :   0 ldd   :   0 ldi   :  58 lds   :   0 lpm   :   0 lsl   :   0 
+cpi   :  23 cpse  :   0 dec   :   0 eor   :   0 fmul  :   0 fmuls :   0 
+fmulsu:   0 icall :   0 ijmp  :   0 in    :   7 inc   :   2 jmp   :   0 
+ld    :   0 ldd   :   0 ldi   :  41 lds   :   0 lpm   :   0 lsl   :   0 
 lsr   :   0 mov   :   0 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
-neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :  24 pop   :   6 
-push  :   6 rcall :   0 ret   :  21 reti  :  16 rjmp  :   3 rol   :   0 
+neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :  24 pop   :  11 
+push  :   7 rcall :   0 ret   :  22 reti  :  16 rjmp  :   3 rol   :   0 
 ror   :   0 sbc   :   0 sbci  :   0 sbi   :   0 sbic  :   0 sbis  :   0 
 sbiw  :   0 sbr   :   0 sbrc  :   0 sbrs  :   0 sec   :   0 seh   :   0 
 sei   :   0 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
@@ -1260,7 +1273,7 @@ Instructions used: 17 out of 113 (15.0%)
 "ATmega32A" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x0001b0    432      0    432   32768   1.3%
+[.cseg] 0x000000 0x0001a4    420      0    420   32768   1.3%
 [.dseg] 0x000060 0x000060      0      0      0    2048   0.0%
 [.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 

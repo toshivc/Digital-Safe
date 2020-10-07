@@ -36,6 +36,7 @@ int main(void)
 	
 
 	uint8_t attempts = 0;		// Set number of attempts to 0
+	uint8_t previousUser = 0;	//store what the previous user was
 
 	// Start infinite loop
     while (1) 
@@ -43,13 +44,20 @@ int main(void)
 		uint8_t user = ReadOne();		//CHANGED added instead of For loop, determines the first key pressed
 		uint32_t attemptPasscode;
 		
+		if (previousUser != user)		//reset the attempts if a different user is pressed
+		{
+			attempts = 0;
+		}
+		
 		
 		if (isUser(user))	// Check if user A B C or D is chosen
 		{
 			displayUser(user);
 			ReadNone();
 			PORTB = 0;
-		
+			
+			
+			previousUser = user;					//store the user to check if that user has had 3 attempts
 			attemptPasscode = InputPasscode();		// Read the passcode from the keypad
 				
 			if (RecallPasscode(user) == attemptPasscode)	// If the attempted passcode is equal to the stored passcode, UNLOCK
@@ -85,6 +93,8 @@ int main(void)
 				// ENTER PROGRAMMING MODE - check for which user is pressed
 				ProgramMode();
 			}	
+			ReadNone();
+			PORTB = 0;
 		}
 			
 		else // If any other key is pressed

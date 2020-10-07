@@ -10,7 +10,7 @@
 .def TEMP = R16			; 
 .def DELAYTIME = R18	;Use R18 as a delay time amount
 .def COUNTER = R19		;USe R19 as a counter for loops and such
-.def TempLED = R22		;;;;;;;;;;;;;;R17 might need to be used for 16bit registers??? maybe use another register
+.def TempLED = R21		;;;;;;;;;;;;;;R17 might need to be used for 16bit registers??? maybe use another register
 .equ SP = 0xDF			; 
 
 ; Rename column masks
@@ -74,17 +74,14 @@ start:
 
 
 	
-		LDI R18, 200		;set delay time to 200
+		LDI DELAYTIME, 200		;set delay time to 200
 loop: 
-		//CALL ReadOne
-		//CALL Display
+		CALL ReadOne
+		CALL Display
 
-		LDI TEMP, 0xAA
+		CALL ReadNone
+		LDI TempLED, 0x00
 		CALL Display
-		CALL Delay_ms
-		LDI TEMP, 0x00
-		CALL Display
-		CALL Delay_ms
 
 		RJMP loop
 
@@ -144,29 +141,25 @@ ReadOne:
 		
 		CPI temp, key1		; check for key1
 		BRNE CheckKey4		; If not equal, check for key4
-		LDI temp, 0x01		; If equal, temp = 1
-		LDI TempLED, 0x01	
+		LDI TempLED, 0x01	; If equal, temp = 1
 		RET					; Return back
 
 	CheckKey4:	     	; 
 		CPI temp, key4		; check for key4
 		BRNE CheckKey7		; If not equal, check for key7
-		LDI temp, 0x04		; If equal, temp = 4
-		LDI TempLED, 0x08
+		LDI TempLED, 0x08	; If equal, temp = 4
 		RET					; Reutrn back
 
 	CheckKey7:	     	; 
 		CPI temp, key7		; check for key7
-		BRNE CheckKey14		; If not equal, check for key10
-		LDI temp, 0x07		; If equal, temp = 7
-		LDI TempLED, 0x40
+		BRNE CheckKey14		; If not equal, check for key10	
+		LDI TempLED, 0x40	; If equal, temp = 7
 		RET					; Reutrn back
 
 	CheckKey14:	     	; 
 		CPI temp, key14		; check for key4
 		BRNE Column2		; If not equal, check for Column2
-		LDI temp, 0xF0		; If equal, temp = 10
-		LDI TempLED, 0xF0
+		LDI TempLED, 0xFF	; If equal, temp = 10
 		RET					; Reutrn back
 
 	Column2:			
@@ -180,30 +173,26 @@ ReadOne:
 		BREQ Column3		; Go to Column3 if equal (key has not been pressed in col2)
 		
 		CPI temp, key2		; check for key2
-		BRNE CheckKey5		; If not equal, check for key5
-		LDI temp, 0x02		; If equal, temp = 2
-		LDI TempLED, 0x02
+		BRNE CheckKey5		; If not equal, check for key5	
+		LDI TempLED, 0x02	; If equal, temp = 2
 		RET					; Return back
 
 	CheckKey5:	     	; 
 		CPI temp, key5		; check for key5
 		BRNE CheckKey8		; If not equal, check for key8
-		LDI temp, 0x05		; If equal, temp = 5
-		LDI TempLED, 0x10
+		LDI TempLED, 0x10	; If equal, temp = 5
 		RET					; Reutrn back
 
 	CheckKey8:	     	; 
 		CPI temp, key8		; check for key8
 		BRNE CheckKey0		; If not equal, check for key0
-		LDI temp, 0x08		; If equal, temp = 8
-		LDI TempLED, 0x80
+		LDI TempLED, 0x80	; If equal, temp = 8
 		RET					; Reutrn back
 
 	CheckKey0:	     	; 
 		CPI temp, key0		; check for key0
 		BRNE Column3		; If not equal, check for Column3
-		LDI temp, 0x00		; If equal, temp = 0
-		LDI TempLED, 0x00
+		LDI TempLED, 0x00	; If equal, temp = 0
 		RET					; Reutrn back
 
 
@@ -219,29 +208,25 @@ ReadOne:
 		
 		CPI temp, key3		; check for key3
 		BRNE CheckKey6		; If not equal, check for key6
-		LDI temp, 0x03		; If equal, temp = 3
-		LDI TempLED, 0x04
+		LDI TempLED, 0x04	; If equal, temp = 3
 		RET					; Return back
 
 	CheckKey6:	     	; 
 		CPI temp, key6		; check for key6
 		BRNE CheckKey9		; If not equal, check for key9
-		LDI temp, 0x06		; If equal, temp = 6
-		LDI TempLED, 0x20
+		LDI TempLED, 0x20	; If equal, temp = 6
 		RET					; Reutrn back
 
 	CheckKey9:	     	; 
 		CPI temp, key9		; check for key9
 		BRNE CheckKey15		; If not equal, check for key11
-		LDI temp, 0x09		; If equal, temp = 9
-		LDI TempLED, 0x81
+		LDI TempLED, 0x81	; If equal, temp = 9
 		RET					; Reutrn back
 
 	CheckKey15:	     	    ; 
 		CPI temp, key15		; check for key11
-		BRNE Column4		; If not equal, check for Column4
-		LDI temp, 0x0F		; If equal, temp = 11
-		LDI TempLED, 0x0F
+		BRNE Column4		; If not equal, check for Column4	
+		LDI TempLED, 0x0F	; If equal, temp = 11
 		RET					; Reutrn back
 
 	Column4:			
@@ -256,29 +241,25 @@ ReadOne:
 		
 		CPI temp, key10		; check for key10
 		BRNE CheckKey11		; If not equal, check for key11
-		LDI temp, 0x0A		; If equal, temp = 0x0A
-		LDI TempLED, 0x03
+		LDI TempLED, 0x03	; If equal, temp = 0x0A
 		RET					; Return back
 
 	CheckKey11:	     	; 
 		CPI temp, key11		; check for key11
 		BRNE CheckKey12		; If not equal, check for key12
-		LDI temp, 0x0B		; If equal, temp = 0x0B
-		LDI TempLED, 0x0C
+		LDI TempLED, 0x0C	; If equal, temp = 0x0B
 		RET					; Reutrn back
 
 	CheckKey12:	     	; 
 		CPI temp, key12		; check for key
 		BRNE CheckKey13		; If not equal, check for key11
-		LDI temp, 0x0C		; If equal, temp = 0x0C
-		LDI TempLED, 0x30
+		LDI TempLED, 0x30	; If equal, temp = 0x0C
 		RET					; Reutrn back
 
 	CheckKey13:	     	    ; 
 		CPI temp, key13		; check for key14
 		BRNE RoundLoopCol1	; If not equal, check for Column1
-		LDI temp, 0x0D		; If equal, temp = 0x0D
-		LDI TempLED, 0xC0
+		LDI TempLED, 0xC0	; If equal, temp = 0x0D
 		RET					; Reutrn back
 
 	RoundLoopCol1: 
@@ -288,11 +269,48 @@ ReadOne:
 	    RET
 ;***************************************************************
 
+;***********************************************************
+;take in 6-8 inputs and store in 4 bytes
+;Uses
+;R18	-	Low byte of Delay Length in seconds
+;R22, R23, R24, R25
+InputPasscode:
+			POP R16
+			POP R17
+
+			CLR R22
+			CLR R23
+			CLR R24
+			CLR R25
+
+			CLR COUNTER
+
+
+			CPI 
+
+			POP R17
+			POP R16
+			RET
+
+;***********************************************************
+;waits until nothing is pressed
+ReadNone:
+			PUSH TEMP
+
+		ReadNone_L1:
+			IN TEMP, PINC		;read PINC 
+			ANDI TEMP, 0x0F		;Mask only the input pins
+			CPI TEMP, 0x0F
+			BRNE ReadNone_L1	;Loop if not all columns are high
+
+			POP TEMP
+
+
 ;************************************************************************
 ;
 ; takes whatever is in the Temp register and outputs it to the LEDs
 Display:
-	    	OUT	PORTB, TEMP
+	    	OUT	PORTB, TempLED
 			RET
 
 					
@@ -307,7 +325,7 @@ Delay_ms:
 		PUSH TEMP					;save contents for later
 		PUSH R17
 		PUSH R19
-		CLR R19						;initialise a counter to 0
+		CLR COUNTER					;initialise a counter(R19) to 0
 
 		LDI TEMP, 0x00				;set timer to 0
 		OUT TCNT0, TEMP
@@ -329,9 +347,9 @@ Delay_ms:
 		LDI TEMP, 0x00				;set timer to 0
 		OUT TCNT0, TEMP
 
-		INC R19
+		INC COUNTER
 
-		CP R19, R18					;Compare delay length(R18) with counter(r17)
+		CP COUNTER, R18					;Compare delay length(R18) with counter(r17)
 		BRLO Delay_ms_L1			;repeat if less then delay length(R18)
 
 		POP R19
@@ -360,7 +378,7 @@ Delay_sec:
 		OUT OCR1AL, TEMP
 		
 
-		CLR R19						;initialise a counter to 0
+		CLR COUNTER						;initialise a counter(R19) to 0
 
 	Delay_sec_L1:
 		LDI TEMP, (1<<OCF1A)		;reset overflow counter, (set to 1)
@@ -378,9 +396,9 @@ Delay_sec:
 		OUT TCNT1H, R17				;TCNT1H
 		OUT TCNT1L, TEMP			;TCNT1L
 
-		INC R19
+		INC COUNTER
 
-		CP R19, R18					;Compare delay length(R18) with counter(r17)
+		CP COUNTER, R18				;Compare delay length(R18) with counter(r17)
 		BRLO Delay_sec_L1			;repeat if less then delay length(R18)
 
 		POP R19
@@ -388,6 +406,8 @@ Delay_sec:
 		POP TEMP
 		RET
 ;***********************************************************	
-	
+
+
+
 	
 	.exit 	;this must always be at the end		

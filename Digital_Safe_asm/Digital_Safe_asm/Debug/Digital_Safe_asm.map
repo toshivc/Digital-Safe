@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\yoyos\Documents\Atmel Studio\7.0\Digital-Safe\Digital_Safe_asm\Digital_Safe_asm\main.asm Wed Oct 07 14:01:35 2020
+AVRASM ver. 2.2.7  C:\Users\Toshi_2\Documents\Atmel Studio\Digital-Safe\Digital_Safe_asm\Digital_Safe_asm\main.asm Wed Oct 07 21:19:21 2020
 
 
 EQU  SIGNATURE_000 0000001e
@@ -595,30 +595,33 @@ EQU  key14        000000e7
 EQU  key15        000000b7
 CSEG reset        00000000
 CSEG start        00000011
-CSEG Initialise   00000021
+CSEG Initialise   00000020
 CSEG loop         00000016
-CSEG Display      000000a2
-CSEG Delay_ms     000000a4
-CSEG ReadOne      00000030
-CSEG Column1      00000030
-CSEG Column2      0000004c
-CSEG CheckKey4    0000003d
-CSEG CheckKey7    00000042
-CSEG CheckKey14   00000047
-CSEG Column3      00000068
-CSEG CheckKey5    00000059
-CSEG CheckKey8    0000005e
-CSEG CheckKey0    00000063
-CSEG Column4      00000084
-CSEG CheckKey6    00000075
-CSEG CheckKey9    0000007a
-CSEG CheckKey15   0000007f
-CSEG RoundLoopcol1 000000a0
-CSEG CheckKey11   00000091
-CSEG CheckKey12   00000096
-CSEG CheckKey13   0000009b
-CSEG Delay_ms_L1  000000ac
-CSEG Delay_ms_L2  000000ae
-CSEG Delay_sec    000000bb
-CSEG Delay_sec_L1 000000c7
-CSEG Delay_sec_L2 000000c9
+CSEG ReadOne      0000002f
+CSEG Display      0000009c
+CSEG ReadNone     00000096
+CSEG Column1      0000002f
+CSEG Delay_ms     0000009e
+CSEG Column2      00000047
+CSEG CheckKey4    0000003b
+CSEG CheckKey7    0000003f
+CSEG CheckKey14   00000043
+CSEG Column3      0000005f
+CSEG CheckKey5    00000053
+CSEG CheckKey8    00000057
+CSEG CheckKey0    0000005b
+CSEG Column4      00000077
+CSEG CheckKey6    0000006b
+CSEG CheckKey9    0000006f
+CSEG CheckKey15   00000073
+CSEG RoundLoopcol1 0000008f
+CSEG CheckKey11   00000083
+CSEG CheckKey12   00000087
+CSEG CheckKey13   0000008b
+CSEG InputPasscode 00000091
+CSEG ReadNone_L1  00000097
+CSEG Delay_ms_L1  000000a6
+CSEG Delay_ms_L2  000000a8
+CSEG Delay_sec    000000b5
+CSEG Delay_sec_L1 000000c1
+CSEG Delay_sec_L2 000000c3
