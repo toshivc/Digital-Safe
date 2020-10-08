@@ -19,22 +19,23 @@ void GeneralMode(void)
 
 }
 
-
+//**************************************************************************************************************************************************
+//Same functionality as the general mode but with the LEDs indicating the user is in PROGRAMMING mode and passcodes can be stored into EEPROM
 void ProgramMode(void)
 {
-	ReadNone(); //wait until nothing is pressed
+	ReadNone();						//wait until nothing is pressed, otherwise user could still be holding *
 	uint8_t noOfAttempts = 0;		// Set number of attempts to 0
-	// ENTER PROGRAMMING MODE - check for which user is pressed
+	
 	while(1)
 	{
 	
-		uint8_t user = ReadOne();		//CHANGED added instead of For loop, determines the first key pressed
+		uint8_t user = ReadOne();		//determines the first key pressed, may not always be a user
 		uint32_t attemptPasscode;
 	
 	
 		if (isUser(user))	// Check if user A B C or D is chosen
 		{
-			displayUser(user);
+			displayUser(user);	//write the corresponding user LED pattern to the LEDs
 			ReadNone();
 			PORTB = 0xFF;
 		
@@ -77,6 +78,7 @@ void ProgramMode(void)
 				{
 					// LOCKOUT when number of attempts is more than 3
 					displayLockout();
+					return;
 				}
 			}
 		}

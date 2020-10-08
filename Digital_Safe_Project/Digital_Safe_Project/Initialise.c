@@ -21,9 +21,10 @@ unsigned char keypad3x4 = 0;		//set to 1 for 3x4
 //Initialise lookup tables
 unsigned char AmountOfColumns;
 
-//3x4 UNCOMMENT TO USE AND COMMENT OUT 4x4 TABLE INITIALISATION
+//3x4 UNCOMMENT TO USE AND COMMENT OUT 4x4 TABLE INITIALISATION //
 //const uint8_t col[] = {0xFB, 0xFE, 0xEF, 0x00};
 //const uint8_t Keys[] = {0xF6, 0xF9, 0xFC, 0xED, 0xBB, 0xBE, 0xAF, 0xDB, 0xDE, 0xCF, 0x00, 0x00, 0x00, 0x00, 0xF3, 0xE7};	// 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -, -, -, -, *, #
+
 //4x4
 const uint8_t col[] = {0xEF, 0XDF, 0XBF, 0X7F};
 const uint8_t Keys[] = {0xD7, 0XEE, 0XDE, 0XBE, 0XED, 0XDD, 0XBD, 0XEB, 0XDB, 0XBB, 0X7E, 0X7D, 0X7B, 0X77, 0XE7, 0XB7}; // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, *, #

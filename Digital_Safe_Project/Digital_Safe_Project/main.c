@@ -26,23 +26,22 @@ int main(void)
 	initLEDs();
 	initKeypad();
 	
-	//DONT KNOW IF NECESSARY
-	// Set all passcodes to zero 
-	for (int i=0; i < 4; i++)
-	{
-		storePasscode(00000000, 0xA+i);		//stores the password 00000000 into user slot if no previous code has been set
-	}
-	
+	//// Set all passcodes to zero, useful when debugging
+	//for (int i=0; i < 4; i++)
+	//{
+		//storePasscode(00000000, 0xA+i);		//stores the password 00000000 into user slot if no previous code has been set
+	//}
+
 	
 
-	uint8_t noOfAttempts = 0;		// Set number of attempts to 0
+	uint8_t noOfAttempts = 0;	// Set number of attempts to 0
 	uint8_t previousUser = 0;	//store what the previous user was
+	uint32_t attemptPasscode;	//stores the passcode input by the user
 
 	// Start infinite loop
     while (1) 
     {
-		uint8_t user = ReadOne();		//CHANGED added instead of For loop, determines the first key pressed
-		uint32_t attemptPasscode;
+		uint8_t user = ReadOne();		//determines the first key pressed, may not always be a user
 		
 		if (previousUser != user)		//reset the attempts if a different user is pressed
 		{
@@ -52,32 +51,35 @@ int main(void)
 		
 		if (isUser(user))	// Check if user A B C or D is chosen
 		{
-			displayUser(user);
-			ReadNone();
+			displayUser(user);	//write the corresponding user LED pattern to the LEDs
+			ReadNone();			//wait until a key is lifted
 			PORTB = 0;
 			
-			
-			previousUser = user;					//store the user to check if that user has had 3 attempts
+			previousUser = user;					//store the user, used to check if that user has had 3 attempts
 			attemptPasscode = InputPasscode();		// Read the passcode from the keypad
 				
-			if (RecallPasscode(user) == attemptPasscode)	// If the attempted passcode is equal to the stored passcode, UNLOCK
+			// UNLOCK // If the attempted passcode is equal to the stored passcode for the user specified
+			if (RecallPasscode(user) == attemptPasscode)	
 			{
-				delay_ms(100);
+				delay_ms(100);					//delay to make unlock sequence easier to see
 				displayUnlock();
+				
 				while(ReadOne()!= 0x0F);		//wait until # is pressed to lock the safe
 				ReadNone();
 				PORTB = 0x00;
-				noOfAttempts =0;
+				noOfAttempts =0;				//reset the number of attempts on a succeful passcode
 			}
-			else		// If incorrect, display LOCK 
+			
+			// LOCK // If passcode is incorrect
+			else		
 			{
-				delay_ms(100);
+				delay_ms(100);						//delay to make lock sequence easier to see
 				displayLock();
 				noOfAttempts = noOfAttempts + 1;	// Increment number of attempts by 1
 					
-				if (noOfAttempts >= 3)	// Ensure number of passcode attempts < 3
+				if (noOfAttempts >= 3)				// Ensure number of passcode attempts < 3
 				{
-					// LOCKOUT when number of attempts is more than 3
+					// LOCKOUT // when number of attempts is more than 3
 					displayLockout();
 				}
 			}	
@@ -87,14 +89,15 @@ int main(void)
 		else if (user == 0x0E)		// If the * is pressed
 		{
 			PORTB = 0xFF;
-			if(isHeld3s())
+			if(isHeld3s())			//check if the button is held for 3 seconds
 			{
-				displayProgramming();
+				displayProgramming();	//flash the LEDs to indicate entering programming mode
 				PORTB = 0xFF;
-				// ENTER PROGRAMMING MODE - check for which user is pressed
+				// ENTER PROGRAMMING MODE //
 				ProgramMode();
 			}	
-			ReadNone();
+			
+			ReadNone();	//if * isnt held turn of the LEDs and exit
 			PORTB = 0;
 		}
 			

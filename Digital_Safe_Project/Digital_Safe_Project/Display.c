@@ -2,7 +2,7 @@
  * Display.c
  *
  * Created: 27/09/2020 11:34:34 PM
- *  Author: Toshi_2
+ *  Author: Toshi & Ioanna
  */ 
 #include <avr/io.h>
 #include "Delay.h"

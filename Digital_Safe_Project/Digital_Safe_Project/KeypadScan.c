@@ -14,10 +14,8 @@
 //keypad hardware size
 extern unsigned char keypad3x4;
 
-// Define relevant variables
-unsigned char key = 0xFF;
-unsigned char portCValue = 0xFF;
-unsigned char KeyPressed = 0x00;
+
+
 
 //define lookup tables, in Initialise.c
 extern const char col[4];
@@ -28,11 +26,12 @@ extern unsigned char Keys[16];
 // START FUNCTIONS
 
 //**************************************************************************************************************************************************
-// Function that checks if one key has been pressed 
+// Function that checks if one key has been pressed and returns it as a hex value corresponding to the button pressed
 unsigned char ReadOne() 
 {
-	// Set KeyPressed to 0
-	KeyPressed = 0x00;
+	// Define relevant variables
+	unsigned char key = 0xFF;
+	unsigned char portCValue = 0xFF;
 	
 	while(1)	//can get rid of while loop, it just keeps reading until a key is pressed instead of only reading once when its called
 	{
@@ -40,23 +39,19 @@ unsigned char ReadOne()
 		// Scanning column: write the column mask to port C
 		for (uint8_t j=0; j<AmountOfColumns; j++)
 		{
-			PORTC = col[j];			// Scan each column
+			PORTC = col[j];				// Scan each column
 			delay_ms(10);				// Delay for 0.01 sec
 			portCValue = PINC;			// Read port value from pinC
 		
 			// Begin stepping through each column to check if row has logic 0
 			if (portCValue != col[j])
 			{
-				//rebounce??
 				//Step through each key
 				for(uint8_t k = 0; k < 16; k++)
 				{
 					if(portCValue == Keys[k])
 					{
-						key = k;
-						//*portBPort = k;
-						KeyPressed = 1;
-						//break;						//return here instead of break??
+						key = k;			//the index of keys is the value of the button pressed
 						return key;
 					}		
 				}

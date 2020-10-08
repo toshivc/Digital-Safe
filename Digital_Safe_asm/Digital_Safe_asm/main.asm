@@ -10,7 +10,11 @@
 .def TEMP = R16			; 
 .def DELAYTIME = R18	;Use R18 as a delay time amount
 .def COUNTER = R19		;USe R19 as a counter for loops and such
-.def TempLED = R21		;;;;;;;;;;;;;;R17 might need to be used for 16bit registers??? maybe use another register
+.def TempLED = R21		;Use R21 as a place to store the LED value
+.def Passcode1 = R22	;Use R22-R25 to store the passcode bytes
+.def Passcode2 = R23	;largest digit possible is 9999 9999
+.def Passcode3 = R24	;which requires 4 bytes to store
+.def Passcode4 = R25
 .equ SP = 0xDF			; 
 
 ; Rename column masks
@@ -304,11 +308,12 @@ ReadNone:
 			BRNE ReadNone_L1	;Loop if not all columns are high
 
 			POP TEMP
+			RET
 
 
 ;************************************************************************
 ;
-; takes whatever is in the Temp register and outputs it to the LEDs
+; takes whatever is in the TempLED register and outputs it to the LEDs
 Display:
 	    	OUT	PORTB, TempLED
 			RET
@@ -317,10 +322,10 @@ Display:
 ;***************************************************************
 			
 
-;***********************************************************
+;***************************************************************
 ; millisecond timer function 
 ;Uses
-;R18	-	Low byte of Delay Length in milliseconds
+;R18	-	Delay Length in milliseconds
 Delay_ms:
 		PUSH TEMP					;save contents for later
 		PUSH R17
@@ -334,22 +339,22 @@ Delay_ms:
 		OUT OCR0, TEMP
 
 	Delay_ms_L1:
-		LDI TEMP, (1<<OCF0)			;reset overflow counter, (set to 1)
+		LDI TEMP, (1<<OCF0)			;reset overflow counter, (set OCF0 to 1)
 		OUT TIFR, TEMP
 			
 
 	Delay_ms_L2:
 		IN TEMP, TIFR				;read the overflow bit
-		ANDI TEMP, (1<<OCF0)		;bit mask only the overflow bit
+		ANDI TEMP, (1<<OCF0)		;bit mask to check only the overflow bit
 		CPI TEMP, (1<<OCF0)			;check if it is set to 1
-		BRNE Delay_ms_L2
+		BRNE Delay_ms_L2			;keep checking until it is set
 
 		LDI TEMP, 0x00				;set timer to 0
 		OUT TCNT0, TEMP
 
-		INC COUNTER
+		INC COUNTER					;increment a counter for the number of milliseconds passed
 
-		CP COUNTER, R18					;Compare delay length(R18) with counter(r17)
+		CP COUNTER, R18				;Compare delay length(R18) with counter(r17)
 		BRLO Delay_ms_L1			;repeat if less then delay length(R18)
 
 		POP R19
@@ -369,16 +374,16 @@ Delay_sec:
 
 		CLR TEMP					;set timer to 0
 		CLR R17
-		OUT TCNT1H, TEMP
+		OUT TCNT1H, TEMP			;Low byte in 16 bit value must always bet written last
 		OUT TCNT1L, TEMP
 
-		LDI TEMP, 0xC7				;set output compare to 11719 (2DC7 in hex)
+		LDI TEMP, 0xC7				;set output compare to 11719 for 1 second (2DC7 in hex)
 		LDI R17, 0x2D
 		OUT OCR1AH, R17
 		OUT OCR1AL, TEMP
 		
 
-		CLR COUNTER						;initialise a counter(R19) to 0
+		CLR COUNTER					;initialise a counter(R19) to 0
 
 	Delay_sec_L1:
 		LDI TEMP, (1<<OCF1A)		;reset overflow counter, (set to 1)
@@ -389,7 +394,7 @@ Delay_sec:
 		IN TEMP, TIFR				;read the overflow bit
 		ANDI TEMP, (1<<OCF1A)		;bit mask only the overflow bit
 		CPI TEMP, (1<<OCF1A)		;check if it is set to 1
-		BRNE Delay_sec_L2
+		BRNE Delay_sec_L2			;keep checking until it is set
 
 		CLR TEMP					;set timer to 0
 		CLR R17

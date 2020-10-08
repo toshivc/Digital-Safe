@@ -19,18 +19,17 @@
 //****************************************************************************************
 //Write to EEPROM
 //Takes in the address of the location to write to, and the data to write into that address
-//returns nothing(error code flag set?)
+//returns nothing(error code flag set)
 
-//do we need to use ware leveling(using multiple addresses so as not to damage EEPROM)
 void write_EEPROM(uint8_t WriteData, uint16_t WriteAddress)
 {
 //should disable global interrupts here if we use them
 	
 	//check if address is valid
-	if(WriteAddress > 0x400)	//only 2^10 = 1024 addresses
+	if(WriteAddress > 0x400)	//only 2^10 = 1024 = 0x0400 addresses
 		{
-			errorFlag =3;
-			return;			//Set some debug flag?
+			//errorFlag =3;		//Set a debug flag
+			return;			
 		}
 	
 	
@@ -50,7 +49,6 @@ void write_EEPROM(uint8_t WriteData, uint16_t WriteAddress)
 
 	//Set the EEMWE (EEPROM Master Write Enable).
 	asm("SBI 0x1C, 0x02");
-	//set EEWE in EECR to 0			Dont think this step is necessary. Why is it listed?
 
 	//Within four clock cycles after 4th step, set EEWE(Eeprom Write Enable) to 1 to trigger the EEPROM Write Operation
 	asm("SBI 0x1C, 0x01");
@@ -63,9 +61,10 @@ return;
 uint8_t read_EEPROM(uint16_t readAddress)
 {
 	//check if address is valid
-	if(readAddress > 0x400)	//only 2^10 = 1024 addresses
+	if(readAddress > 0x400)	//only 2^10 = 1024 = 0x0400 addresses
 	{
-		return 0;			//Set some debug flag?
+		//errorFlag =3;		//Set some debug flag?
+		return 0;			
 	}
 	
 	//WAit for completion of previous Write operation.
@@ -97,17 +96,17 @@ void storePasscode (unsigned long int Passcode, uint8_t user)
 	}
 	
 	//store each byte of passcode
-	uint8_t passcodeByte[4];
-	uint16_t passcodeAddress[4];
+	uint8_t passcodeByte;
+	uint8_t passcodeAddress;
 	
 	for(int i = 0; i<4; i++)
 	{
 		//store each byte of passcode into an array
-		passcodeByte[i] = Passcode>>(8*i);
+		passcodeByte = Passcode>>(8*i);
 		//define the location to store the passcode in EEPROM
-		passcodeAddress[i]= (user<<4)|(4-i);
+		passcodeAddress = (user<<4)|(4-i);
 		//write the byte to the location in EEPROM
-		write_EEPROM(passcodeByte[i],passcodeAddress[i]);
+		write_EEPROM(passcodeByte,passcodeAddress);
 	}
 	return;
 }
@@ -117,7 +116,7 @@ void storePasscode (unsigned long int Passcode, uint8_t user)
 //Reads the passcode from EEPROM and stores it into a long int
 unsigned long int RecallPasscode(uint8_t user)
 {
-unsigned long int tempValue = 0;
+unsigned int tempValue = 0;			//place to store each byte of passcode
 unsigned long int passcode = 0;	
 	for (int i = 0; i<4; i++)
 	{
